@@ -1,0 +1,12 @@
+{
+    "all"     : true,
+    "modules" : [
+        "files-ccnumber",
+        "files-entropy",
+        "files-secrets",
+        "node-npmaudit",
+        "node-npmoutdated"
+    ],
+    "failOn"  : "high",
+    "showCode": true
+}

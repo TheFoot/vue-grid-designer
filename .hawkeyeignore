@@ -1,0 +1,7 @@
+npm-debug.log
+.idea/*
+test/*
+coverage/*
+
+# rollup-plugin-vue is recommending v6.0.0-beta - which is broken
+node-npmoutdated-rollup-plugin-vue-1

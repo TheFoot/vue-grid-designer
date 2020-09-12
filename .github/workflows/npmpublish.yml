@@ -1,0 +1,53 @@
+name: Package Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 12.x ]
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://npm.pkg.github.com/
+
+      - name: NPM install, build, and test
+        run: |
+          npm ci
+          npm run build --if-present
+          npm test
+        env:
+          CI: true
+          NODE_ENV: test
+
+  publish-gpr:
+
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://npm.pkg.github.com/
+          scope: '@thefoot'
+      - run: |
+          npm publish
+        env:
+          CI: true
+          SHELL: /bin/bash
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_ENV: test

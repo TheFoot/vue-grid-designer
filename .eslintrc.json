@@ -1,0 +1,48 @@
+{
+    "env"          : {
+        "browser" : true,
+        "amd"     : true,
+        "commonjs": true,
+        "es6"     : true,
+        "jest"    : true
+    },
+    "globals"      : {},
+    "parserOptions": {
+        "parser"     : "@babel/eslint-parser",
+        "ecmaVersion": 9,
+        "sourceType" : "module"
+    },
+    "extends"      : [
+        "eslint:recommended",
+        "plugin:vue/essential"
+    ],
+    "rules"        : {
+        "no-constant-condition": "off",
+        "no-extra-boolean-cast": "off",
+        "no-fallthrough"       : "off",
+        "no-case-declarations" : "off",
+        "indent"               : [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "semi"                 : [
+            "error",
+            "always"
+        ],
+        "brace-style"          : [
+            "error",
+            "1tbs"
+        ],
+        "quotes"               : [
+            "error",
+            "single"
+        ],
+        "linebreak-style"      : [
+            "error",
+            "unix"
+        ]
+    }
+}

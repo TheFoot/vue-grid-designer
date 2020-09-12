@@ -1,0 +1,43 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Node template
+# Logs
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# nyc test coverage
+.nyc_output
+
+coverage/lcov-report
+
+# node-waf configuration
+.lock-wscript
+
+# Dependency directories
+node_modules
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+### Sass template
+.sass-cache/
+
+# Ignore npm debug log files
+npm-debug.log
+
+## IDEA Project files
+.idea/*
+
+## Belts and braces - No .env files should be used or saved!
+*.env
+**/*.env
