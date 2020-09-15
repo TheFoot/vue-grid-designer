@@ -1,70 +1,343 @@
 <template>
-	<div>
+	<div class="vld">
 
-		<h1 v-html="display"></h1>
+		<!-- Row -->
+		<div
+				v-for="row in rows"
+				:key="row._id"
+				:data-id="row._id"
+				:ref="`row_${row._id}`"
+				class="vld__row use-hover"
+				:class="rowClass"
+				:style="getAnimationStyle()"
+		>
 
-		<button class="primary" @click="reverse">Reverse</button>
+			<!-- Blocks -->
+			<div
+					v-for="block in row.blocks"
+					:key="block._id"
+					:data-id="block._id"
+					class="vld__block"
+					:class="blockClass"
+					:style="getBlockStyles(row, block)"
+			>
+
+				<!-- Block toolbar -->
+				<div
+						v-if="mode === 'edit'"
+						class="vld__block__toolbar no-drag"
+						:style="getAnimationStyle()"
+				>
+					<slot
+							name="block-toolbar"
+							:row="row"
+							:block="block"
+							:expandBlock="expandBlock"
+							:collapseBlock="collapseBlock"
+					>
+
+						<span
+								@click="expandBlock(row, block)"
+								title="Expand"
+								class="vld__block__toolbar__button"
+								:class="{ disabled: block.span >= blocksPerRow }"
+						>
+							<font-awesome-icon :icon="['fas', 'plus']"/>
+						</span>
+
+						<span
+								@click="collapseBlock(row, block)"
+								title="Collapse"
+								class="vld__block__toolbar__button"
+								:class="{ disabled: block.span <= 1 }"
+						>
+							<font-awesome-icon :icon="['fas', 'minus']"/>
+						</span>
+
+						<span
+								@click="deleteBlock(row, block)"
+								title="Delete"
+								class="vld__block__toolbar__button"
+						>
+							<font-awesome-icon :icon="['fas', 'times']"/>
+						</span>
+
+					</slot>
+
+				</div>
+
+				<!-- Block content -->
+				<div v-if="mode === 'view'" class="vld__block__content" v-html="block.content"></div>
+
+			</div>
+
+			<!-- Row toolbar -->
+			<div
+					v-if="mode === 'edit'"
+					class="vld__row__toolbar no-drag"
+					:style="getAnimationStyle()"
+			>
+				<slot
+						name="row-toolbar"
+						:row="row"
+						:addBlock="addBlock"
+						:deleteRow="deleteRow"
+				>
+
+					<span
+							@click="deleteRow(row)"
+							title="Delete row"
+							class="vld__row__toolbar__button"
+					>
+							<font-awesome-icon :icon="['fas', 'times']"/>
+						</span>
+
+					<span
+							@click="addBlock(row)"
+							title="Add block"
+							class="vld__row__toolbar__button"
+					>
+							<font-awesome-icon :icon="['fas', 'plus']"/>
+						</span>
+
+				</slot>
+
+			</div>
+
+		</div>
+
+		<slot
+				name="footer"
+				:addRow="addRow"
+		>
+			<button
+					v-if="mode === 'edit'"
+					class="vld__footer__button"
+					@click="addRow"
+					:disabled="maxRows > 0 && rows.length >= maxRows"
+			>Add Row
+			</button>
+		</slot>
 
 	</div>
 </template>
 
 <script>
+
+import PropsMixin          from './mixins/props.mixin';
+import ComponentMixin      from './mixins/component.mixin';
+import { library }         from '@fortawesome/fontawesome-svg-core';
+import {
+    faPlus,
+    faMinus,
+    faTimes
+}                          from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add ( faPlus );
+library.add ( faMinus );
+library.add ( faTimes );
+
 export default {
 
-    name      : 'HelloWorld',
-    mixins    : [],
-    components: {},
+    // Module/component name
+    name: 'VueGridDesigner',
 
-    props: {
-        name: {
-            type   : String,
-            default: 'World'
-        }
-    },
+    mixins: [
+        PropsMixin,
+        ComponentMixin
+    ],
 
-    data () {
-        return {
-            reversed: false
-        };
-    },
-
-    computed: {
-        display () {
-            const str = `Hello ${ this.name }`;
-            return this.reversed
-                ? str
-                    .split ( '' )
-                    .reverse ()
-                    .join ( '' )
-                : str;
-        }
-    },
-
-    methods: {
-
-        reverse () {
-            this.reversed = !this.reversed;
-        }
-
+    components: {
+        FontAwesomeIcon
     }
 
 };
 </script>
 
+<style lang="scss">
+:root {
+	--color-highlight: 55, 114, 255;
+	--color-highlight-faded: 215, 227, 255;
+	--color-active: 150, 5, 5;
+	--color-black: 0, 0, 0;
+	--color-white: 255, 255, 255;
+	--color-lightgrey: 240, 240, 240;
+	--color-darkgrey: 76, 76, 76;
+}
+</style>
+
 <style scoped lang="scss">
+.vld {
 
-h1 {
-	display: inline-block;
-}
+	font-family: sans-serif;
 
-button {
-	&:hover {
-		-webkit-transform: rotate(180deg);
-		-moz-transform: rotate(180deg);
-		-o-transform: rotate(180deg);
-		-ms-transform: rotate(180deg);
-		transform: rotate(180deg);
+	&__row {
+
+		position: relative;
+		min-height: 65px;
+
+		&__toolbar {
+
+			display: flex;
+			visibility: hidden;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			right: -30px;
+			width: 30px;
+			background-color: rgb(var(--color-highlight-faded));
+			padding: 0;
+
+			&__button {
+
+				cursor: pointer;
+				width: 100%;
+				text-align: center;
+				color: rgb(var(--color-darkgrey));
+				margin: 4px 0 4px -4px;
+
+				&:hover {
+					color: rgb(var(--color-highlight));
+				}
+
+				&.disabled {
+					cursor: default;
+					color: rgb(var(--color-lightgrey));
+					opacity: 0.4;
+				}
+
+			}
+
+		}
+
 	}
-}
 
+	&__block {
+
+		position: relative;
+		vertical-align: top;
+		box-sizing: border-box;
+		display: inline-block;
+		background-color: rgb(var(--color-lightgrey));
+		padding: 0;
+		width: calc(var(--block-width) - var(--block-total-margin));
+
+		&__toolbar {
+
+			display: block;
+			visibility: hidden;
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			margin-top: -15px;
+			margin-left: -38px;
+			padding: 0;
+			height: 30px;
+			width: 76px;
+			line-height: 30px;
+			z-index: 10;
+			text-align: center;
+			background-color: rgba(var(--color-black), .3);
+
+			&__drag-handle {
+				float: left;
+				margin-left: 6px;
+			}
+
+			&__button {
+
+				cursor: pointer;
+				color: lightgray;
+				margin-right: 4px;
+
+				&:hover {
+					color: rgb(var(--color-white));
+				}
+
+				&.disabled {
+					cursor: not-allowed;
+					opacity: 0.4;
+				}
+
+			}
+
+		}
+
+		&__content {
+			color: rgb(var(--color-darkgrey));
+			text-align: center;
+		}
+
+		&--drag {
+
+			opacity: .7;
+
+		}
+
+		&--chosen {
+
+			opacity: .7;
+
+		}
+
+		&--ghost {
+
+			opacity: .2;
+			background-color: rgb(var(--color-active));
+
+		}
+
+	}
+
+	&__footer__button {
+
+		border: 0 none;
+		padding: .3rem .6rem;
+		background-color: rgb(var(--color-darkgrey));
+		color: rgb(var(--color-white));
+		margin: 10px 6px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: rgb(var(--color-highlight));
+		}
+
+		&[disabled] {
+			cursor: not-allowed;
+			opacity: 0.4;
+			background-color: rgb(var(--color-darkgrey));
+		}
+
+	}
+
+	/* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */
+	.use-hover {
+
+		&.vld__row:hover {
+
+			background-color: rgb(var(--color-highlight-faded));
+
+			.vld__row__toolbar {
+				visibility: visible;
+			}
+
+		}
+
+		.vld__block:hover {
+
+			background-color: rgb(var(--color-highlight));
+
+			.vld__block__toolbar {
+				visibility: visible;
+			}
+
+		}
+
+	}
+
+}
 </style>

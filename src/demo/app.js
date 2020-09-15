@@ -1,5 +1,8 @@
-import Vue from 'vue';
-import App from './app.vue';
+import Vue            from 'vue';
+import App            from './app.vue';
+import VueHighlightJS from 'vue-highlightjs';
+
+Vue.use ( VueHighlightJS );
 
 new Vue (
     {

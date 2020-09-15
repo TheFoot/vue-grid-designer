@@ -1,14 +1,25 @@
-import vue      from 'rollup-plugin-vue';
-import resolve  from '@rollup/plugin-node-resolve';
-import replace  from '@rollup/plugin-replace';
-import commonjs from '@rollup/plugin-commonjs';
-import copy     from 'rollup-plugin-copy';
-import alias    from '@rollup/plugin-alias';
-import path     from 'path';
+import vue           from 'rollup-plugin-vue';
+import resolve       from '@rollup/plugin-node-resolve';
+import replace       from '@rollup/plugin-replace';
+import commonjs      from '@rollup/plugin-commonjs';
+import copy          from 'rollup-plugin-copy';
+import alias         from '@rollup/plugin-alias';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+import path          from 'path';
+
+const customResolver = resolve (
+    {
+        extensions: [ '.js', '.json', '.vue', '.scss' ]
+    }
+);
 
 const projectRootDir = path.resolve ( __dirname, '../' );
 
 export default {
+
+    context: 'window',
+
+    external: [],
 
     input: 'src/component.js',
 
@@ -18,23 +29,28 @@ export default {
 
             format   : 'esm',
             file     : 'dist/component.esm.js',
-            sourcemap: true
+            sourcemap: true,
+            globals  : {}
 
         }
 
     ],
 
     plugins: [
-        resolve (),
         alias (
             {
                 entries: [
                     { find: '@', replacement: path.resolve ( projectRootDir, 'src' ) },
                     { find: '~', replacement: path.resolve ( projectRootDir, 'node_modules' ) }
-                ]
+                ],
+                customResolver
             }
         ),
+        resolve (
+            { browser: true }
+        ),
         commonjs (),
+        nodePolyfills (),
         vue (
             {
                 css: true

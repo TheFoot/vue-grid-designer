@@ -1,17 +1,27 @@
-import vue        from 'rollup-plugin-vue';
-import serve      from 'rollup-plugin-serve';
-import resolve    from '@rollup/plugin-node-resolve';
-import replace    from '@rollup/plugin-replace';
-import commonjs   from '@rollup/plugin-commonjs';
-import livereload from 'rollup-plugin-livereload';
-import copy       from 'rollup-plugin-copy';
-import babel      from '@rollup/plugin-babel';
-import path       from 'path';
-import alias      from '@rollup/plugin-alias';
+import vue           from 'rollup-plugin-vue';
+import serve         from 'rollup-plugin-serve';
+import resolve       from '@rollup/plugin-node-resolve';
+import replace       from '@rollup/plugin-replace';
+import commonjs      from '@rollup/plugin-commonjs';
+import livereload    from 'rollup-plugin-livereload';
+import copy          from 'rollup-plugin-copy';
+import babel         from '@rollup/plugin-babel';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+import path          from 'path';
+import alias         from '@rollup/plugin-alias';
 
+const customResolver = resolve (
+    {
+        extensions: [ '.js', '.json', '.vue', '.scss' ]
+    }
+);
 const projectRootDir = path.resolve ( __dirname, '../' );
 
 export default {
+
+    context: 'window',
+
+    external: [],
 
     input: 'src/demo/app.js',
 
@@ -22,23 +32,29 @@ export default {
             format   : 'iife',
             name     : 'demo',
             file     : 'dist/demo/app.js',
-            sourcemap: true
+            sourcemap: true,
+
+            globals: {}
 
         }
 
     ],
 
     plugins: [
-        resolve (),
         alias (
             {
                 entries: [
                     { find: '@', replacement: path.resolve ( projectRootDir, 'src' ) },
                     { find: '~', replacement: path.resolve ( projectRootDir, 'node_modules' ) }
-                ]
+                ],
+                customResolver
             }
         ),
+        resolve (
+            { browser: true }
+        ),
         commonjs (),
+        nodePolyfills (),
         vue (
             {
                 needMap: false,
@@ -59,7 +75,10 @@ export default {
         copy (
             {
                 targets: [
-                    { src: 'src/demo/index.html', dest: 'dist/demo/' }
+                    {
+                        src : 'src/demo/index.html',
+                        dest: 'dist/demo/'
+                    }
                 ]
             }
         ),

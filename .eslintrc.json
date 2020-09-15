@@ -4,7 +4,8 @@
         "amd"     : true,
         "commonjs": true,
         "es6"     : true,
-        "jest"    : true
+        "jest"    : true,
+        "node"    : true
     },
     "globals"      : {},
     "parserOptions": {
@@ -17,32 +18,36 @@
         "plugin:vue/essential"
     ],
     "rules"        : {
-        "no-constant-condition": "off",
-        "no-extra-boolean-cast": "off",
-        "no-fallthrough"       : "off",
-        "no-case-declarations" : "off",
-        "indent"               : [
+        "no-constant-condition"   : "off",
+        "no-extra-boolean-cast"   : "off",
+        "no-fallthrough"          : "off",
+        "no-case-declarations"    : "off",
+        "indent"                  : [
             "error",
             4,
             {
                 "SwitchCase": 1
             }
         ],
-        "semi"                 : [
+        "semi"                    : [
             "error",
             "always"
         ],
-        "brace-style"          : [
+        "brace-style"             : [
             "error",
             "1tbs"
         ],
-        "quotes"               : [
+        "quotes"                  : [
             "error",
             "single"
         ],
-        "linebreak-style"      : [
+        "linebreak-style"         : [
             "error",
             "unix"
+        ],
+        "no-mixed-spaces-and-tabs": [
+            "error",
+            "smart-tabs"
         ]
     }
 }

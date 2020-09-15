@@ -4,8 +4,8 @@
 </a>
 </p>
 
-# Vue Component Template
-A template for creating a single Vue 2.x component for distribution via NPM, using Rollup/Babel.
+# Vue Layout Designer
+A Vue 2.x drag-and-drop grid layout designer, based on [Gridster.js](http://dsmorse.github.io/gridster.js)
 
 ![Screenshot](docs/img/vue-component-demo.gif)
 
@@ -17,29 +17,18 @@ A template for creating a single Vue 2.x component for distribution via NPM, usi
 
 ## Installation
 
-This is a template repository. To create a new repository based on this one, click on the "USE THIS TEMPLATE" button:
-
-![Use This Template](docs/img/use-this-template.png)
- 
-Alternatively to work on this repository directly:
 ~~~
-git clone git@github.com:TheFoot/vue-component-template.git
-~~~
-
-To install and use the NPM package within your project:
-
-~~~
-npm i @thefoot/vue-component-template --save
+npm i @thefoot/vue-layout-designer --save
 ~~~
 
 ## Usage
 
 ```javascript
-import HelloWorld from '@thefoot/vue-component-template';
+import LayoutDesigner from '@thefoot/vue-layout-designer';
 
 export default {
     ...
-    components: { HelloWorld },
+    components: { LayoutDesigner },
     ...
 };
 ```
@@ -60,7 +49,7 @@ export default {
 |  | |
 
 ## Demo
-[Component Demo](https://thefoot.github.io/vue-component-template/)
+[Component Demo](https://thefoot.github.io/vue-layout-designer/)
 
 ## Contributing
 Contributions welcome, please read [CONTRIBUTING](docs/CONTRIBUTING.md) and [CODING-STANDARDS](docs/CODING-STANDARDS.md).
