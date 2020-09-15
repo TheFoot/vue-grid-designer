@@ -68,7 +68,7 @@
         },
         "collectCoverage"        : true,
         "collectCoverageFrom"    : [
-            "src/*.{js,vue}",
+            "src/**/*.{js,vue}",
             "!src/component.js",
             "!**/node_modules/**"
         ],
