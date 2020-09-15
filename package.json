@@ -1,131 +1,130 @@
 {
-    "name"           : "@thefoot/vue-layout-designer",
-    "version"        : "0.0.1",
-    "description"    : "A template for creating Vue components for distribution, using rollup bundler.",
-    "main"           : "dist/component.esm.js",
-    "module"         : "dist/component.esm.js",
-    "scripts"        : {
-        "test"          : "npm run test:unit",
-        "test:unit"     : "jest --verbose ./test/unit",
-        "serve"         : "rollup --config rollup/demo.config.js --watch",
-        "build"         : "npm run lint && npm run scanner && rollup --config rollup/main.config.js",
-        "lint"          : "eslint --ext .js,.vue src",
-        "scanner"       : "npx hawkeye scan",
+    "name": "@thefoot/vue-grid-designer",
+    "version": "0.0.1",
+    "description": "Vue 2.x component for designing grid layouts using SortableJS.",
+    "main": "dist/component.esm.js",
+    "module": "dist/component.esm.js",
+    "scripts": {
+        "test": "npm run test:unit",
+        "test:unit": "jest --verbose ./test/unit",
+        "serve": "rollup --config rollup/demo.config.js --watch",
+        "build": "npm run lint && npm run scanner && rollup --config rollup/main.config.js",
+        "lint": "eslint --ext .js,.vue src",
+        "scanner": "npx hawkeye scan",
         "create-release": "node ./node_modules/release-it/bin/release-it.js",
-        "release"       : "./release.sh",
-        "prebuild"      : "echo false > .buildstatus",
-        "postbuild"     : "echo true > .buildstatus",
-        "make-badges"   : "node_modules/.bin/jest-badges-readme"
+        "release": "./release.sh",
+        "prebuild": "echo false > .buildstatus",
+        "postbuild": "echo true > .buildstatus",
+        "make-badges": "node_modules/.bin/jest-badges-readme"
     },
-    "repository"     : {
+    "repository": {
         "type": "git",
-        "url" : "git+https://github.com/TheFoot/vue-layout-designer.git"
+        "url": "git+https://github.com/TheFoot/vue-layout-designer.git"
     },
-    "keywords"       : [
+    "keywords": [
         "vue",
         "component",
         "gridster",
         "layout",
         "designer"
     ],
-    "author"         : "TheFoot <https://github.com/TheFoot>",
-    "license"        : "MIT",
-    "bugs"           : {
-        "url": "https://github.com/TheFoot/vue-layout-designer/issues"
+    "author": "TheFoot <https://github.com/TheFoot>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/TheFoot/vue-grid-designer/issues"
     },
-    "homepage"       : "https://github.com/TheFoot/vue-layout-designer#readme",
-    "browserslist"   : [
+    "homepage": "https://github.com/TheFoot/vue-grid-designer#readme",
+    "browserslist": [
         "> 1%",
         "last 2 versions"
     ],
-    "publishConfig"  : {
+    "publishConfig": {
         "registry": "https://npm.pkg.github.com/@thefoot"
     },
-    "release-it"     : {
+    "release-it": {
         "github": {
             "release": true
         },
-        "npm"   : {
+        "npm": {
             "publish": false
         }
     },
-    "jest"           : {
-        "moduleFileExtensions"   : [
+    "jest": {
+        "moduleFileExtensions": [
             "js",
             "json",
             "vue"
         ],
-        "transform"              : {
+        "transform": {
             ".*\\.(vue)$": "vue-jest",
-            ".*\\.(js)$" : "babel-jest"
+            ".*\\.(js)$": "babel-jest"
         },
         "transformIgnorePatterns": [
             "/node_modules/(?!lodash-es|sortablejs).+\\.js$"
         ],
-        "moduleNameMapper"       : {
+        "moduleNameMapper": {
             "^@/(.*)$": "<rootDir>/src/$1",
             "^~/(.*)$": "<rootDir>/node_modules/$1"
         },
-        "collectCoverage"        : true,
-        "collectCoverageFrom"    : [
+        "collectCoverage": true,
+        "collectCoverageFrom": [
             "src/**/*.{js,vue}",
             "!src/demo/**",
             "!src/component.js",
             "!**/node_modules/**"
         ],
-        "coverageReporters"      : [
+        "coverageReporters": [
             "json-summary",
             "text",
             "lcov"
         ]
     },
-    "pre-commit"     : [
+    "pre-commit": [
         "test",
         "build",
         "make-badges"
     ],
-    "dependencies"   : {
-        "@fortawesome/fontawesome-svg-core"  : "^1.2.30",
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^1.2.30",
         "@fortawesome/free-regular-svg-icons": "^5.14.0",
-        "@fortawesome/free-solid-svg-icons"  : "^5.14.0",
-        "@fortawesome/vue-fontawesome"       : "^2.0.0",
-        "highlight.js"                       : "^10.2.0",
-        "lodash-es"                          : "^4.17.15",
-        "sortablejs"                         : "^1.10.2",
-        "uuid"                               : "^8.3.0",
-        "vue"                                : "^2.6.12",
-        "vue-highlightjs"                    : "^1.3.3"
+        "@fortawesome/free-solid-svg-icons": "^5.14.0",
+        "@fortawesome/vue-fontawesome": "^2.0.0",
+        "highlight.js": "^10.2.0",
+        "lodash-es": "^4.17.15",
+        "sortablejs": "^1.10.2",
+        "uuid": "^8.3.0",
+        "vue": "^2.6.12",
+        "vue-highlightjs": "^1.3.3"
     },
     "devDependencies": {
-        "@babel/core"                   : "^7.11.6",
-        "@babel/eslint-parser"          : "^7.11.5",
-        "@babel/preset-env"             : "^7.11.5",
-        "@hawkeyesec/scanner-cli"       : "^1.8.0",
+        "@babel/core": "^7.11.6",
+        "@babel/eslint-parser": "^7.11.5",
+        "@babel/preset-env": "^7.11.5",
+        "@hawkeyesec/scanner-cli": "^1.8.0",
         "@olavoparno/jest-badges-readme": "^1.5.1",
-        "@rollup/plugin-alias"          : "^3.1.1",
-        "@rollup/plugin-babel"          : "^5.2.1",
-        "@rollup/plugin-commonjs"       : "^15.0.0",
-        "@rollup/plugin-node-resolve"   : "^9.0.0",
-        "@rollup/plugin-replace"        : "^2.3.3",
-        "@vue/test-utils"               : "^1.1.0",
-        "babel-core"                    : "^7.0.0-bridge.0",
-        "babel-jest"                    : "^26.3.0",
-        "babel-polyfill"                : "^6.26.0",
-        "eslint"                        : "^7.8.1",
-        "eslint-plugin-vue"             : "^7.0.0-beta.3",
-        "jest"                          : "^26.4.2",
-        "lodash"                        : "^4.17.20",
-        "pre-commit"                    : "^1.2.2",
-        "release-it"                    : "^14.0.2",
-        "rollup"                        : "^2.26.11",
-        "rollup-plugin-copy"            : "^3.3.0",
-        "rollup-plugin-css-only"        : "^2.1.0",
-        "rollup-plugin-livereload"      : "^2.0.0",
-        "rollup-plugin-multi-input"     : "^1.1.1",
-        "rollup-plugin-node-polyfills"  : "^0.2.1",
-        "rollup-plugin-serve"           : "^1.0.4",
-        "rollup-plugin-vue"             : "^5.1.9",
-        "vue-jest"                      : "^3.0.6",
-        "vue-template-compiler"         : "^2.6.12"
+        "@rollup/plugin-alias": "^3.1.1",
+        "@rollup/plugin-babel": "^5.2.1",
+        "@rollup/plugin-commonjs": "^15.0.0",
+        "@rollup/plugin-node-resolve": "^9.0.0",
+        "@rollup/plugin-replace": "^2.3.3",
+        "@vue/test-utils": "^1.1.0",
+        "babel-core": "^7.0.0-bridge.0",
+        "babel-jest": "^26.3.0",
+        "babel-polyfill": "^6.26.0",
+        "eslint": "^7.8.1",
+        "eslint-plugin-vue": "^7.0.0-beta.3",
+        "jest": "^26.4.2",
+        "pre-commit": "^1.2.2",
+        "release-it": "^14.0.2",
+        "rollup": "^2.26.11",
+        "rollup-plugin-copy": "^3.3.0",
+        "rollup-plugin-css-only": "^2.1.0",
+        "rollup-plugin-livereload": "^2.0.0",
+        "rollup-plugin-multi-input": "^1.1.1",
+        "rollup-plugin-node-polyfills": "^0.2.1",
+        "rollup-plugin-serve": "^1.0.4",
+        "rollup-plugin-vue": "^5.1.9",
+        "vue-jest": "^3.0.6",
+        "vue-template-compiler": "^2.6.12"
     }
 }
