@@ -18,7 +18,7 @@ Run using `npm build <command>`.
 | release     | Bumps package version, create git tag, a new github release, merges `develop` into `master`. |
 
 ## Pre-commit hooks
-When committing changes, the build commands `test`, `build` and `make-badges` are automatically run, and the
+When committing changes, the build commands `test` and `build` are automatically run, and the
 commit will fail if any of these commands fail.
 
 ## Code Style, Standards and Linting
@@ -28,11 +28,11 @@ basic formatting guidelines. `.editorconfig` contains a full formatting configur
 IDEA IDE's (WebStorm for example) for automatic code formatting. **Pull requests may be rejected if no effort is made to
 adhere to this coding style.**
 
-Please read [Wiki Coding Standards] (docs/CODING-STANDARDS.md) the full coding style guidelines.
+Please read [Wiki Coding Standards] (docs/CODING-STANDARDS.md) for the coding style guidelines.
 
 ## Updating README
 Please ensure any new features or relevant changes are reflected in the README.md file, by updating the 
-README-template.md file. The build command `make-badges` creates the actual README.md file from README-template.md.
+README-template.md file. The build command `update-readme` creates the actual README.md file from README-template.md.
 
 ## Vulnerability scanning
 The build command `scanner` uses [Hawkeye](https://github.com/hawkeyesec/scanner-cli) security scanner. CI builds will
@@ -65,7 +65,7 @@ Then finally run `npm install` to actually update your project dependency (this 
 
 ## Component Demo / Github Pages
 The Vue component is showcased using a small demo app found in `src/demo`. The `serve` build command compiles this 
-source into `dist/demo` and opens the browser to run this app. It uses [MiniCSS](https://minicss.org) for simple
+source into `dist/demo` and opens the browser to run this app. It uses [Bootstrap](https://getbootstrap.com) for 
 responsive styling. (The packaged Vue component does not include this - only scoped styles included within the component).
 
 The `build` command copies the demo app into the `docs` folder which is used by github pages to host the demo app.
@@ -83,5 +83,4 @@ Repository owners can create new package releases by running the build command `
 - Create a new github release
 
 A github action (triggered by a new github release) will publish a new NPM package. Depending on package.json 
-configuration, this will be published to the github package registry (for private projects) or NPM registry for 
-public projects.   
+configuration, this will be published to the github package registry and the public NPM registry.   
