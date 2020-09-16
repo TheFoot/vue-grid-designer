@@ -155,7 +155,7 @@ export default {
             this.isDragging = false;
 
             e.vdg = this.getEventData ( e, 'to' );
-            this.$emit ( 'drag-end', e );
+            this.$emit ( 'drag-stop', e );
 
         },
 
@@ -292,7 +292,7 @@ export default {
             this.fireChanged ();
 
             e.vdg = { row, block };
-            this.$emit ( 'update', e );
+            this.$emit ( 'block-changed', e );
 
         },
 
@@ -308,7 +308,7 @@ export default {
             this.fireChanged ();
 
             e.vdg = { row, block };
-            this.$emit ( 'update', e );
+            this.$emit ( 'block-changed', e );
 
         },
 

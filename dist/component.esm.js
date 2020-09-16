@@ -5878,7 +5878,7 @@ var ComponentMixin = {
             this.isDragging = false;
 
             e.vdg = this.getEventData ( e, 'to' );
-            this.$emit ( 'drag-end', e );
+            this.$emit ( 'drag-stop', e );
 
         },
 
@@ -6015,7 +6015,7 @@ var ComponentMixin = {
             this.fireChanged ();
 
             e.vdg = { row, block };
-            this.$emit ( 'update', e );
+            this.$emit ( 'block-changed', e );
 
         },
 
@@ -6031,7 +6031,7 @@ var ComponentMixin = {
             this.fireChanged ();
 
             e.vdg = { row, block };
-            this.$emit ( 'update', e );
+            this.$emit ( 'block-changed', e );
 
         },
 

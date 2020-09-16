@@ -14420,7 +14420,7 @@
         e.target.classList.add('use-hover');
         this.isDragging = false;
         e.vdg = this.getEventData(e, 'to');
-        this.$emit('drag-end', e);
+        this.$emit('drag-stop', e);
       },
       // When a sortable row is updated (block moved)
       onUpdate: function onUpdate(e) {
@@ -14545,7 +14545,7 @@
           row: row,
           block: block
         };
-        this.$emit('update', e);
+        this.$emit('block-changed', e);
       },
       // Collapse the span of a block
       collapseBlock: function collapseBlock(e, row, block) {
@@ -14561,7 +14561,7 @@
           row: row,
           block: block
         };
-        this.$emit('update', e);
+        this.$emit('block-changed', e);
       },
       // Delete a block
       deleteBlock: function deleteBlock(e, row, block) {
@@ -16732,7 +16732,8 @@
               content: 'Two'
             }]
           }],
-          slots: []
+          slots: [],
+          events: []
         },
         controls: {
           basic: {
@@ -16754,6 +16755,9 @@
           },
           slots: {
             mode: 'edit'
+          },
+          events: {
+            mode: 'edit'
           }
         }
       };
@@ -16771,14 +16775,20 @@
             return '<vue-grid-designer v-model="grids.content" />';
 
           case 'customStyleMarkup':
-            return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    :mode=\"controls.customStyle.mode\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
+            return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    mode=\"edit\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
 
           case 'customStyleScss':
             return "#demo {\n\n    .vgd__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vgd__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vgd__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vgd__row.demo__row {\n            &:hover {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vgd__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
 
           case 'slotsMarkup':
-            return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    :mode=\"controls.slots.mode\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button class=\"btn btn-block btn-primary\" @click=\"blockScope.addRow\">\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
+            return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    mode=\"edit\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button class=\"btn btn-block btn-primary\" @click=\"blockScope.addRow\">\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
+
+          case 'eventsMarkup':
+            return "<vue-grid-designer\n    v-model=\"grids.events\"\n    mode=\"edit\"\n    @ready=\"showDemoEvent('ready', $event)\"\n    @update=\"showDemoEvent('update', $event)\"\n    @remove-block=\"showDemoEvent('remove-block', $event)\"\n    @remove-row=\"showDemoEvent('remove-row', $event)\"\n    @add-block=\"showDemoEvent('add-block', $event)\"\n    @add-row=\"showDemoEvent('add-row', $event)\"\n    @drag-start=\"showDemoEvent('drag-start', $event)\"\n    @drag-stop=\"showDemoEvent('drag-stop', $event)\"\n    @block-changed=\"showDemoEvent('block-changed', $event)\"\n    @input=\"showDemoEvent('input (manual handler)', $event)\"\n/>";
         }
+      },
+      showDemoEvent: function showDemoEvent(name, e) {
+        console.log("Event: ".concat(name), e);
       }
     }
   };
@@ -17633,6 +17643,113 @@
                 )
               ])
             ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "tab-pane fade show",
+              attrs: {
+                id: "demoContentEvents",
+                role: "tabpanel",
+                "aria-labelledby": "demoTabEvents"
+              }
+            },
+            [
+              _c("div", { staticClass: "container" }, [
+                _c("div", { staticClass: "row" }, [
+                  _vm._m(7),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-6" }, [
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("eventsMarkup"),
+                            expression: "getCode('eventsMarkup')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "html" })]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c(
+                    "div",
+                    { staticClass: "col shadow border p-2" },
+                    [
+                      _c("vue-grid-designer", {
+                        attrs: { mode: _vm.controls.events.mode },
+                        on: {
+                          ready: function($event) {
+                            return _vm.showDemoEvent("ready", $event)
+                          },
+                          update: function($event) {
+                            return _vm.showDemoEvent("update", $event)
+                          },
+                          "remove-block": function($event) {
+                            return _vm.showDemoEvent("remove-block", $event)
+                          },
+                          "remove-row": function($event) {
+                            return _vm.showDemoEvent("remove-row", $event)
+                          },
+                          "add-block": function($event) {
+                            return _vm.showDemoEvent("add-block", $event)
+                          },
+                          "add-row": function($event) {
+                            return _vm.showDemoEvent("add-row", $event)
+                          },
+                          "drag-start": function($event) {
+                            return _vm.showDemoEvent("drag-start", $event)
+                          },
+                          "drag-stop": function($event) {
+                            return _vm.showDemoEvent("drag-stop", $event)
+                          },
+                          "block-changed": function($event) {
+                            return _vm.showDemoEvent("block-changed", $event)
+                          },
+                          input: function($event) {
+                            _vm.showDemoEvent("input (manual handler)", $event);
+                          }
+                        },
+                        model: {
+                          value: _vm.grids.events,
+                          callback: function($$v) {
+                            _vm.$set(_vm.grids, "events", $$v);
+                          },
+                          expression: "grids.events"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "mt-4 px-2" }, [
+                _c("h5", [_vm._v("Data Model")]),
+                _vm._v(" "),
+                _c(
+                  "pre",
+                  {
+                    directives: [
+                      {
+                        name: "highlightjs",
+                        rawName: "v-highlightjs",
+                        value: _vm.getJSON(_vm.grids.events),
+                        expression: "getJSON ( grids.events )"
+                      }
+                    ]
+                  },
+                  [_c("code", { staticClass: "json" })]
+                )
+              ])
+            ]
           )
         ]
       )
@@ -17772,6 +17889,24 @@
               },
               [_vm._v("Slots")]
             )
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "nav-item", attrs: { role: "presentation" } }, [
+            _c(
+              "a",
+              {
+                staticClass: "nav-link",
+                attrs: {
+                  id: "demoTabEvents",
+                  "data-toggle": "tab",
+                  href: "#demoContentEvents",
+                  role: "tab",
+                  "aria-controls": "home",
+                  "aria-selected": "true"
+                }
+              },
+              [_vm._v("Events")]
+            )
           ])
         ]
       )
@@ -17845,6 +17980,29 @@
           )
         ])
       ])
+    },
+    function() {
+      var _vm = this;
+      var _h = _vm.$createElement;
+      var _c = _vm._self._c || _h;
+      return _c("div", { staticClass: "col-6" }, [
+        _c("p", [
+          _vm._v(
+            "Open the browser console to see events being fired.\n\t\t\t\t\t\t   Or use the "
+          ),
+          _c(
+            "a",
+            {
+              attrs: {
+                href: "https://github.com/vuejs/vue-devtools",
+                target: "_blank"
+              }
+            },
+            [_vm._v("Vue developer tools")]
+          ),
+          _vm._v(".")
+        ])
+      ])
     }
   ];
   __vue_render__$1._withStripped = true;
@@ -17852,7 +18010,7 @@
     /* style */
     const __vue_inject_styles__$1 = function (inject) {
       if (!inject) return
-      inject("data-v-265ba241_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
+      inject("data-v-6877ad50_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */

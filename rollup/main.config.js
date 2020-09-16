@@ -5,6 +5,7 @@ import commonjs      from '@rollup/plugin-commonjs';
 import copy          from 'rollup-plugin-copy';
 import alias         from '@rollup/plugin-alias';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
+import { terser }    from 'rollup-plugin-terser';
 import path          from 'path';
 
 const customResolver = resolve (
@@ -31,6 +32,28 @@ export default {
             file     : 'dist/component.esm.js',
             sourcemap: true,
             globals  : {}
+
+        },
+
+        {
+
+            format   : 'umd',
+            name     : 'vueGridDesigner',
+            file     : 'dist/component.umd.js',
+            sourcemap: true,
+            globals  : {},
+            plugins  : [ terser () ]
+
+        },
+
+        {
+
+            format   : 'iife',
+            name     : 'vueGridDesigner',
+            file     : 'dist/component.min.js',
+            sourcemap: true,
+            globals  : {},
+            plugins  : [ terser () ]
 
         }
 

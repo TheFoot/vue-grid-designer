@@ -35,6 +35,10 @@
 				<a class="nav-link" id="demoTabSlots" data-toggle="tab" href="#demoContentSlots" role="tab"
 				   aria-controls="home" aria-selected="true">Slots</a>
 			</li>
+			<li class="nav-item" role="presentation">
+				<a class="nav-link" id="demoTabEvents" data-toggle="tab" href="#demoContentEvents" role="tab"
+				   aria-controls="home" aria-selected="true">Events</a>
+			</li>
 		</ul>
 
 		<div class="tab-content border border-top-0 py-4 px-2" id="demoTabContentContainer">
@@ -306,6 +310,48 @@
 
 			</div>
 
+			<div class="tab-pane fade show" id="demoContentEvents" role="tabpanel" aria-labelledby="demoTabEvents">
+
+				<div class="container">
+
+					<div class="row">
+						<div class="col-6">
+							<p>Open the browser console to see events being fired.
+							   Or use the <a href="https://github.com/vuejs/vue-devtools" target="_blank">Vue developer tools</a>.</p>
+						</div>
+						<div class="col-6">
+							<pre v-highlightjs="getCode('eventsMarkup')"><code class="html"></code></pre>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col shadow border p-2">
+							<vue-grid-designer
+									v-model="grids.events"
+									:mode="controls.events.mode"
+									@ready="showDemoEvent('ready', $event)"
+									@update="showDemoEvent('update', $event)"
+									@remove-block="showDemoEvent('remove-block', $event)"
+									@remove-row="showDemoEvent('remove-row', $event)"
+									@add-block="showDemoEvent('add-block', $event)"
+									@add-row="showDemoEvent('add-row', $event)"
+									@drag-start="showDemoEvent('drag-start', $event)"
+									@drag-stop="showDemoEvent('drag-stop', $event)"
+									@block-changed="showDemoEvent('block-changed', $event)"
+									@input="showDemoEvent('input (manual handler)', $event)"
+							/>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="mt-4 px-2">
+					<h5>Data Model</h5>
+					<pre v-highlightjs="getJSON ( grids.events )"><code class="json"></code></pre>
+				</div>
+
+			</div>
+
 		</div>
 
 	</div>
@@ -392,7 +438,9 @@ export default {
                     }
                 ],
 
-                slots: []
+                slots: [],
+
+	            events: []
 
             },
 
@@ -415,6 +463,9 @@ export default {
                     blockClass: 'demo__block'
                 },
                 slots      : {
+                    mode: 'edit'
+                },
+                events      : {
                     mode: 'edit'
                 }
             }
@@ -439,7 +490,7 @@ export default {
                 case 'customStyleMarkup':
                     return `<vue-grid-designer
     v-model="grids.customStyle"
-    :mode="controls.customStyle.mode"
+    mode="edit"
     row-class="demo__row"
     block-class="demo__block"
 />`;
@@ -480,7 +531,7 @@ export default {
                 case 'slotsMarkup':
                     return `<vue-grid-designer
     v-model="grids.slots"
-    :mode="controls.slots.mode"
+    mode="edit"
 >
 
     <template v-slot:footer="blockScope">
@@ -491,8 +542,28 @@ export default {
     </template>
 
 </vue-grid-designer>`;
+                    
+                case 'eventsMarkup':
+                    return `<vue-grid-designer
+    v-model="grids.events"
+    mode="edit"
+    @ready="showDemoEvent('ready', $event)"
+    @update="showDemoEvent('update', $event)"
+    @remove-block="showDemoEvent('remove-block', $event)"
+    @remove-row="showDemoEvent('remove-row', $event)"
+    @add-block="showDemoEvent('add-block', $event)"
+    @add-row="showDemoEvent('add-row', $event)"
+    @drag-start="showDemoEvent('drag-start', $event)"
+    @drag-stop="showDemoEvent('drag-stop', $event)"
+    @block-changed="showDemoEvent('block-changed', $event)"
+    @input="showDemoEvent('input (manual handler)', $event)"
+/>`;
 
             }
+        },
+
+        showDemoEvent (name, e) {
+            console.log(`Event: ${name}`, e);
         }
 
     }
