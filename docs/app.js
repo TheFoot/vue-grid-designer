@@ -8440,8 +8440,6 @@
    The props mixin
    */
   var PropsMixin = {
-    // Module/component name
-    name: 'VueGridDesigner',
     // Component props
     props: {
       // The v-model grid data; rows and blocks
@@ -8501,22 +8499,17 @@
       // CSS Class for the ghost position indicator element
       sortableGhostClass: {
         type: String,
-        default: 'vld__block--ghost'
+        default: 'vgd__block--ghost'
       },
       // CSS Class for the selected element
       sortableChosenClass: {
         type: String,
-        default: 'vld__block--chosen'
+        default: 'vgd__block--chosen'
       },
       // CSS Class for the element when dragged
       sortableDragClass: {
         type: String,
-        default: 'vld__block--drag'
-      },
-      // CSS Class for the grab handle element
-      sortableDragHandleClass: {
-        type: String,
-        default: 'vld__block__toolbar'
+        default: 'vgd__block--drag'
       },
       // Animation speed. 0 for no animation
       sortableAnimation: {
@@ -14332,7 +14325,7 @@
           dragClass: this.sortableDragClass,
           animation: this.sortableAnimation,
           disabled: this.mode === 'view',
-          group: this.enableMoveBlocksBetweenRows ? 'vld' : undefined,
+          group: this.enableMoveBlocksBetweenRows ? 'vgd' : undefined,
           filter: '.no-drag',
           preventOnFilter: true,
           onUpdate: this.onUpdate,
@@ -14386,6 +14379,31 @@
     },
     // Component methods
     methods: {
+      // Get VGD event object
+      getEventData: function getEventData(e) {
+        var sourceRow = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'from';
+        var vgd = {
+          row: null,
+          block: null
+        }; // Find the row
+
+        if (e[sourceRow]) {
+          var rowId = e[sourceRow].getAttribute('data-id');
+          vgd.row = this.rows.find(function (x) {
+            return x._id === rowId;
+          });
+        } // Find the block
+
+
+        if (vgd.row && e.item) {
+          var blockId = e.item.getAttribute('data-id');
+          vgd.block = vgd.row.blocks.find(function (x) {
+            return x._id === blockId;
+          });
+        }
+
+        return vgd;
+      },
       // Fire input event for v-model
       fireChanged: function fireChanged() {
         this.$emit('input', this.model);
@@ -14394,11 +14412,15 @@
       onStart: function onStart(e) {
         e.target.classList.remove('use-hover');
         this.isDragging = true;
+        e.vdg = this.getEventData(e);
+        this.$emit('drag-start', e);
       },
       // Add row class to enable hover state
       onEnd: function onEnd(e) {
         e.target.classList.add('use-hover');
         this.isDragging = false;
+        e.vdg = this.getEventData(e, 'to');
+        this.$emit('drag-end', e);
       },
       // When a sortable row is updated (block moved)
       onUpdate: function onUpdate(e) {
@@ -14417,14 +14439,18 @@
         row.blocks.splice(e.newDraggableIndex, 0, temp[0]); // Update model
 
         this.fireChanged();
+        e.vdg = this.getEventData(e);
+        this.$emit('update', e);
       },
-      // When a sortable block is removed its row
+      // When a sortable block is removed from its row
       onRemove: function onRemove(e) {
         // Get the row the block was removed from
         var rowId = e.from.getAttribute('data-id');
         var row = this.rows.find(function (x) {
           return x._id === rowId;
-        }); // Remove from the model
+        });
+        e.vdg = this.getEventData(e);
+        this.$emit('remove-block', e); // Remove from the model
 
         row.blocks.splice(e.oldDraggableIndex, 1); // Update model
 
@@ -14450,6 +14476,8 @@
         destRow.blocks.splice(e.newDraggableIndex, 0, block); // Update model
 
         this.fireChanged();
+        e.vdg = this.getEventData(e, 'to');
+        this.$emit('add-block', e);
       },
       // Initialise the whole grid
       initGrid: function initGrid() {
@@ -14468,6 +14496,8 @@
         } finally {
           _iterator.f();
         }
+
+        this.$emit('ready');
       },
       // Initialise a single row
       initSortableRow: function initSortableRow(row) {
@@ -14502,8 +14532,8 @@
         };
       },
       // Expand the span of a block
-      expandBlock: function expandBlock(row, block) {
-        var num = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+      expandBlock: function expandBlock(e, row, block) {
+        var num = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
 
         if (block.span >= this.blocksPerRow) {
           return;
@@ -14511,10 +14541,15 @@
 
         block.span += num;
         this.fireChanged();
+        e.vdg = {
+          row: row,
+          block: block
+        };
+        this.$emit('update', e);
       },
       // Collapse the span of a block
-      collapseBlock: function collapseBlock(row, block) {
-        var num = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+      collapseBlock: function collapseBlock(e, row, block) {
+        var num = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
 
         if (block.span <= 1) {
           return;
@@ -14522,18 +14557,28 @@
 
         block.span -= num;
         this.fireChanged();
+        e.vdg = {
+          row: row,
+          block: block
+        };
+        this.$emit('update', e);
       },
       // Delete a block
-      deleteBlock: function deleteBlock(row, block) {
+      deleteBlock: function deleteBlock(e, row, block) {
         var blockIdx = findIndex(row.blocks, function (x) {
           return x._id === block._id;
         });
         row.blocks.splice(blockIdx, 1);
         this.fireChanged();
+        e.vdg = {
+          row: row,
+          block: block
+        };
+        this.$emit('remove-block', e);
       },
       // Add a block to a row
-      addBlock: function addBlock(row) {
-        var span = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      addBlock: function addBlock(e, row) {
+        var span = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
         var block = {
           _id: v4(),
           content: '',
@@ -14542,18 +14587,28 @@
         row.blocks.push(block); // Update model
 
         this.fireChanged();
+        e.vdg = {
+          row: row,
+          block: block
+        };
+        this.$emit('add-block', e);
       },
       // Delete a row
-      deleteRow: function deleteRow(row) {
+      deleteRow: function deleteRow(e, row) {
         // Remove row from our model
         this.rows.splice(findIndex(this.rows, function (x) {
           return x._id === row._id;
         }), 1); // Update model
 
         this.fireChanged();
+        e.vdg = {
+          row: row,
+          block: null
+        };
+        this.$emit('remove-row', e);
       },
       // Add a new row
-      addRow: function addRow() {
+      addRow: function addRow(e) {
         var _this2 = this;
 
         var row = {
@@ -14571,6 +14626,13 @@
 
 
           _this2.fireChanged();
+
+          e.vdg = {
+            row: row,
+            block: null
+          };
+
+          _this2.$emit('add-row', e);
         });
       }
     },
@@ -16198,6 +16260,8 @@
   library.add(faMinus);
   library.add(faTimes);
   var script = {
+    // Module/component name
+    name: 'VueGridDesigner',
     mixins: [PropsMixin, ComponentMixin],
     components: {
       FontAwesomeIcon: FontAwesomeIcon
@@ -16342,7 +16406,7 @@
     var _c = _vm._self._c || _h;
     return _c(
       "div",
-      { staticClass: "vld" },
+      { staticClass: "vgd" },
       [
         _vm._l(_vm.rows, function(row) {
           return _c(
@@ -16351,7 +16415,7 @@
               key: row._id,
               ref: "row_" + row._id,
               refInFor: true,
-              staticClass: "vld__row use-hover",
+              staticClass: "vgd__row use-hover",
               class: _vm.rowClass,
               style: _vm.getAnimationStyle(),
               attrs: { "data-id": row._id }
@@ -16362,7 +16426,7 @@
                   "div",
                   {
                     key: block._id,
-                    staticClass: "vld__block",
+                    staticClass: "vgd__block",
                     class: _vm.blockClass,
                     style: _vm.getBlockStyles(row, block),
                     attrs: { "data-id": block._id }
@@ -16372,7 +16436,7 @@
                       ? _c(
                           "div",
                           {
-                            staticClass: "vld__block__toolbar no-drag",
+                            staticClass: "vgd__block__toolbar no-drag",
                             style: _vm.getAnimationStyle()
                           },
                           [
@@ -16382,14 +16446,14 @@
                                 _c(
                                   "span",
                                   {
-                                    staticClass: "vld__block__toolbar__button",
+                                    staticClass: "vgd__block__toolbar__button",
                                     class: {
                                       disabled: block.span >= _vm.blocksPerRow
                                     },
                                     attrs: { title: "Expand" },
                                     on: {
                                       click: function($event) {
-                                        return _vm.expandBlock(row, block)
+                                        return _vm.expandBlock($event, row, block)
                                       }
                                     }
                                   },
@@ -16404,12 +16468,16 @@
                                 _c(
                                   "span",
                                   {
-                                    staticClass: "vld__block__toolbar__button",
+                                    staticClass: "vgd__block__toolbar__button",
                                     class: { disabled: block.span <= 1 },
                                     attrs: { title: "Collapse" },
                                     on: {
                                       click: function($event) {
-                                        return _vm.collapseBlock(row, block)
+                                        return _vm.collapseBlock(
+                                          $event,
+                                          row,
+                                          block
+                                        )
                                       }
                                     }
                                   },
@@ -16424,11 +16492,11 @@
                                 _c(
                                   "span",
                                   {
-                                    staticClass: "vld__block__toolbar__button",
+                                    staticClass: "vgd__block__toolbar__button",
                                     attrs: { title: "Delete" },
                                     on: {
                                       click: function($event) {
-                                        return _vm.deleteBlock(row, block)
+                                        return _vm.deleteBlock($event, row, block)
                                       }
                                     }
                                   },
@@ -16454,7 +16522,7 @@
                     _vm._v(" "),
                     _vm.mode === "view"
                       ? _c("div", {
-                          staticClass: "vld__block__content",
+                          staticClass: "vgd__block__content",
                           domProps: { innerHTML: _vm._s(block.content) }
                         })
                       : _vm._e()
@@ -16466,7 +16534,7 @@
                 ? _c(
                     "div",
                     {
-                      staticClass: "vld__row__toolbar no-drag",
+                      staticClass: "vgd__row__toolbar no-drag",
                       style: _vm.getAnimationStyle()
                     },
                     [
@@ -16476,11 +16544,11 @@
                           _c(
                             "span",
                             {
-                              staticClass: "vld__row__toolbar__button",
+                              staticClass: "vgd__row__toolbar__button",
                               attrs: { title: "Delete row" },
                               on: {
                                 click: function($event) {
-                                  return _vm.deleteRow(row)
+                                  return _vm.deleteRow($event, row)
                                 }
                               }
                             },
@@ -16495,11 +16563,11 @@
                           _c(
                             "span",
                             {
-                              staticClass: "vld__row__toolbar__button",
+                              staticClass: "vgd__row__toolbar__button",
                               attrs: { title: "Add block" },
                               on: {
                                 click: function($event) {
-                                  return _vm.addBlock(row)
+                                  return _vm.addBlock($event, row)
                                 }
                               }
                             },
@@ -16533,11 +16601,15 @@
               ? _c(
                   "button",
                   {
-                    staticClass: "vld__footer__button",
+                    staticClass: "vgd__footer__button",
                     attrs: {
                       disabled: _vm.maxRows > 0 && _vm.rows.length >= _vm.maxRows
                     },
-                    on: { click: _vm.addRow }
+                    on: {
+                      click: function($event) {
+                        return _vm.addRow($event)
+                      }
+                    }
                   },
                   [_vm._v("Add Row\n\t\t")]
                 )
@@ -16555,12 +16627,12 @@
     /* style */
     const __vue_inject_styles__ = function (inject) {
       if (!inject) return
-      inject("data-v-122a921c_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
-  ,inject("data-v-122a921c_1", { source: ".vld[data-v-122a921c] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vld__row[data-v-122a921c] {\n  position: relative;\n  min-height: 65px;\n}\n.vld__row__toolbar[data-v-122a921c] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vld__row__toolbar__button[data-v-122a921c] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vld__row__toolbar__button[data-v-122a921c]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vld__row__toolbar__button.disabled[data-v-122a921c] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vld__block[data-v-122a921c] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vld__block__toolbar[data-v-122a921c] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vld__block__toolbar__drag-handle[data-v-122a921c] {\n  float: left;\n  margin-left: 6px;\n}\n.vld__block__toolbar__button[data-v-122a921c] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vld__block__toolbar__button[data-v-122a921c]:hover {\n  color: rgb(var(--color-white));\n}\n.vld__block__toolbar__button.disabled[data-v-122a921c] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vld__block__content[data-v-122a921c] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vld__block--drag[data-v-122a921c] {\n  opacity: 0.7;\n}\n.vld__block--chosen[data-v-122a921c] {\n  opacity: 0.7;\n}\n.vld__block--ghost[data-v-122a921c] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vld__footer__button[data-v-122a921c] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vld__footer__button[data-v-122a921c]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vld__footer__button[disabled][data-v-122a921c] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vld .use-hover.vld__row[data-v-122a921c]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vld .use-hover.vld__row:hover .vld__row__toolbar[data-v-122a921c] {\n  visibility: visible;\n}\n.vld .use-hover .vld__block[data-v-122a921c]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vld .use-hover .vld__block:hover .vld__block__toolbar[data-v-122a921c] {\n  visibility: visible;\n}", map: undefined, media: undefined });
+      inject("data-v-144886da_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
+  ,inject("data-v-144886da_1", { source: ".vgd[data-v-144886da] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-144886da] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-144886da] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-144886da] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-144886da] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-144886da] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-144886da] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-144886da] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-144886da] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-144886da] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-144886da] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-144886da] {\n  visibility: visible;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__ = "data-v-122a921c";
+    const __vue_scope_id__ = "data-v-144886da";
     /* module identifier */
     const __vue_module_identifier__ = undefined;
     /* functional template */
@@ -16702,7 +16774,7 @@
             return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    :mode=\"controls.customStyle.mode\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
 
           case 'customStyleScss':
-            return "#demo {\n\n    .vld__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vld__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vld__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vld__row.demo__row {\n            &:hover {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vld__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
+            return "#demo {\n\n    .vgd__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vgd__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vgd__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vgd__row.demo__row {\n            &:hover {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vgd__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
 
           case 'slotsMarkup':
             return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    :mode=\"controls.slots.mode\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button class=\"btn btn-block btn-primary\" @click=\"blockScope.addRow\">\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
@@ -17780,7 +17852,7 @@
     /* style */
     const __vue_inject_styles__$1 = function (inject) {
       if (!inject) return
-      inject("data-v-271fbbbd_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vld__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vld__row.demo__row .vld__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vld__row.demo__row .vld__row__toolbar__button {\n  color: white;\n}\n#demo .vld__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vld__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vld__row.demo__row .vld__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
+      inject("data-v-265ba241_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */

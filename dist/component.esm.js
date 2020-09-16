@@ -69,25 +69,19 @@ var PropsMixin = {
         // CSS Class for the ghost position indicator element
         sortableGhostClass: {
             type   : String,
-            default: 'vld__block--ghost'
+            default: 'vgd__block--ghost'
         },
 
         // CSS Class for the selected element
         sortableChosenClass: {
             type   : String,
-            default: 'vld__block--chosen'
+            default: 'vgd__block--chosen'
         },
 
         // CSS Class for the element when dragged
         sortableDragClass: {
             type   : String,
-            default: 'vld__block--drag'
-        },
-
-        // CSS Class for the grab handle element
-        sortableDragHandleClass: {
-            type   : String,
-            default: 'vld__block__toolbar'
+            default: 'vgd__block--drag'
         },
 
         // Animation speed. 0 for no animation
@@ -5766,7 +5760,7 @@ var ComponentMixin = {
                     dragClass      : this.sortableDragClass,
                     animation      : this.sortableAnimation,
                     disabled       : this.mode === 'view',
-                    group          : this.enableMoveBlocksBetweenRows ? 'vld' : undefined,
+                    group          : this.enableMoveBlocksBetweenRows ? 'vgd' : undefined,
                     filter         : '.no-drag',
                     preventOnFilter: true,
                     onUpdate       : this.onUpdate,
@@ -5837,6 +5831,30 @@ var ComponentMixin = {
     // Component methods
     methods: {
 
+        // Get VGD event object
+        getEventData ( e, sourceRow = 'from' ) {
+
+            const vgd = {
+                row  : null,
+                block: null
+            };
+
+            // Find the row
+            if ( e[ sourceRow ] ) {
+                const rowId = e[ sourceRow ].getAttribute ( 'data-id' );
+                vgd.row = this.rows.find ( x => x._id === rowId );
+            }
+
+            // Find the block
+            if ( vgd.row && e.item ) {
+                const blockId = e.item.getAttribute ( 'data-id' );
+                vgd.block = vgd.row.blocks.find ( x => x._id === blockId );
+            }
+
+            return vgd;
+
+        },
+
         // Fire input event for v-model
         fireChanged () {
             this.$emit ( 'input', this.model );
@@ -5848,6 +5866,9 @@ var ComponentMixin = {
             e.target.classList.remove ( 'use-hover' );
             this.isDragging = true;
 
+            e.vdg = this.getEventData ( e );
+            this.$emit ( 'drag-start', e );
+
         },
 
         // Add row class to enable hover state
@@ -5855,6 +5876,9 @@ var ComponentMixin = {
 
             e.target.classList.add ( 'use-hover' );
             this.isDragging = false;
+
+            e.vdg = this.getEventData ( e, 'to' );
+            this.$emit ( 'drag-end', e );
 
         },
 
@@ -5877,14 +5901,20 @@ var ComponentMixin = {
             // Update model
             this.fireChanged ();
 
+            e.vdg = this.getEventData ( e );
+            this.$emit ( 'update', e );
+
         },
 
-        // When a sortable block is removed its row
+        // When a sortable block is removed from its row
         onRemove ( e ) {
 
             // Get the row the block was removed from
             const rowId = e.from.getAttribute ( 'data-id' );
             const row = this.rows.find ( x => x._id === rowId );
+
+            e.vdg = this.getEventData ( e );
+            this.$emit ( 'remove-block', e );
 
             // Remove from the model
             row.blocks.splice ( e.oldDraggableIndex, 1 );
@@ -5913,6 +5943,9 @@ var ComponentMixin = {
             // Update model
             this.fireChanged ();
 
+            e.vdg = this.getEventData ( e, 'to' );
+            this.$emit ( 'add-block', e );
+
         },
 
         // Initialise the whole grid
@@ -5921,6 +5954,8 @@ var ComponentMixin = {
             for ( const [ , row ] of this.rows.entries () ) {
                 this.initSortableRow ( row );
             }
+
+            this.$emit ( 'ready' );
 
         },
 
@@ -5969,7 +6004,7 @@ var ComponentMixin = {
         },
 
         // Expand the span of a block
-        expandBlock ( row, block, num = 1 ) {
+        expandBlock ( e, row, block, num = 1 ) {
 
             if ( block.span >= this.blocksPerRow ) {
                 return;
@@ -5979,10 +6014,13 @@ var ComponentMixin = {
 
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'update', e );
+
         },
 
         // Collapse the span of a block
-        collapseBlock ( row, block, num = 1 ) {
+        collapseBlock ( e, row, block, num = 1 ) {
 
             if ( block.span <= 1 ) {
                 return;
@@ -5992,20 +6030,26 @@ var ComponentMixin = {
 
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'update', e );
+
         },
 
         // Delete a block
-        deleteBlock ( row, block ) {
+        deleteBlock ( e, row, block ) {
 
             const blockIdx = findIndex ( row.blocks, x => x._id === block._id );
             row.blocks.splice ( blockIdx, 1 );
 
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'remove-block', e );
+
         },
 
         // Add a block to a row
-        addBlock ( row, span = 1 ) {
+        addBlock ( e, row, span = 1 ) {
 
             const block = {
                 _id    : v4 (),
@@ -6018,10 +6062,13 @@ var ComponentMixin = {
             // Update model
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'add-block', e );
+
         },
 
         // Delete a row
-        deleteRow ( row ) {
+        deleteRow ( e, row ) {
 
             // Remove row from our model
             this.rows.splice (
@@ -6031,11 +6078,13 @@ var ComponentMixin = {
 
             // Update model
             this.fireChanged ();
+            e.vdg = { row, block: null };
+            this.$emit ( 'remove-row', e );
 
         },
 
         // Add a new row
-        addRow () {
+        addRow ( e ) {
 
             const row = {
                 _id   : v4 (),
@@ -6056,6 +6105,9 @@ var ComponentMixin = {
 
                 // Update model
                 this.fireChanged ();
+
+                e.vdg = { row, block: null };
+                this.$emit ( 'add-row', e );
 
             } );
 
@@ -7844,7 +7896,7 @@ var __vue_render__ = function() {
   var _c = _vm._self._c || _h;
   return _c(
     "div",
-    { staticClass: "vld" },
+    { staticClass: "vgd" },
     [
       _vm._l(_vm.rows, function(row) {
         return _c(
@@ -7853,7 +7905,7 @@ var __vue_render__ = function() {
             key: row._id,
             ref: "row_" + row._id,
             refInFor: true,
-            staticClass: "vld__row use-hover",
+            staticClass: "vgd__row use-hover",
             class: _vm.rowClass,
             style: _vm.getAnimationStyle(),
             attrs: { "data-id": row._id }
@@ -7864,7 +7916,7 @@ var __vue_render__ = function() {
                 "div",
                 {
                   key: block._id,
-                  staticClass: "vld__block",
+                  staticClass: "vgd__block",
                   class: _vm.blockClass,
                   style: _vm.getBlockStyles(row, block),
                   attrs: { "data-id": block._id }
@@ -7874,7 +7926,7 @@ var __vue_render__ = function() {
                     ? _c(
                         "div",
                         {
-                          staticClass: "vld__block__toolbar no-drag",
+                          staticClass: "vgd__block__toolbar no-drag",
                           style: _vm.getAnimationStyle()
                         },
                         [
@@ -7884,14 +7936,14 @@ var __vue_render__ = function() {
                               _c(
                                 "span",
                                 {
-                                  staticClass: "vld__block__toolbar__button",
+                                  staticClass: "vgd__block__toolbar__button",
                                   class: {
                                     disabled: block.span >= _vm.blocksPerRow
                                   },
                                   attrs: { title: "Expand" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.expandBlock(row, block)
+                                      return _vm.expandBlock($event, row, block)
                                     }
                                   }
                                 },
@@ -7906,12 +7958,16 @@ var __vue_render__ = function() {
                               _c(
                                 "span",
                                 {
-                                  staticClass: "vld__block__toolbar__button",
+                                  staticClass: "vgd__block__toolbar__button",
                                   class: { disabled: block.span <= 1 },
                                   attrs: { title: "Collapse" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.collapseBlock(row, block)
+                                      return _vm.collapseBlock(
+                                        $event,
+                                        row,
+                                        block
+                                      )
                                     }
                                   }
                                 },
@@ -7926,11 +7982,11 @@ var __vue_render__ = function() {
                               _c(
                                 "span",
                                 {
-                                  staticClass: "vld__block__toolbar__button",
+                                  staticClass: "vgd__block__toolbar__button",
                                   attrs: { title: "Delete" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.deleteBlock(row, block)
+                                      return _vm.deleteBlock($event, row, block)
                                     }
                                   }
                                 },
@@ -7956,7 +8012,7 @@ var __vue_render__ = function() {
                   _vm._v(" "),
                   _vm.mode === "view"
                     ? _c("div", {
-                        staticClass: "vld__block__content",
+                        staticClass: "vgd__block__content",
                         domProps: { innerHTML: _vm._s(block.content) }
                       })
                     : _vm._e()
@@ -7968,7 +8024,7 @@ var __vue_render__ = function() {
               ? _c(
                   "div",
                   {
-                    staticClass: "vld__row__toolbar no-drag",
+                    staticClass: "vgd__row__toolbar no-drag",
                     style: _vm.getAnimationStyle()
                   },
                   [
@@ -7978,11 +8034,11 @@ var __vue_render__ = function() {
                         _c(
                           "span",
                           {
-                            staticClass: "vld__row__toolbar__button",
+                            staticClass: "vgd__row__toolbar__button",
                             attrs: { title: "Delete row" },
                             on: {
                               click: function($event) {
-                                return _vm.deleteRow(row)
+                                return _vm.deleteRow($event, row)
                               }
                             }
                           },
@@ -7997,11 +8053,11 @@ var __vue_render__ = function() {
                         _c(
                           "span",
                           {
-                            staticClass: "vld__row__toolbar__button",
+                            staticClass: "vgd__row__toolbar__button",
                             attrs: { title: "Add block" },
                             on: {
                               click: function($event) {
-                                return _vm.addBlock(row)
+                                return _vm.addBlock($event, row)
                               }
                             }
                           },
@@ -8035,11 +8091,15 @@ var __vue_render__ = function() {
             ? _c(
                 "button",
                 {
-                  staticClass: "vld__footer__button",
+                  staticClass: "vgd__footer__button",
                   attrs: {
                     disabled: _vm.maxRows > 0 && _vm.rows.length >= _vm.maxRows
                   },
-                  on: { click: _vm.addRow }
+                  on: {
+                    click: function($event) {
+                      return _vm.addRow($event)
+                    }
+                  }
                 },
                 [_vm._v("Add Row\n\t\t")]
               )
@@ -8057,12 +8117,12 @@ __vue_render__._withStripped = true;
   /* style */
   const __vue_inject_styles__ = function (inject) {
     if (!inject) return
-    inject("data-v-41f7f1cb_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}\n\n/*# sourceMappingURL=component.vue.map */", map: {"version":3,"sources":["/home/thefoot/Work/opensource/thefoot/vue-grid-designer/src/component.vue","component.vue"],"names":[],"mappings":"AA8JA;EACA,+BAAA;EACA,sCAAA;EACA,yBAAA;EACA,sBAAA;EACA,4BAAA;EACA,gCAAA;EACA,4BAAA;AC7JA;;AAEA,wCAAwC","file":"component.vue","sourcesContent":["<template>\n\t<div class=\"vld\">\n\n\t\t<!-- Row -->\n\t\t<div\n\t\t\t\tv-for=\"row in rows\"\n\t\t\t\t:key=\"row._id\"\n\t\t\t\t:data-id=\"row._id\"\n\t\t\t\t:ref=\"`row_${row._id}`\"\n\t\t\t\tclass=\"vld__row use-hover\"\n\t\t\t\t:class=\"rowClass\"\n\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t>\n\n\t\t\t<!-- Blocks -->\n\t\t\t<div\n\t\t\t\t\tv-for=\"block in row.blocks\"\n\t\t\t\t\t:key=\"block._id\"\n\t\t\t\t\t:data-id=\"block._id\"\n\t\t\t\t\tclass=\"vld__block\"\n\t\t\t\t\t:class=\"blockClass\"\n\t\t\t\t\t:style=\"getBlockStyles(row, block)\"\n\t\t\t>\n\n\t\t\t\t<!-- Block toolbar -->\n\t\t\t\t<div\n\t\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\t\tclass=\"vld__block__toolbar no-drag\"\n\t\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t\t>\n\t\t\t\t\t<slot\n\t\t\t\t\t\t\tname=\"block-toolbar\"\n\t\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t\t:block=\"block\"\n\t\t\t\t\t\t\t:expandBlock=\"expandBlock\"\n\t\t\t\t\t\t\t:collapseBlock=\"collapseBlock\"\n\t\t\t\t\t>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"expandBlock(row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Expand\"\n\t\t\t\t\t\t\t\tclass=\"vld__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span >= blocksPerRow }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"collapseBlock(row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Collapse\"\n\t\t\t\t\t\t\t\tclass=\"vld__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span <= 1 }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'minus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"deleteBlock(row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Delete\"\n\t\t\t\t\t\t\t\tclass=\"vld__block__toolbar__button\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t</slot>\n\n\t\t\t\t</div>\n\n\t\t\t\t<!-- Block content -->\n\t\t\t\t<div v-if=\"mode === 'view'\" class=\"vld__block__content\" v-html=\"block.content\"></div>\n\n\t\t\t</div>\n\n\t\t\t<!-- Row toolbar -->\n\t\t\t<div\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vld__row__toolbar no-drag\"\n\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t>\n\t\t\t\t<slot\n\t\t\t\t\t\tname=\"row-toolbar\"\n\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t:addBlock=\"addBlock\"\n\t\t\t\t\t\t:deleteRow=\"deleteRow\"\n\t\t\t\t>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"deleteRow(row)\"\n\t\t\t\t\t\t\ttitle=\"Delete row\"\n\t\t\t\t\t\t\tclass=\"vld__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"addBlock(row)\"\n\t\t\t\t\t\t\ttitle=\"Add block\"\n\t\t\t\t\t\t\tclass=\"vld__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t</slot>\n\n\t\t\t</div>\n\n\t\t</div>\n\n\t\t<slot\n\t\t\t\tname=\"footer\"\n\t\t\t\t:addRow=\"addRow\"\n\t\t>\n\t\t\t<button\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vld__footer__button\"\n\t\t\t\t\t@click=\"addRow\"\n\t\t\t\t\t:disabled=\"maxRows > 0 && rows.length >= maxRows\"\n\t\t\t>Add Row\n\t\t\t</button>\n\t\t</slot>\n\n\t</div>\n</template>\n\n<script>\n\nimport PropsMixin          from './mixins/props.mixin';\nimport ComponentMixin      from './mixins/component.mixin';\nimport { library }         from '@fortawesome/fontawesome-svg-core';\nimport {\n    faPlus,\n    faMinus,\n    faTimes\n}                          from '@fortawesome/free-solid-svg-icons';\nimport { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';\n\nlibrary.add ( faPlus );\nlibrary.add ( faMinus );\nlibrary.add ( faTimes );\n\nexport default {\n\n    // Module/component name\n    name: 'VueGridDesigner',\n\n    mixins: [\n        PropsMixin,\n        ComponentMixin\n    ],\n\n    components: {\n        FontAwesomeIcon\n    }\n\n};\n</script>\n\n<style lang=\"scss\">\n:root {\n\t--color-highlight: 55, 114, 255;\n\t--color-highlight-faded: 215, 227, 255;\n\t--color-active: 150, 5, 5;\n\t--color-black: 0, 0, 0;\n\t--color-white: 255, 255, 255;\n\t--color-lightgrey: 240, 240, 240;\n\t--color-darkgrey: 76, 76, 76;\n}\n</style>\n\n<style scoped lang=\"scss\">\n.vld {\n\n\tfont-family: sans-serif;\n\n\t&__row {\n\n\t\tposition: relative;\n\t\tmin-height: 65px;\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: flex;\n\t\t\tvisibility: hidden;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tflex-direction: column;\n\t\t\tposition: absolute;\n\t\t\ttop: 0;\n\t\t\tbottom: 0;\n\t\t\tright: -30px;\n\t\t\twidth: 30px;\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\t\t\tpadding: 0;\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\twidth: 100%;\n\t\t\t\ttext-align: center;\n\t\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\t\tmargin: 4px 0 4px -4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-highlight));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: default;\n\t\t\t\t\tcolor: rgb(var(--color-lightgrey));\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t}\n\n\t&__block {\n\n\t\tposition: relative;\n\t\tvertical-align: top;\n\t\tbox-sizing: border-box;\n\t\tdisplay: inline-block;\n\t\tbackground-color: rgb(var(--color-lightgrey));\n\t\tpadding: 0;\n\t\twidth: calc(var(--block-width) - var(--block-total-margin));\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: block;\n\t\t\tvisibility: hidden;\n\t\t\tposition: absolute;\n\t\t\tleft: 50%;\n\t\t\ttop: 50%;\n\t\t\tmargin-top: -15px;\n\t\t\tmargin-left: -38px;\n\t\t\tpadding: 0;\n\t\t\theight: 30px;\n\t\t\twidth: 76px;\n\t\t\tline-height: 30px;\n\t\t\tz-index: 10;\n\t\t\ttext-align: center;\n\t\t\tbackground-color: rgba(var(--color-black), .3);\n\n\t\t\t&__drag-handle {\n\t\t\t\tfloat: left;\n\t\t\t\tmargin-left: 6px;\n\t\t\t}\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\tcolor: lightgray;\n\t\t\t\tmargin-right: 4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-white));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: not-allowed;\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t\t&__content {\n\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\ttext-align: center;\n\t\t}\n\n\t\t&--drag {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--chosen {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--ghost {\n\n\t\t\topacity: .2;\n\t\t\tbackground-color: rgb(var(--color-active));\n\n\t\t}\n\n\t}\n\n\t&__footer__button {\n\n\t\tborder: 0 none;\n\t\tpadding: .3rem .6rem;\n\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\tcolor: rgb(var(--color-white));\n\t\tmargin: 10px 6px;\n\t\tcursor: pointer;\n\n\t\t&:hover {\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\t\t}\n\n\t\t&[disabled] {\n\t\t\tcursor: not-allowed;\n\t\t\topacity: 0.4;\n\t\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\t}\n\n\t}\n\n\t/* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n\t.use-hover {\n\n\t\t&.vld__row:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\n\t\t\t.vld__row__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t\t.vld__block:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\n\t\t\t.vld__block__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t}\n\n}\n</style>",":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}\n\n/*# sourceMappingURL=component.vue.map */"]}, media: undefined })
-,inject("data-v-41f7f1cb_1", { source: ".vld[data-v-41f7f1cb] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vld__row[data-v-41f7f1cb] {\n  position: relative;\n  min-height: 65px;\n}\n.vld__row__toolbar[data-v-41f7f1cb] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vld__row__toolbar__button[data-v-41f7f1cb] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vld__row__toolbar__button[data-v-41f7f1cb]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vld__row__toolbar__button.disabled[data-v-41f7f1cb] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vld__block[data-v-41f7f1cb] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vld__block__toolbar[data-v-41f7f1cb] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vld__block__toolbar__drag-handle[data-v-41f7f1cb] {\n  float: left;\n  margin-left: 6px;\n}\n.vld__block__toolbar__button[data-v-41f7f1cb] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vld__block__toolbar__button[data-v-41f7f1cb]:hover {\n  color: rgb(var(--color-white));\n}\n.vld__block__toolbar__button.disabled[data-v-41f7f1cb] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vld__block__content[data-v-41f7f1cb] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vld__block--drag[data-v-41f7f1cb] {\n  opacity: 0.7;\n}\n.vld__block--chosen[data-v-41f7f1cb] {\n  opacity: 0.7;\n}\n.vld__block--ghost[data-v-41f7f1cb] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vld__footer__button[data-v-41f7f1cb] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vld__footer__button[data-v-41f7f1cb]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vld__footer__button[disabled][data-v-41f7f1cb] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vld .use-hover.vld__row[data-v-41f7f1cb]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vld .use-hover.vld__row:hover .vld__row__toolbar[data-v-41f7f1cb] {\n  visibility: visible;\n}\n.vld .use-hover .vld__block[data-v-41f7f1cb]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vld .use-hover .vld__block:hover .vld__block__toolbar[data-v-41f7f1cb] {\n  visibility: visible;\n}\n\n/*# sourceMappingURL=component.vue.map */", map: {"version":3,"sources":["/home/thefoot/Work/opensource/thefoot/vue-grid-designer/src/component.vue","component.vue"],"names":[],"mappings":"AA0KA;EAEA,uBAAA;EAgJA,6EAAA;ACzTA;AD2KA;EAEA,kBAAA;EACA,gBAAA;AC1KA;AD4KA;EAEA,aAAA;EACA,kBAAA;EACA,mBAAA;EACA,uBAAA;EACA,sBAAA;EACA,kBAAA;EACA,MAAA;EACA,SAAA;EACA,YAAA;EACA,WAAA;EACA,mDAAA;EACA,UAAA;AC3KA;AD6KA;EAEA,eAAA;EACA,WAAA;EACA,kBAAA;EACA,iCAAA;EACA,sBAAA;AC5KA;AD8KA;EACA,kCAAA;AC5KA;AD+KA;EACA,eAAA;EACA,kCAAA;EACA,YAAA;AC7KA;ADsLA;EAEA,kBAAA;EACA,mBAAA;EACA,sBAAA;EACA,qBAAA;EACA,6CAAA;EACA,UAAA;EACA,2DAAA;ACrLA;ADuLA;EAEA,cAAA;EACA,kBAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,iBAAA;EACA,kBAAA;EACA,UAAA;EACA,YAAA;EACA,WAAA;EACA,iBAAA;EACA,WAAA;EACA,kBAAA;EACA,+CAAA;ACtLA;ADwLA;EACA,WAAA;EACA,gBAAA;ACtLA;ADyLA;EAEA,eAAA;EACA,gBAAA;EACA,iBAAA;ACxLA;AD0LA;EACA,8BAAA;ACxLA;AD2LA;EACA,mBAAA;EACA,YAAA;ACzLA;ADgMA;EACA,iCAAA;EACA,kBAAA;AC9LA;ADiMA;EAEA,YAAA;AChMA;ADoMA;EAEA,YAAA;ACnMA;ADuMA;EAEA,YAAA;EACA,0CAAA;ACtMA;AD4MA;EAEA,cAAA;EACA,sBAAA;EACA,4CAAA;EACA,8BAAA;EACA,gBAAA;EACA,eAAA;AC3MA;AD6MA;EACA,6CAAA;AC3MA;AD8MA;EACA,mBAAA;EACA,YAAA;EACA,4CAAA;AC5MA;ADoNA;EAEA,mDAAA;ACnNA;ADqNA;EACA,mBAAA;ACnNA;ADwNA;EAEA,6CAAA;ACvNA;ADyNA;EACA,mBAAA;ACvNA;;AAEA,wCAAwC","file":"component.vue","sourcesContent":["<template>\n\t<div class=\"vld\">\n\n\t\t<!-- Row -->\n\t\t<div\n\t\t\t\tv-for=\"row in rows\"\n\t\t\t\t:key=\"row._id\"\n\t\t\t\t:data-id=\"row._id\"\n\t\t\t\t:ref=\"`row_${row._id}`\"\n\t\t\t\tclass=\"vld__row use-hover\"\n\t\t\t\t:class=\"rowClass\"\n\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t>\n\n\t\t\t<!-- Blocks -->\n\t\t\t<div\n\t\t\t\t\tv-for=\"block in row.blocks\"\n\t\t\t\t\t:key=\"block._id\"\n\t\t\t\t\t:data-id=\"block._id\"\n\t\t\t\t\tclass=\"vld__block\"\n\t\t\t\t\t:class=\"blockClass\"\n\t\t\t\t\t:style=\"getBlockStyles(row, block)\"\n\t\t\t>\n\n\t\t\t\t<!-- Block toolbar -->\n\t\t\t\t<div\n\t\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\t\tclass=\"vld__block__toolbar no-drag\"\n\t\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t\t>\n\t\t\t\t\t<slot\n\t\t\t\t\t\t\tname=\"block-toolbar\"\n\t\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t\t:block=\"block\"\n\t\t\t\t\t\t\t:expandBlock=\"expandBlock\"\n\t\t\t\t\t\t\t:collapseBlock=\"collapseBlock\"\n\t\t\t\t\t>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"expandBlock(row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Expand\"\n\t\t\t\t\t\t\t\tclass=\"vld__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span >= blocksPerRow }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"collapseBlock(row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Collapse\"\n\t\t\t\t\t\t\t\tclass=\"vld__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span <= 1 }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'minus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"deleteBlock(row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Delete\"\n\t\t\t\t\t\t\t\tclass=\"vld__block__toolbar__button\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t</slot>\n\n\t\t\t\t</div>\n\n\t\t\t\t<!-- Block content -->\n\t\t\t\t<div v-if=\"mode === 'view'\" class=\"vld__block__content\" v-html=\"block.content\"></div>\n\n\t\t\t</div>\n\n\t\t\t<!-- Row toolbar -->\n\t\t\t<div\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vld__row__toolbar no-drag\"\n\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t>\n\t\t\t\t<slot\n\t\t\t\t\t\tname=\"row-toolbar\"\n\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t:addBlock=\"addBlock\"\n\t\t\t\t\t\t:deleteRow=\"deleteRow\"\n\t\t\t\t>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"deleteRow(row)\"\n\t\t\t\t\t\t\ttitle=\"Delete row\"\n\t\t\t\t\t\t\tclass=\"vld__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"addBlock(row)\"\n\t\t\t\t\t\t\ttitle=\"Add block\"\n\t\t\t\t\t\t\tclass=\"vld__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t</slot>\n\n\t\t\t</div>\n\n\t\t</div>\n\n\t\t<slot\n\t\t\t\tname=\"footer\"\n\t\t\t\t:addRow=\"addRow\"\n\t\t>\n\t\t\t<button\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vld__footer__button\"\n\t\t\t\t\t@click=\"addRow\"\n\t\t\t\t\t:disabled=\"maxRows > 0 && rows.length >= maxRows\"\n\t\t\t>Add Row\n\t\t\t</button>\n\t\t</slot>\n\n\t</div>\n</template>\n\n<script>\n\nimport PropsMixin          from './mixins/props.mixin';\nimport ComponentMixin      from './mixins/component.mixin';\nimport { library }         from '@fortawesome/fontawesome-svg-core';\nimport {\n    faPlus,\n    faMinus,\n    faTimes\n}                          from '@fortawesome/free-solid-svg-icons';\nimport { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';\n\nlibrary.add ( faPlus );\nlibrary.add ( faMinus );\nlibrary.add ( faTimes );\n\nexport default {\n\n    // Module/component name\n    name: 'VueGridDesigner',\n\n    mixins: [\n        PropsMixin,\n        ComponentMixin\n    ],\n\n    components: {\n        FontAwesomeIcon\n    }\n\n};\n</script>\n\n<style lang=\"scss\">\n:root {\n\t--color-highlight: 55, 114, 255;\n\t--color-highlight-faded: 215, 227, 255;\n\t--color-active: 150, 5, 5;\n\t--color-black: 0, 0, 0;\n\t--color-white: 255, 255, 255;\n\t--color-lightgrey: 240, 240, 240;\n\t--color-darkgrey: 76, 76, 76;\n}\n</style>\n\n<style scoped lang=\"scss\">\n.vld {\n\n\tfont-family: sans-serif;\n\n\t&__row {\n\n\t\tposition: relative;\n\t\tmin-height: 65px;\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: flex;\n\t\t\tvisibility: hidden;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tflex-direction: column;\n\t\t\tposition: absolute;\n\t\t\ttop: 0;\n\t\t\tbottom: 0;\n\t\t\tright: -30px;\n\t\t\twidth: 30px;\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\t\t\tpadding: 0;\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\twidth: 100%;\n\t\t\t\ttext-align: center;\n\t\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\t\tmargin: 4px 0 4px -4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-highlight));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: default;\n\t\t\t\t\tcolor: rgb(var(--color-lightgrey));\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t}\n\n\t&__block {\n\n\t\tposition: relative;\n\t\tvertical-align: top;\n\t\tbox-sizing: border-box;\n\t\tdisplay: inline-block;\n\t\tbackground-color: rgb(var(--color-lightgrey));\n\t\tpadding: 0;\n\t\twidth: calc(var(--block-width) - var(--block-total-margin));\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: block;\n\t\t\tvisibility: hidden;\n\t\t\tposition: absolute;\n\t\t\tleft: 50%;\n\t\t\ttop: 50%;\n\t\t\tmargin-top: -15px;\n\t\t\tmargin-left: -38px;\n\t\t\tpadding: 0;\n\t\t\theight: 30px;\n\t\t\twidth: 76px;\n\t\t\tline-height: 30px;\n\t\t\tz-index: 10;\n\t\t\ttext-align: center;\n\t\t\tbackground-color: rgba(var(--color-black), .3);\n\n\t\t\t&__drag-handle {\n\t\t\t\tfloat: left;\n\t\t\t\tmargin-left: 6px;\n\t\t\t}\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\tcolor: lightgray;\n\t\t\t\tmargin-right: 4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-white));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: not-allowed;\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t\t&__content {\n\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\ttext-align: center;\n\t\t}\n\n\t\t&--drag {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--chosen {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--ghost {\n\n\t\t\topacity: .2;\n\t\t\tbackground-color: rgb(var(--color-active));\n\n\t\t}\n\n\t}\n\n\t&__footer__button {\n\n\t\tborder: 0 none;\n\t\tpadding: .3rem .6rem;\n\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\tcolor: rgb(var(--color-white));\n\t\tmargin: 10px 6px;\n\t\tcursor: pointer;\n\n\t\t&:hover {\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\t\t}\n\n\t\t&[disabled] {\n\t\t\tcursor: not-allowed;\n\t\t\topacity: 0.4;\n\t\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\t}\n\n\t}\n\n\t/* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n\t.use-hover {\n\n\t\t&.vld__row:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\n\t\t\t.vld__row__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t\t.vld__block:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\n\t\t\t.vld__block__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t}\n\n}\n</style>",".vld {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vld__row {\n  position: relative;\n  min-height: 65px;\n}\n.vld__row__toolbar {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vld__row__toolbar__button {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vld__row__toolbar__button:hover {\n  color: rgb(var(--color-highlight));\n}\n.vld__row__toolbar__button.disabled {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vld__block {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vld__block__toolbar {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vld__block__toolbar__drag-handle {\n  float: left;\n  margin-left: 6px;\n}\n.vld__block__toolbar__button {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vld__block__toolbar__button:hover {\n  color: rgb(var(--color-white));\n}\n.vld__block__toolbar__button.disabled {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vld__block__content {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vld__block--drag {\n  opacity: 0.7;\n}\n.vld__block--chosen {\n  opacity: 0.7;\n}\n.vld__block--ghost {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vld__footer__button {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vld__footer__button:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vld__footer__button[disabled] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vld .use-hover.vld__row:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vld .use-hover.vld__row:hover .vld__row__toolbar {\n  visibility: visible;\n}\n.vld .use-hover .vld__block:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vld .use-hover .vld__block:hover .vld__block__toolbar {\n  visibility: visible;\n}\n\n/*# sourceMappingURL=component.vue.map */"]}, media: undefined });
+    inject("data-v-144886da_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}\n\n/*# sourceMappingURL=component.vue.map */", map: {"version":3,"sources":["/home/thefoot/Work/opensource/thefoot/vue-grid-designer/src/component.vue","component.vue"],"names":[],"mappings":"AA8JA;EACA,+BAAA;EACA,sCAAA;EACA,yBAAA;EACA,sBAAA;EACA,4BAAA;EACA,gCAAA;EACA,4BAAA;AC7JA;;AAEA,wCAAwC","file":"component.vue","sourcesContent":["<template>\n\t<div class=\"vgd\">\n\n\t\t<!-- Row -->\n\t\t<div\n\t\t\t\tv-for=\"row in rows\"\n\t\t\t\t:key=\"row._id\"\n\t\t\t\t:data-id=\"row._id\"\n\t\t\t\t:ref=\"`row_${row._id}`\"\n\t\t\t\tclass=\"vgd__row use-hover\"\n\t\t\t\t:class=\"rowClass\"\n\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t>\n\n\t\t\t<!-- Blocks -->\n\t\t\t<div\n\t\t\t\t\tv-for=\"block in row.blocks\"\n\t\t\t\t\t:key=\"block._id\"\n\t\t\t\t\t:data-id=\"block._id\"\n\t\t\t\t\tclass=\"vgd__block\"\n\t\t\t\t\t:class=\"blockClass\"\n\t\t\t\t\t:style=\"getBlockStyles(row, block)\"\n\t\t\t>\n\n\t\t\t\t<!-- Block toolbar -->\n\t\t\t\t<div\n\t\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\t\tclass=\"vgd__block__toolbar no-drag\"\n\t\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t\t>\n\t\t\t\t\t<slot\n\t\t\t\t\t\t\tname=\"block-toolbar\"\n\t\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t\t:block=\"block\"\n\t\t\t\t\t\t\t:expandBlock=\"expandBlock\"\n\t\t\t\t\t\t\t:collapseBlock=\"collapseBlock\"\n\t\t\t\t\t>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"expandBlock($event, row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Expand\"\n\t\t\t\t\t\t\t\tclass=\"vgd__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span >= blocksPerRow }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"collapseBlock($event, row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Collapse\"\n\t\t\t\t\t\t\t\tclass=\"vgd__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span <= 1 }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'minus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"deleteBlock($event, row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Delete\"\n\t\t\t\t\t\t\t\tclass=\"vgd__block__toolbar__button\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t</slot>\n\n\t\t\t\t</div>\n\n\t\t\t\t<!-- Block content -->\n\t\t\t\t<div v-if=\"mode === 'view'\" class=\"vgd__block__content\" v-html=\"block.content\"></div>\n\n\t\t\t</div>\n\n\t\t\t<!-- Row toolbar -->\n\t\t\t<div\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vgd__row__toolbar no-drag\"\n\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t>\n\t\t\t\t<slot\n\t\t\t\t\t\tname=\"row-toolbar\"\n\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t:addBlock=\"addBlock\"\n\t\t\t\t\t\t:deleteRow=\"deleteRow\"\n\t\t\t\t>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"deleteRow($event, row)\"\n\t\t\t\t\t\t\ttitle=\"Delete row\"\n\t\t\t\t\t\t\tclass=\"vgd__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"addBlock($event, row)\"\n\t\t\t\t\t\t\ttitle=\"Add block\"\n\t\t\t\t\t\t\tclass=\"vgd__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t</slot>\n\n\t\t\t</div>\n\n\t\t</div>\n\n\t\t<slot\n\t\t\t\tname=\"footer\"\n\t\t\t\t:addRow=\"addRow\"\n\t\t>\n\t\t\t<button\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vgd__footer__button\"\n\t\t\t\t\t@click=\"addRow($event)\"\n\t\t\t\t\t:disabled=\"maxRows > 0 && rows.length >= maxRows\"\n\t\t\t>Add Row\n\t\t\t</button>\n\t\t</slot>\n\n\t</div>\n</template>\n\n<script>\n\nimport PropsMixin          from './mixins/props.mixin';\nimport ComponentMixin      from './mixins/component.mixin';\nimport { library }         from '@fortawesome/fontawesome-svg-core';\nimport {\n    faPlus,\n    faMinus,\n    faTimes\n}                          from '@fortawesome/free-solid-svg-icons';\nimport { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';\n\nlibrary.add ( faPlus );\nlibrary.add ( faMinus );\nlibrary.add ( faTimes );\n\nexport default {\n\n    // Module/component name\n    name: 'VueGridDesigner',\n\n    mixins: [\n        PropsMixin,\n        ComponentMixin\n    ],\n\n    components: {\n        FontAwesomeIcon\n    }\n\n};\n</script>\n\n<style lang=\"scss\">\n:root {\n\t--color-highlight: 55, 114, 255;\n\t--color-highlight-faded: 215, 227, 255;\n\t--color-active: 150, 5, 5;\n\t--color-black: 0, 0, 0;\n\t--color-white: 255, 255, 255;\n\t--color-lightgrey: 240, 240, 240;\n\t--color-darkgrey: 76, 76, 76;\n}\n</style>\n\n<style scoped lang=\"scss\">\n.vgd {\n\n\tfont-family: sans-serif;\n\n\t&__row {\n\n\t\tposition: relative;\n\t\tmin-height: 65px;\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: flex;\n\t\t\tvisibility: hidden;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tflex-direction: column;\n\t\t\tposition: absolute;\n\t\t\ttop: 0;\n\t\t\tbottom: 0;\n\t\t\tright: -30px;\n\t\t\twidth: 30px;\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\t\t\tpadding: 0;\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\twidth: 100%;\n\t\t\t\ttext-align: center;\n\t\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\t\tmargin: 4px 0 4px -4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-highlight));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: default;\n\t\t\t\t\tcolor: rgb(var(--color-lightgrey));\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t}\n\n\t&__block {\n\n\t\tposition: relative;\n\t\tvertical-align: top;\n\t\tbox-sizing: border-box;\n\t\tdisplay: inline-block;\n\t\tbackground-color: rgb(var(--color-lightgrey));\n\t\tpadding: 0;\n\t\twidth: calc(var(--block-width) - var(--block-total-margin));\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: block;\n\t\t\tvisibility: hidden;\n\t\t\tposition: absolute;\n\t\t\tleft: 50%;\n\t\t\ttop: 50%;\n\t\t\tmargin-top: -15px;\n\t\t\tmargin-left: -38px;\n\t\t\tpadding: 0;\n\t\t\theight: 30px;\n\t\t\twidth: 76px;\n\t\t\tline-height: 30px;\n\t\t\tz-index: 10;\n\t\t\ttext-align: center;\n\t\t\tbackground-color: rgba(var(--color-black), .3);\n\n\t\t\t&__drag-handle {\n\t\t\t\tfloat: left;\n\t\t\t\tmargin-left: 6px;\n\t\t\t}\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\tcolor: lightgray;\n\t\t\t\tmargin-right: 4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-white));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: not-allowed;\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t\t&__content {\n\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\ttext-align: center;\n\t\t}\n\n\t\t&--drag {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--chosen {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--ghost {\n\n\t\t\topacity: .2;\n\t\t\tbackground-color: rgb(var(--color-active));\n\n\t\t}\n\n\t}\n\n\t&__footer__button {\n\n\t\tborder: 0 none;\n\t\tpadding: .3rem .6rem;\n\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\tcolor: rgb(var(--color-white));\n\t\tmargin: 10px 6px;\n\t\tcursor: pointer;\n\n\t\t&:hover {\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\t\t}\n\n\t\t&[disabled] {\n\t\t\tcursor: not-allowed;\n\t\t\topacity: 0.4;\n\t\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\t}\n\n\t}\n\n\t/* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n\t.use-hover {\n\n\t\t&.vgd__row:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\n\t\t\t.vgd__row__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t\t.vgd__block:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\n\t\t\t.vgd__block__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t}\n\n}\n</style>",":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}\n\n/*# sourceMappingURL=component.vue.map */"]}, media: undefined })
+,inject("data-v-144886da_1", { source: ".vgd[data-v-144886da] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-144886da] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-144886da] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-144886da] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-144886da] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-144886da] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-144886da] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-144886da] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-144886da] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-144886da] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-144886da] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-144886da] {\n  visibility: visible;\n}\n\n/*# sourceMappingURL=component.vue.map */", map: {"version":3,"sources":["/home/thefoot/Work/opensource/thefoot/vue-grid-designer/src/component.vue","component.vue"],"names":[],"mappings":"AA0KA;EAEA,uBAAA;EAgJA,6EAAA;ACzTA;AD2KA;EAEA,kBAAA;EACA,gBAAA;AC1KA;AD4KA;EAEA,aAAA;EACA,kBAAA;EACA,mBAAA;EACA,uBAAA;EACA,sBAAA;EACA,kBAAA;EACA,MAAA;EACA,SAAA;EACA,YAAA;EACA,WAAA;EACA,mDAAA;EACA,UAAA;AC3KA;AD6KA;EAEA,eAAA;EACA,WAAA;EACA,kBAAA;EACA,iCAAA;EACA,sBAAA;AC5KA;AD8KA;EACA,kCAAA;AC5KA;AD+KA;EACA,eAAA;EACA,kCAAA;EACA,YAAA;AC7KA;ADsLA;EAEA,kBAAA;EACA,mBAAA;EACA,sBAAA;EACA,qBAAA;EACA,6CAAA;EACA,UAAA;EACA,2DAAA;ACrLA;ADuLA;EAEA,cAAA;EACA,kBAAA;EACA,kBAAA;EACA,SAAA;EACA,QAAA;EACA,iBAAA;EACA,kBAAA;EACA,UAAA;EACA,YAAA;EACA,WAAA;EACA,iBAAA;EACA,WAAA;EACA,kBAAA;EACA,+CAAA;ACtLA;ADwLA;EACA,WAAA;EACA,gBAAA;ACtLA;ADyLA;EAEA,eAAA;EACA,gBAAA;EACA,iBAAA;ACxLA;AD0LA;EACA,8BAAA;ACxLA;AD2LA;EACA,mBAAA;EACA,YAAA;ACzLA;ADgMA;EACA,iCAAA;EACA,kBAAA;AC9LA;ADiMA;EAEA,YAAA;AChMA;ADoMA;EAEA,YAAA;ACnMA;ADuMA;EAEA,YAAA;EACA,0CAAA;ACtMA;AD4MA;EAEA,cAAA;EACA,sBAAA;EACA,4CAAA;EACA,8BAAA;EACA,gBAAA;EACA,eAAA;AC3MA;AD6MA;EACA,6CAAA;AC3MA;AD8MA;EACA,mBAAA;EACA,YAAA;EACA,4CAAA;AC5MA;ADoNA;EAEA,mDAAA;ACnNA;ADqNA;EACA,mBAAA;ACnNA;ADwNA;EAEA,6CAAA;ACvNA;ADyNA;EACA,mBAAA;ACvNA;;AAEA,wCAAwC","file":"component.vue","sourcesContent":["<template>\n\t<div class=\"vgd\">\n\n\t\t<!-- Row -->\n\t\t<div\n\t\t\t\tv-for=\"row in rows\"\n\t\t\t\t:key=\"row._id\"\n\t\t\t\t:data-id=\"row._id\"\n\t\t\t\t:ref=\"`row_${row._id}`\"\n\t\t\t\tclass=\"vgd__row use-hover\"\n\t\t\t\t:class=\"rowClass\"\n\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t>\n\n\t\t\t<!-- Blocks -->\n\t\t\t<div\n\t\t\t\t\tv-for=\"block in row.blocks\"\n\t\t\t\t\t:key=\"block._id\"\n\t\t\t\t\t:data-id=\"block._id\"\n\t\t\t\t\tclass=\"vgd__block\"\n\t\t\t\t\t:class=\"blockClass\"\n\t\t\t\t\t:style=\"getBlockStyles(row, block)\"\n\t\t\t>\n\n\t\t\t\t<!-- Block toolbar -->\n\t\t\t\t<div\n\t\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\t\tclass=\"vgd__block__toolbar no-drag\"\n\t\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t\t>\n\t\t\t\t\t<slot\n\t\t\t\t\t\t\tname=\"block-toolbar\"\n\t\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t\t:block=\"block\"\n\t\t\t\t\t\t\t:expandBlock=\"expandBlock\"\n\t\t\t\t\t\t\t:collapseBlock=\"collapseBlock\"\n\t\t\t\t\t>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"expandBlock($event, row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Expand\"\n\t\t\t\t\t\t\t\tclass=\"vgd__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span >= blocksPerRow }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"collapseBlock($event, row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Collapse\"\n\t\t\t\t\t\t\t\tclass=\"vgd__block__toolbar__button\"\n\t\t\t\t\t\t\t\t:class=\"{ disabled: block.span <= 1 }\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'minus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t\t<span\n\t\t\t\t\t\t\t\t@click=\"deleteBlock($event, row, block)\"\n\t\t\t\t\t\t\t\ttitle=\"Delete\"\n\t\t\t\t\t\t\t\tclass=\"vgd__block__toolbar__button\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t</slot>\n\n\t\t\t\t</div>\n\n\t\t\t\t<!-- Block content -->\n\t\t\t\t<div v-if=\"mode === 'view'\" class=\"vgd__block__content\" v-html=\"block.content\"></div>\n\n\t\t\t</div>\n\n\t\t\t<!-- Row toolbar -->\n\t\t\t<div\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vgd__row__toolbar no-drag\"\n\t\t\t\t\t:style=\"getAnimationStyle()\"\n\t\t\t>\n\t\t\t\t<slot\n\t\t\t\t\t\tname=\"row-toolbar\"\n\t\t\t\t\t\t:row=\"row\"\n\t\t\t\t\t\t:addBlock=\"addBlock\"\n\t\t\t\t\t\t:deleteRow=\"deleteRow\"\n\t\t\t\t>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"deleteRow($event, row)\"\n\t\t\t\t\t\t\ttitle=\"Delete row\"\n\t\t\t\t\t\t\tclass=\"vgd__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'times']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t\t<span\n\t\t\t\t\t\t\t@click=\"addBlock($event, row)\"\n\t\t\t\t\t\t\ttitle=\"Add block\"\n\t\t\t\t\t\t\tclass=\"vgd__row__toolbar__button\"\n\t\t\t\t\t>\n\t\t\t\t\t\t\t<font-awesome-icon :icon=\"['fas', 'plus']\"/>\n\t\t\t\t\t\t</span>\n\n\t\t\t\t</slot>\n\n\t\t\t</div>\n\n\t\t</div>\n\n\t\t<slot\n\t\t\t\tname=\"footer\"\n\t\t\t\t:addRow=\"addRow\"\n\t\t>\n\t\t\t<button\n\t\t\t\t\tv-if=\"mode === 'edit'\"\n\t\t\t\t\tclass=\"vgd__footer__button\"\n\t\t\t\t\t@click=\"addRow($event)\"\n\t\t\t\t\t:disabled=\"maxRows > 0 && rows.length >= maxRows\"\n\t\t\t>Add Row\n\t\t\t</button>\n\t\t</slot>\n\n\t</div>\n</template>\n\n<script>\n\nimport PropsMixin          from './mixins/props.mixin';\nimport ComponentMixin      from './mixins/component.mixin';\nimport { library }         from '@fortawesome/fontawesome-svg-core';\nimport {\n    faPlus,\n    faMinus,\n    faTimes\n}                          from '@fortawesome/free-solid-svg-icons';\nimport { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';\n\nlibrary.add ( faPlus );\nlibrary.add ( faMinus );\nlibrary.add ( faTimes );\n\nexport default {\n\n    // Module/component name\n    name: 'VueGridDesigner',\n\n    mixins: [\n        PropsMixin,\n        ComponentMixin\n    ],\n\n    components: {\n        FontAwesomeIcon\n    }\n\n};\n</script>\n\n<style lang=\"scss\">\n:root {\n\t--color-highlight: 55, 114, 255;\n\t--color-highlight-faded: 215, 227, 255;\n\t--color-active: 150, 5, 5;\n\t--color-black: 0, 0, 0;\n\t--color-white: 255, 255, 255;\n\t--color-lightgrey: 240, 240, 240;\n\t--color-darkgrey: 76, 76, 76;\n}\n</style>\n\n<style scoped lang=\"scss\">\n.vgd {\n\n\tfont-family: sans-serif;\n\n\t&__row {\n\n\t\tposition: relative;\n\t\tmin-height: 65px;\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: flex;\n\t\t\tvisibility: hidden;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tflex-direction: column;\n\t\t\tposition: absolute;\n\t\t\ttop: 0;\n\t\t\tbottom: 0;\n\t\t\tright: -30px;\n\t\t\twidth: 30px;\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\t\t\tpadding: 0;\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\twidth: 100%;\n\t\t\t\ttext-align: center;\n\t\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\t\tmargin: 4px 0 4px -4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-highlight));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: default;\n\t\t\t\t\tcolor: rgb(var(--color-lightgrey));\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t}\n\n\t&__block {\n\n\t\tposition: relative;\n\t\tvertical-align: top;\n\t\tbox-sizing: border-box;\n\t\tdisplay: inline-block;\n\t\tbackground-color: rgb(var(--color-lightgrey));\n\t\tpadding: 0;\n\t\twidth: calc(var(--block-width) - var(--block-total-margin));\n\n\t\t&__toolbar {\n\n\t\t\tdisplay: block;\n\t\t\tvisibility: hidden;\n\t\t\tposition: absolute;\n\t\t\tleft: 50%;\n\t\t\ttop: 50%;\n\t\t\tmargin-top: -15px;\n\t\t\tmargin-left: -38px;\n\t\t\tpadding: 0;\n\t\t\theight: 30px;\n\t\t\twidth: 76px;\n\t\t\tline-height: 30px;\n\t\t\tz-index: 10;\n\t\t\ttext-align: center;\n\t\t\tbackground-color: rgba(var(--color-black), .3);\n\n\t\t\t&__drag-handle {\n\t\t\t\tfloat: left;\n\t\t\t\tmargin-left: 6px;\n\t\t\t}\n\n\t\t\t&__button {\n\n\t\t\t\tcursor: pointer;\n\t\t\t\tcolor: lightgray;\n\t\t\t\tmargin-right: 4px;\n\n\t\t\t\t&:hover {\n\t\t\t\t\tcolor: rgb(var(--color-white));\n\t\t\t\t}\n\n\t\t\t\t&.disabled {\n\t\t\t\t\tcursor: not-allowed;\n\t\t\t\t\topacity: 0.4;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}\n\n\t\t&__content {\n\t\t\tcolor: rgb(var(--color-darkgrey));\n\t\t\ttext-align: center;\n\t\t}\n\n\t\t&--drag {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--chosen {\n\n\t\t\topacity: .7;\n\n\t\t}\n\n\t\t&--ghost {\n\n\t\t\topacity: .2;\n\t\t\tbackground-color: rgb(var(--color-active));\n\n\t\t}\n\n\t}\n\n\t&__footer__button {\n\n\t\tborder: 0 none;\n\t\tpadding: .3rem .6rem;\n\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\tcolor: rgb(var(--color-white));\n\t\tmargin: 10px 6px;\n\t\tcursor: pointer;\n\n\t\t&:hover {\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\t\t}\n\n\t\t&[disabled] {\n\t\t\tcursor: not-allowed;\n\t\t\topacity: 0.4;\n\t\t\tbackground-color: rgb(var(--color-darkgrey));\n\t\t}\n\n\t}\n\n\t/* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n\t.use-hover {\n\n\t\t&.vgd__row:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight-faded));\n\n\t\t\t.vgd__row__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t\t.vgd__block:hover {\n\n\t\t\tbackground-color: rgb(var(--color-highlight));\n\n\t\t\t.vgd__block__toolbar {\n\t\t\t\tvisibility: visible;\n\t\t\t}\n\n\t\t}\n\n\t}\n\n}\n</style>",".vgd {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag {\n  opacity: 0.7;\n}\n.vgd__block--chosen {\n  opacity: 0.7;\n}\n.vgd__block--ghost {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar {\n  visibility: visible;\n}\n\n/*# sourceMappingURL=component.vue.map */"]}, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__ = "data-v-41f7f1cb";
+  const __vue_scope_id__ = "data-v-144886da";
   /* module identifier */
   const __vue_module_identifier__ = undefined;
   /* functional template */
