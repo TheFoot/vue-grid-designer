@@ -35,6 +35,14 @@
 				<a class="nav-link" id="demoTabSlots" data-toggle="tab" href="#demoContentSlots" role="tab"
 				   aria-controls="home" aria-selected="true">Slots</a>
 			</li>
+			<li class="nav-item" role="presentation">
+				<a class="nav-link" id="demoTabEvents" data-toggle="tab" href="#demoContentEvents" role="tab"
+				   aria-controls="home" aria-selected="true">Events</a>
+			</li>
+			<li class="nav-item" role="presentation">
+				<a class="nav-link" id="demoTabHtml" data-toggle="tab" href="#demoContentHtml" role="tab"
+				   aria-controls="home" aria-selected="true">HTML Generator</a>
+			</li>
 		</ul>
 
 		<div class="tab-content border border-top-0 py-4 px-2" id="demoTabContentContainer">
@@ -137,14 +145,17 @@
 						<div class="col-6">
 							<p>Text and HTML content provided via each block's <code>content</code> property,
 							   is displayed when in <code>view</code> mode. However, it is hidden when in
-								<code>edit</code> mode</p>
+								<code>edit</code> mode.</p>
 							<div class="alert alert-info">
 								<font-awesome-icon :icon="['fas', 'info']" class="mr-4"/>
 								NOTE: Vue components cannot be embedded this way.
 							</div>
+							<p>This demo model implements custom model properties. Click the <code>Full Model</code>
+							   button and open the browser console, to see the full internal model.</p>
 						</div>
 						<div class="col-6">
 							<pre v-highlightjs="getCode('contentStyleMarkup')"><code class="html"></code></pre>
+							<pre v-highlightjs="getCode('contentDataModel')"><code class="js"></code></pre>
 						</div>
 					</div>
 
@@ -164,11 +175,15 @@
 										<option value="view">View</option>
 									</select>
 
+									<button type="button" class="btn btn-light" @click="getFullDataModel">Full Model
+									</button>
+
 								</form>
 							</nav>
 
 							<vue-grid-designer
 									v-model="grids.content"
+									ref="demoComponentContent"
 									:mode="controls.content.mode"
 									:blocks-per-row="4"
 							/>
@@ -286,7 +301,11 @@
 							>
 
 								<template v-slot:footer="blockScope">
-									<button class="btn btn-block btn-primary" @click="blockScope.addRow">
+									<button
+											class="btn btn-block btn-primary"
+											@click="blockScope.addRow"
+											:disabled="blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows"
+									>
 										<font-awesome-icon :icon="['fas', 'plus-square']" size="2x" class="mr-3"/>
 										<span style="font-size: 2rem;">Create Row</span>
 									</button>
@@ -306,6 +325,110 @@
 
 			</div>
 
+			<div class="tab-pane fade show" id="demoContentEvents" role="tabpanel" aria-labelledby="demoTabEvents">
+
+				<div class="container">
+
+					<div class="row">
+						<div class="col-6">
+							<p>Open the browser console to see events being fired.
+							   Or use the <a href="https://github.com/vuejs/vue-devtools" target="_blank">Vue developer
+							                                                                              tools</a>.</p>
+						</div>
+						<div class="col-6">
+							<pre v-highlightjs="getCode('eventsMarkup')"><code class="html"></code></pre>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col shadow border p-2">
+							<vue-grid-designer
+									v-model="grids.events"
+									:mode="controls.events.mode"
+									@ready="showDemoEvent('ready', $event)"
+									@update="showDemoEvent('update', $event)"
+									@remove-block="showDemoEvent('remove-block', $event)"
+									@remove-row="showDemoEvent('remove-row', $event)"
+									@add-block="showDemoEvent('add-block', $event)"
+									@add-row="showDemoEvent('add-row', $event)"
+									@drag-start="showDemoEvent('drag-start', $event)"
+									@drag-stop="showDemoEvent('drag-stop', $event)"
+									@block-changed="showDemoEvent('block-changed', $event)"
+									@input="showDemoEvent('input (manual handler)', $event)"
+							/>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="mt-4 px-2">
+					<h5>Data Model</h5>
+					<pre v-highlightjs="getJSON ( grids.events )"><code class="json"></code></pre>
+				</div>
+
+			</div>
+
+			<div class="tab-pane fade show" id="demoContentHtml" role="tabpanel" aria-labelledby="demoTabHtml">
+
+				<div class="container">
+
+					<div class="row">
+						<div class="col-6">
+							<p>This demo shows the grid model being used to dynamically render Bootstrap layout and
+							   table components</p>
+						</div>
+						<div class="col-6">
+							<pre v-highlightjs="getCode('htmlMarkup')"><code class="html"></code></pre>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col shadow border p-2">
+
+							<vue-grid-designer
+									v-model="grids.html"
+									:mode="controls.html.mode"
+									:blocks-per-row="controls.html.blocksPerRow"
+									:max-rows="controls.html.maxRows"
+									:min-block-height="controls.html.minBlockHeight"
+							/>
+
+						</div>
+					</div>
+
+				</div>
+
+				<div class="card-deck mt-4 px-2">
+					<div class="card">
+						<div class="card-header">Layout Builder Component</div>
+						<div class="card-body">
+							<bs-layout-builder
+									v-model="grids.html"
+									:layout-size="controls.html.blocksPerRow"
+									class="border rounded shadow-sm p-2"
+							/>
+						</div>
+						<div class="card-footer">
+							<pre v-highlightjs="getCode('htmlLayout')"><code class="html"></code></pre>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-header">Table Builder Component</div>
+						<div class="card-body">
+							<bs-table-builder
+									v-model="grids.html"
+									:layout-size="controls.html.blocksPerRow"
+									class="border rounded shadow-sm p-2"
+							/>
+						</div>
+						<div class="card-footer">
+							<pre v-highlightjs="getCode('htmlTable')"><code class="html"></code></pre>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
 		</div>
 
 	</div>
@@ -317,6 +440,8 @@ import VueGridDesigner          from '@/component';
 import { library }              from '@fortawesome/fontawesome-svg-core';
 import { faInfo, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon }      from '@fortawesome/vue-fontawesome';
+import BsLayoutBuilder          from '@/demo/bs-layout-builder';
+import BsTableBuilder           from '@/demo/bs-table-builder';
 
 library.add ( faInfo );
 library.add ( faPlusSquare );
@@ -324,7 +449,7 @@ library.add ( faPlusSquare );
 export default {
 
     name      : 'App',
-    components: { VueGridDesigner, FontAwesomeIcon },
+    components: { VueGridDesigner, FontAwesomeIcon, BsLayoutBuilder, BsTableBuilder },
     data () {
         return {
 
@@ -362,21 +487,26 @@ export default {
 
                 content: [
                     {
+                        label : 'First row',
                         blocks: [
                             {
                                 span   : 4,
+                                source : 'https://www.blindtextgenerator.com/lorem-ipsum',
                                 content: '<h5 class="mt-2">Far, far away</h5><p class="p-2">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>'
                             }
                         ]
                     },
                     {
+                        label : 'Second row',
                         blocks: [
                             {
                                 span   : 2,
+                                source : 'https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog',
                                 content: '<h5 class="mt-2 ml-2 text-left">Quick ol\' foxy</h5><p class="text-left p-2">The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog.</p>'
                             },
                             {
                                 span   : 2,
+                                source : 'via.placeholder.com',
                                 content: '<div class="m-2"><img class="img-fluid rounded" src="https://via.placeholder.com/468x60?text=Image: 468x60" /></div>'
                             }
                         ]
@@ -392,7 +522,38 @@ export default {
                     }
                 ],
 
-                slots: []
+                slots: [],
+
+                events: [],
+
+                html: [
+                    {
+                        isHeader: true,
+                        blocks  : [
+                            { span: 2, classes: 'text-center' },
+                            { span: 2, classes: 'text-center' },
+                            { span: 2, classes: 'text-center' },
+                            { span: 2, classes: 'text-center' },
+                            { span: 2, classes: 'text-center' },
+                            { span: 2, classes: 'text-center' }
+                        ]
+                    },
+                    {
+                        blocks: [
+                            { span: 3, classes: 'text-center' },
+                            { span: 3, classes: 'text-center' },
+                            { span: 3, classes: 'text-center' },
+                            { span: 3, classes: 'text-center' }
+                        ]
+                    },
+                    {
+                        isFooter: true,
+                        classes : 'text-center',
+                        blocks  : [
+                            { span: 12, classes: 'text-center' }
+                        ]
+                    }
+                ]
 
             },
 
@@ -416,11 +577,21 @@ export default {
                 },
                 slots      : {
                     mode: 'edit'
+                },
+                events     : {
+                    mode: 'edit'
+                },
+                html       : {
+                    mode          : 'edit',
+                    blocksPerRow  : 12,
+                    maxRows       : 4,
+                    minBlockHeight: 70
                 }
             }
 
         };
     },
+    computed  : {},
     methods   : {
 
         getJSON ( data ) {
@@ -439,7 +610,7 @@ export default {
                 case 'customStyleMarkup':
                     return `<vue-grid-designer
     v-model="grids.customStyle"
-    :mode="controls.customStyle.mode"
+    mode="edit"
     row-class="demo__row"
     block-class="demo__block"
 />`;
@@ -480,11 +651,15 @@ export default {
                 case 'slotsMarkup':
                     return `<vue-grid-designer
     v-model="grids.slots"
-    :mode="controls.slots.mode"
+    mode="edit"
 >
 
     <template v-slot:footer="blockScope">
-        <button class="btn btn-block btn-primary" @click="blockScope.addRow">
+        <button
+            class="btn btn-block btn-primary"
+            @click="blockScope.addRow"
+            :disabled="blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows"
+        >
             <font-awesome-icon :icon="['fas', 'plus-square']" size="2x" class="mr-3"/>
             <span style="font-size: 2rem;">Create Row</span>
         </button>
@@ -492,7 +667,65 @@ export default {
 
 </vue-grid-designer>`;
 
+                case 'eventsMarkup':
+                    return `<vue-grid-designer
+    v-model="grids.events"
+    mode="edit"
+    @ready="showDemoEvent('ready', $event)"
+    @update="showDemoEvent('update', $event)"
+    @remove-block="showDemoEvent('remove-block', $event)"
+    @remove-row="showDemoEvent('remove-row', $event)"
+    @add-block="showDemoEvent('add-block', $event)"
+    @add-row="showDemoEvent('add-row', $event)"
+    @drag-start="showDemoEvent('drag-start', $event)"
+    @drag-stop="showDemoEvent('drag-stop', $event)"
+    @block-changed="showDemoEvent('block-changed', $event)"
+    @input="showDemoEvent('input (manual handler)', $event)"
+/>`;
+
+                case 'contentDataModel':
+                    return `getFullDataModel () {
+
+    const $comp = this.$refs[ 'demoComponentContent' ];
+    console.log ( 'Full Data Model: ', $comp.getFullModel () );
+
+}`;
+
+                case 'htmlLayout':
+                    return `<bs-layout-builder
+    v-model="grids.html"
+    :layout-size="controls.html.blocksPerRow"
+    class="border rounded shadow-sm p-2"
+/>`;
+
+                case 'htmlTable':
+                    return `<bs-table-builder
+    v-model="grids.html"
+    :layout-size="controls.html.blocksPerRow"
+    class="border rounded shadow-sm p-2"
+/>`;
+
+                case 'htmlMarkup':
+                    return `<vue-grid-designer
+    v-model="grids.html"
+    mode="edit"
+    :blocks-per-row="12"
+    :max-rows="4"
+    :min-block-height="70"
+/>`;
+
             }
+        },
+
+        showDemoEvent ( name, e ) {
+            console.log ( `Event: ${ name }`, e );
+        },
+
+        getFullDataModel () {
+
+            const $comp = this.$refs[ 'demoComponentContent' ];
+            console.log ( 'Full Data Model: ', $comp.getFullModel () );
+
         }
 
     }

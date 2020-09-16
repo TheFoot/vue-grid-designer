@@ -9314,6 +9314,168 @@
   /* Built-in method references that are verified to be native. */
   var WeakMap = getNative(root, 'WeakMap');
 
+  /** Built-in value references. */
+  var objectCreate = Object.create;
+
+  /**
+   * The base implementation of `_.create` without support for assigning
+   * properties to the created object.
+   *
+   * @private
+   * @param {Object} proto The object to inherit from.
+   * @returns {Object} Returns the new object.
+   */
+  var baseCreate = (function() {
+    function object() {}
+    return function(proto) {
+      if (!isObject$1(proto)) {
+        return {};
+      }
+      if (objectCreate) {
+        return objectCreate(proto);
+      }
+      object.prototype = proto;
+      var result = new object;
+      object.prototype = undefined;
+      return result;
+    };
+  }());
+
+  /**
+   * A faster alternative to `Function#apply`, this function invokes `func`
+   * with the `this` binding of `thisArg` and the arguments of `args`.
+   *
+   * @private
+   * @param {Function} func The function to invoke.
+   * @param {*} thisArg The `this` binding of `func`.
+   * @param {Array} args The arguments to invoke `func` with.
+   * @returns {*} Returns the result of `func`.
+   */
+  function apply(func, thisArg, args) {
+    switch (args.length) {
+      case 0: return func.call(thisArg);
+      case 1: return func.call(thisArg, args[0]);
+      case 2: return func.call(thisArg, args[0], args[1]);
+      case 3: return func.call(thisArg, args[0], args[1], args[2]);
+    }
+    return func.apply(thisArg, args);
+  }
+
+  /**
+   * Copies the values of `source` to `array`.
+   *
+   * @private
+   * @param {Array} source The array to copy values from.
+   * @param {Array} [array=[]] The array to copy values to.
+   * @returns {Array} Returns `array`.
+   */
+  function copyArray(source, array) {
+    var index = -1,
+        length = source.length;
+
+    array || (array = Array(length));
+    while (++index < length) {
+      array[index] = source[index];
+    }
+    return array;
+  }
+
+  /** Used to detect hot functions by number of calls within a span of milliseconds. */
+  var HOT_COUNT = 800,
+      HOT_SPAN = 16;
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeNow = Date.now;
+
+  /**
+   * Creates a function that'll short out and invoke `identity` instead
+   * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
+   * milliseconds.
+   *
+   * @private
+   * @param {Function} func The function to restrict.
+   * @returns {Function} Returns the new shortable function.
+   */
+  function shortOut(func) {
+    var count = 0,
+        lastCalled = 0;
+
+    return function() {
+      var stamp = nativeNow(),
+          remaining = HOT_SPAN - (stamp - lastCalled);
+
+      lastCalled = stamp;
+      if (remaining > 0) {
+        if (++count >= HOT_COUNT) {
+          return arguments[0];
+        }
+      } else {
+        count = 0;
+      }
+      return func.apply(undefined, arguments);
+    };
+  }
+
+  /**
+   * Creates a function that returns `value`.
+   *
+   * @static
+   * @memberOf _
+   * @since 2.4.0
+   * @category Util
+   * @param {*} value The value to return from the new function.
+   * @returns {Function} Returns the new constant function.
+   * @example
+   *
+   * var objects = _.times(2, _.constant({ 'a': 1 }));
+   *
+   * console.log(objects);
+   * // => [{ 'a': 1 }, { 'a': 1 }]
+   *
+   * console.log(objects[0] === objects[1]);
+   * // => true
+   */
+  function constant(value) {
+    return function() {
+      return value;
+    };
+  }
+
+  var defineProperty = (function() {
+    try {
+      var func = getNative(Object, 'defineProperty');
+      func({}, '', {});
+      return func;
+    } catch (e) {}
+  }());
+
+  /**
+   * The base implementation of `setToString` without support for hot loop shorting.
+   *
+   * @private
+   * @param {Function} func The function to modify.
+   * @param {Function} string The `toString` result.
+   * @returns {Function} Returns `func`.
+   */
+  var baseSetToString = !defineProperty ? identity$1 : function(func, string) {
+    return defineProperty(func, 'toString', {
+      'configurable': true,
+      'enumerable': false,
+      'value': constant(string),
+      'writable': true
+    });
+  };
+
+  /**
+   * Sets the `toString` method of `func` to return `string`.
+   *
+   * @private
+   * @param {Function} func The function to modify.
+   * @param {Function} string The `toString` result.
+   * @returns {Function} Returns `func`.
+   */
+  var setToString = shortOut(baseSetToString);
+
   /**
    * The base implementation of `_.findIndex` and `_.findLastIndex` without
    * support for iteratee shorthands.
@@ -9362,6 +9524,28 @@
   }
 
   /**
+   * The base implementation of `assignValue` and `assignMergeValue` without
+   * value checks.
+   *
+   * @private
+   * @param {Object} object The object to modify.
+   * @param {string} key The key of the property to assign.
+   * @param {*} value The value to assign.
+   */
+  function baseAssignValue(object, key, value) {
+    if (key == '__proto__' && defineProperty) {
+      defineProperty(object, key, {
+        'configurable': true,
+        'enumerable': true,
+        'value': value,
+        'writable': true
+      });
+    } else {
+      object[key] = value;
+    }
+  }
+
+  /**
    * Performs a
    * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
    * comparison between two values to determine if they are equivalent.
@@ -9395,6 +9579,111 @@
    */
   function eq(value, other) {
     return value === other || (value !== value && other !== other);
+  }
+
+  /** Used for built-in method references. */
+  var objectProto$3 = Object.prototype;
+
+  /** Used to check objects for own properties. */
+  var hasOwnProperty$3 = objectProto$3.hasOwnProperty;
+
+  /**
+   * Assigns `value` to `key` of `object` if the existing value is not equivalent
+   * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+   * for equality comparisons.
+   *
+   * @private
+   * @param {Object} object The object to modify.
+   * @param {string} key The key of the property to assign.
+   * @param {*} value The value to assign.
+   */
+  function assignValue(object, key, value) {
+    var objValue = object[key];
+    if (!(hasOwnProperty$3.call(object, key) && eq(objValue, value)) ||
+        (value === undefined && !(key in object))) {
+      baseAssignValue(object, key, value);
+    }
+  }
+
+  /**
+   * Copies properties of `source` to `object`.
+   *
+   * @private
+   * @param {Object} source The object to copy properties from.
+   * @param {Array} props The property identifiers to copy.
+   * @param {Object} [object={}] The object to copy properties to.
+   * @param {Function} [customizer] The function to customize copied values.
+   * @returns {Object} Returns `object`.
+   */
+  function copyObject(source, props, object, customizer) {
+    var isNew = !object;
+    object || (object = {});
+
+    var index = -1,
+        length = props.length;
+
+    while (++index < length) {
+      var key = props[index];
+
+      var newValue = customizer
+        ? customizer(object[key], source[key], key, object, source)
+        : undefined;
+
+      if (newValue === undefined) {
+        newValue = source[key];
+      }
+      if (isNew) {
+        baseAssignValue(object, key, newValue);
+      } else {
+        assignValue(object, key, newValue);
+      }
+    }
+    return object;
+  }
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeMax = Math.max;
+
+  /**
+   * A specialized version of `baseRest` which transforms the rest array.
+   *
+   * @private
+   * @param {Function} func The function to apply a rest parameter to.
+   * @param {number} [start=func.length-1] The start position of the rest parameter.
+   * @param {Function} transform The rest array transform.
+   * @returns {Function} Returns the new function.
+   */
+  function overRest(func, start, transform) {
+    start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+    return function() {
+      var args = arguments,
+          index = -1,
+          length = nativeMax(args.length - start, 0),
+          array = Array(length);
+
+      while (++index < length) {
+        array[index] = args[start + index];
+      }
+      index = -1;
+      var otherArgs = Array(start + 1);
+      while (++index < start) {
+        otherArgs[index] = args[index];
+      }
+      otherArgs[start] = transform(array);
+      return apply(func, this, otherArgs);
+    };
+  }
+
+  /**
+   * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+   *
+   * @private
+   * @param {Function} func The function to apply a rest parameter to.
+   * @param {number} [start=func.length-1] The start position of the rest parameter.
+   * @returns {Function} Returns the new function.
+   */
+  function baseRest(func, start) {
+    return setToString(overRest(func, start, identity$1), func + '');
   }
 
   /** Used as references for various `Number` constants. */
@@ -9460,8 +9749,65 @@
     return value != null && isLength(value.length) && !isFunction(value);
   }
 
+  /**
+   * Checks if the given arguments are from an iteratee call.
+   *
+   * @private
+   * @param {*} value The potential iteratee value argument.
+   * @param {*} index The potential iteratee index or key argument.
+   * @param {*} object The potential iteratee object argument.
+   * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+   *  else `false`.
+   */
+  function isIterateeCall(value, index, object) {
+    if (!isObject$1(object)) {
+      return false;
+    }
+    var type = typeof index;
+    if (type == 'number'
+          ? (isArrayLike(object) && isIndex(index, object.length))
+          : (type == 'string' && index in object)
+        ) {
+      return eq(object[index], value);
+    }
+    return false;
+  }
+
+  /**
+   * Creates a function like `_.assign`.
+   *
+   * @private
+   * @param {Function} assigner The function to assign values.
+   * @returns {Function} Returns the new assigner function.
+   */
+  function createAssigner(assigner) {
+    return baseRest(function(object, sources) {
+      var index = -1,
+          length = sources.length,
+          customizer = length > 1 ? sources[length - 1] : undefined,
+          guard = length > 2 ? sources[2] : undefined;
+
+      customizer = (assigner.length > 3 && typeof customizer == 'function')
+        ? (length--, customizer)
+        : undefined;
+
+      if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+        customizer = length < 3 ? undefined : customizer;
+        length = 1;
+      }
+      object = Object(object);
+      while (++index < length) {
+        var source = sources[index];
+        if (source) {
+          assigner(object, source, index, customizer);
+        }
+      }
+      return object;
+    });
+  }
+
   /** Used for built-in method references. */
-  var objectProto$3 = Object.prototype;
+  var objectProto$4 = Object.prototype;
 
   /**
    * Checks if `value` is likely a prototype object.
@@ -9472,7 +9818,7 @@
    */
   function isPrototype(value) {
     var Ctor = value && value.constructor,
-        proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$3;
+        proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$4;
 
     return value === proto;
   }
@@ -9511,13 +9857,13 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$4 = Object.prototype;
+  var objectProto$5 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
+  var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
 
   /** Built-in value references. */
-  var propertyIsEnumerable = objectProto$4.propertyIsEnumerable;
+  var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
 
   /**
    * Checks if `value` is likely an `arguments` object.
@@ -9538,7 +9884,7 @@
    * // => false
    */
   var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
-    return isObjectLike(value) && hasOwnProperty$3.call(value, 'callee') &&
+    return isObjectLike(value) && hasOwnProperty$4.call(value, 'callee') &&
       !propertyIsEnumerable.call(value, 'callee');
   };
 
@@ -9711,10 +10057,10 @@
   var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
 
   /** Used for built-in method references. */
-  var objectProto$5 = Object.prototype;
+  var objectProto$6 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
+  var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
 
   /**
    * Creates an array of the enumerable property names of the array-like `value`.
@@ -9734,7 +10080,7 @@
         length = result.length;
 
     for (var key in value) {
-      if ((inherited || hasOwnProperty$4.call(value, key)) &&
+      if ((inherited || hasOwnProperty$5.call(value, key)) &&
           !(skipIndexes && (
              // Safari 9 has enumerable `arguments.length` in strict mode.
              key == 'length' ||
@@ -9769,10 +10115,10 @@
   var nativeKeys = overArg(Object.keys, Object);
 
   /** Used for built-in method references. */
-  var objectProto$6 = Object.prototype;
+  var objectProto$7 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
+  var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
 
   /**
    * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -9787,7 +10133,7 @@
     }
     var result = [];
     for (var key in Object(object)) {
-      if (hasOwnProperty$5.call(object, key) && key != 'constructor') {
+      if (hasOwnProperty$6.call(object, key) && key != 'constructor') {
         result.push(key);
       }
     }
@@ -9824,6 +10170,80 @@
    */
   function keys(object) {
     return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+  }
+
+  /**
+   * This function is like
+   * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+   * except that it includes inherited enumerable properties.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   */
+  function nativeKeysIn(object) {
+    var result = [];
+    if (object != null) {
+      for (var key in Object(object)) {
+        result.push(key);
+      }
+    }
+    return result;
+  }
+
+  /** Used for built-in method references. */
+  var objectProto$8 = Object.prototype;
+
+  /** Used to check objects for own properties. */
+  var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
+
+  /**
+   * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   */
+  function baseKeysIn(object) {
+    if (!isObject$1(object)) {
+      return nativeKeysIn(object);
+    }
+    var isProto = isPrototype(object),
+        result = [];
+
+    for (var key in object) {
+      if (!(key == 'constructor' && (isProto || !hasOwnProperty$7.call(object, key)))) {
+        result.push(key);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Creates an array of the own and inherited enumerable property names of `object`.
+   *
+   * **Note:** Non-object values are coerced to objects.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.0.0
+   * @category Object
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   *   this.b = 2;
+   * }
+   *
+   * Foo.prototype.c = 3;
+   *
+   * _.keysIn(new Foo);
+   * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
+   */
+  function keysIn(object) {
+    return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
   }
 
   /** Used to match property names within property paths. */
@@ -9886,10 +10306,10 @@
   var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
   /** Used for built-in method references. */
-  var objectProto$7 = Object.prototype;
+  var objectProto$9 = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
+  var hasOwnProperty$8 = objectProto$9.hasOwnProperty;
 
   /**
    * Gets the hash value for `key`.
@@ -9906,14 +10326,14 @@
       var result = data[key];
       return result === HASH_UNDEFINED ? undefined : result;
     }
-    return hasOwnProperty$6.call(data, key) ? data[key] : undefined;
+    return hasOwnProperty$8.call(data, key) ? data[key] : undefined;
   }
 
   /** Used for built-in method references. */
-  var objectProto$8 = Object.prototype;
+  var objectProto$a = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
+  var hasOwnProperty$9 = objectProto$a.hasOwnProperty;
 
   /**
    * Checks if a hash value for `key` exists.
@@ -9926,7 +10346,7 @@
    */
   function hashHas(key) {
     var data = this.__data__;
-    return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$7.call(data, key);
+    return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$9.call(data, key);
   }
 
   /** Used to stand-in for `undefined` hash values. */
@@ -10490,6 +10910,66 @@
     return array;
   }
 
+  /** Built-in value references. */
+  var getPrototype = overArg(Object.getPrototypeOf, Object);
+
+  /** `Object#toString` result references. */
+  var objectTag$1 = '[object Object]';
+
+  /** Used for built-in method references. */
+  var funcProto$2 = Function.prototype,
+      objectProto$b = Object.prototype;
+
+  /** Used to resolve the decompiled source of functions. */
+  var funcToString$2 = funcProto$2.toString;
+
+  /** Used to check objects for own properties. */
+  var hasOwnProperty$a = objectProto$b.hasOwnProperty;
+
+  /** Used to infer the `Object` constructor. */
+  var objectCtorString = funcToString$2.call(Object);
+
+  /**
+   * Checks if `value` is a plain object, that is, an object created by the
+   * `Object` constructor or one with a `[[Prototype]]` of `null`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.8.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   * }
+   *
+   * _.isPlainObject(new Foo);
+   * // => false
+   *
+   * _.isPlainObject([1, 2, 3]);
+   * // => false
+   *
+   * _.isPlainObject({ 'x': 0, 'y': 0 });
+   * // => true
+   *
+   * _.isPlainObject(Object.create(null));
+   * // => true
+   */
+  function isPlainObject$1(value) {
+    if (!isObjectLike(value) || baseGetTag(value) != objectTag$1) {
+      return false;
+    }
+    var proto = getPrototype(value);
+    if (proto === null) {
+      return true;
+    }
+    var Ctor = hasOwnProperty$a.call(proto, 'constructor') && proto.constructor;
+    return typeof Ctor == 'function' && Ctor instanceof Ctor &&
+      funcToString$2.call(Ctor) == objectCtorString;
+  }
+
   /**
    * Removes all key-value entries from the stack.
    *
@@ -10593,6 +11073,38 @@
   Stack.prototype.has = stackHas;
   Stack.prototype.set = stackSet;
 
+  /** Detect free variable `exports`. */
+  var freeExports$2 = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+  /** Detect free variable `module`. */
+  var freeModule$2 = freeExports$2 && typeof module == 'object' && module && !module.nodeType && module;
+
+  /** Detect the popular CommonJS extension `module.exports`. */
+  var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
+
+  /** Built-in value references. */
+  var Buffer$1 = moduleExports$2 ? root.Buffer : undefined,
+      allocUnsafe = Buffer$1 ? Buffer$1.allocUnsafe : undefined;
+
+  /**
+   * Creates a clone of  `buffer`.
+   *
+   * @private
+   * @param {Buffer} buffer The buffer to clone.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Buffer} Returns the cloned buffer.
+   */
+  function cloneBuffer(buffer, isDeep) {
+    if (isDeep) {
+      return buffer.slice();
+    }
+    var length = buffer.length,
+        result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+
+    buffer.copy(result);
+    return result;
+  }
+
   /**
    * A specialized version of `_.filter` for arrays without support for
    * iteratee shorthands.
@@ -10640,10 +11152,10 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto$9 = Object.prototype;
+  var objectProto$c = Object.prototype;
 
   /** Built-in value references. */
-  var propertyIsEnumerable$1 = objectProto$9.propertyIsEnumerable;
+  var propertyIsEnumerable$1 = objectProto$c.propertyIsEnumerable;
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -10703,7 +11215,7 @@
 
   /** `Object#toString` result references. */
   var mapTag$1 = '[object Map]',
-      objectTag$1 = '[object Object]',
+      objectTag$2 = '[object Object]',
       promiseTag = '[object Promise]',
       setTag$1 = '[object Set]',
       weakMapTag$1 = '[object WeakMap]';
@@ -10734,7 +11246,7 @@
       (WeakMap && getTag(new WeakMap) != weakMapTag$1)) {
     getTag = function(value) {
       var result = baseGetTag(value),
-          Ctor = result == objectTag$1 ? value.constructor : undefined,
+          Ctor = result == objectTag$2 ? value.constructor : undefined,
           ctorString = Ctor ? toSource(Ctor) : '';
 
       if (ctorString) {
@@ -10754,6 +11266,45 @@
 
   /** Built-in value references. */
   var Uint8Array$1 = root.Uint8Array;
+
+  /**
+   * Creates a clone of `arrayBuffer`.
+   *
+   * @private
+   * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
+   * @returns {ArrayBuffer} Returns the cloned array buffer.
+   */
+  function cloneArrayBuffer(arrayBuffer) {
+    var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+    new Uint8Array$1(result).set(new Uint8Array$1(arrayBuffer));
+    return result;
+  }
+
+  /**
+   * Creates a clone of `typedArray`.
+   *
+   * @private
+   * @param {Object} typedArray The typed array to clone.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Object} Returns the cloned typed array.
+   */
+  function cloneTypedArray(typedArray, isDeep) {
+    var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+    return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+  }
+
+  /**
+   * Initializes an object clone.
+   *
+   * @private
+   * @param {Object} object The object to clone.
+   * @returns {Object} Returns the initialized clone.
+   */
+  function initCloneObject(object) {
+    return (typeof object.constructor == 'function' && !isPrototype(object))
+      ? baseCreate(getPrototype(object))
+      : {};
+  }
 
   /** Used to stand-in for `undefined` hash values. */
   var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
@@ -11062,10 +11613,10 @@
   var COMPARE_PARTIAL_FLAG$2 = 1;
 
   /** Used for built-in method references. */
-  var objectProto$a = Object.prototype;
+  var objectProto$d = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$8 = objectProto$a.hasOwnProperty;
+  var hasOwnProperty$b = objectProto$d.hasOwnProperty;
 
   /**
    * A specialized version of `baseIsEqualDeep` for objects with support for
@@ -11093,7 +11644,7 @@
     var index = objLength;
     while (index--) {
       var key = objProps[index];
-      if (!(isPartial ? key in other : hasOwnProperty$8.call(other, key))) {
+      if (!(isPartial ? key in other : hasOwnProperty$b.call(other, key))) {
         return false;
       }
     }
@@ -11150,13 +11701,13 @@
   /** `Object#toString` result references. */
   var argsTag$2 = '[object Arguments]',
       arrayTag$1 = '[object Array]',
-      objectTag$2 = '[object Object]';
+      objectTag$3 = '[object Object]';
 
   /** Used for built-in method references. */
-  var objectProto$b = Object.prototype;
+  var objectProto$e = Object.prototype;
 
   /** Used to check objects for own properties. */
-  var hasOwnProperty$9 = objectProto$b.hasOwnProperty;
+  var hasOwnProperty$c = objectProto$e.hasOwnProperty;
 
   /**
    * A specialized version of `baseIsEqual` for arrays and objects which performs
@@ -11178,11 +11729,11 @@
         objTag = objIsArr ? arrayTag$1 : getTag$1(object),
         othTag = othIsArr ? arrayTag$1 : getTag$1(other);
 
-    objTag = objTag == argsTag$2 ? objectTag$2 : objTag;
-    othTag = othTag == argsTag$2 ? objectTag$2 : othTag;
+    objTag = objTag == argsTag$2 ? objectTag$3 : objTag;
+    othTag = othTag == argsTag$2 ? objectTag$3 : othTag;
 
-    var objIsObj = objTag == objectTag$2,
-        othIsObj = othTag == objectTag$2,
+    var objIsObj = objTag == objectTag$3,
+        othIsObj = othTag == objectTag$3,
         isSameTag = objTag == othTag;
 
     if (isSameTag && isBuffer(object)) {
@@ -11199,8 +11750,8 @@
         : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
     }
     if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
-      var objIsWrapped = objIsObj && hasOwnProperty$9.call(object, '__wrapped__'),
-          othIsWrapped = othIsObj && hasOwnProperty$9.call(other, '__wrapped__');
+      var objIsWrapped = objIsObj && hasOwnProperty$c.call(object, '__wrapped__'),
+          othIsWrapped = othIsObj && hasOwnProperty$c.call(other, '__wrapped__');
 
       if (objIsWrapped || othIsWrapped) {
         var objUnwrapped = objIsWrapped ? object.value() : object,
@@ -11540,8 +12091,248 @@
     return property(value);
   }
 
+  /**
+   * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+   *
+   * @private
+   * @param {boolean} [fromRight] Specify iterating from right to left.
+   * @returns {Function} Returns the new base function.
+   */
+  function createBaseFor(fromRight) {
+    return function(object, iteratee, keysFunc) {
+      var index = -1,
+          iterable = Object(object),
+          props = keysFunc(object),
+          length = props.length;
+
+      while (length--) {
+        var key = props[fromRight ? length : ++index];
+        if (iteratee(iterable[key], key, iterable) === false) {
+          break;
+        }
+      }
+      return object;
+    };
+  }
+
+  /**
+   * The base implementation of `baseForOwn` which iterates over `object`
+   * properties returned by `keysFunc` and invokes `iteratee` for each property.
+   * Iteratee functions may exit iteration early by explicitly returning `false`.
+   *
+   * @private
+   * @param {Object} object The object to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @param {Function} keysFunc The function to get the keys of `object`.
+   * @returns {Object} Returns `object`.
+   */
+  var baseFor = createBaseFor();
+
+  /**
+   * This function is like `assignValue` except that it doesn't assign
+   * `undefined` values.
+   *
+   * @private
+   * @param {Object} object The object to modify.
+   * @param {string} key The key of the property to assign.
+   * @param {*} value The value to assign.
+   */
+  function assignMergeValue(object, key, value) {
+    if ((value !== undefined && !eq(object[key], value)) ||
+        (value === undefined && !(key in object))) {
+      baseAssignValue(object, key, value);
+    }
+  }
+
+  /**
+   * This method is like `_.isArrayLike` except that it also checks if `value`
+   * is an object.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an array-like object,
+   *  else `false`.
+   * @example
+   *
+   * _.isArrayLikeObject([1, 2, 3]);
+   * // => true
+   *
+   * _.isArrayLikeObject(document.body.children);
+   * // => true
+   *
+   * _.isArrayLikeObject('abc');
+   * // => false
+   *
+   * _.isArrayLikeObject(_.noop);
+   * // => false
+   */
+  function isArrayLikeObject(value) {
+    return isObjectLike(value) && isArrayLike(value);
+  }
+
+  /**
+   * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {string} key The key of the property to get.
+   * @returns {*} Returns the property value.
+   */
+  function safeGet(object, key) {
+    if (key === 'constructor' && typeof object[key] === 'function') {
+      return;
+    }
+
+    if (key == '__proto__') {
+      return;
+    }
+
+    return object[key];
+  }
+
+  /**
+   * Converts `value` to a plain object flattening inherited enumerable string
+   * keyed properties of `value` to own properties of the plain object.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.0.0
+   * @category Lang
+   * @param {*} value The value to convert.
+   * @returns {Object} Returns the converted plain object.
+   * @example
+   *
+   * function Foo() {
+   *   this.b = 2;
+   * }
+   *
+   * Foo.prototype.c = 3;
+   *
+   * _.assign({ 'a': 1 }, new Foo);
+   * // => { 'a': 1, 'b': 2 }
+   *
+   * _.assign({ 'a': 1 }, _.toPlainObject(new Foo));
+   * // => { 'a': 1, 'b': 2, 'c': 3 }
+   */
+  function toPlainObject(value) {
+    return copyObject(value, keysIn(value));
+  }
+
+  /**
+   * A specialized version of `baseMerge` for arrays and objects which performs
+   * deep merges and tracks traversed objects enabling objects with circular
+   * references to be merged.
+   *
+   * @private
+   * @param {Object} object The destination object.
+   * @param {Object} source The source object.
+   * @param {string} key The key of the value to merge.
+   * @param {number} srcIndex The index of `source`.
+   * @param {Function} mergeFunc The function to merge values.
+   * @param {Function} [customizer] The function to customize assigned values.
+   * @param {Object} [stack] Tracks traversed source values and their merged
+   *  counterparts.
+   */
+  function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
+    var objValue = safeGet(object, key),
+        srcValue = safeGet(source, key),
+        stacked = stack.get(srcValue);
+
+    if (stacked) {
+      assignMergeValue(object, key, stacked);
+      return;
+    }
+    var newValue = customizer
+      ? customizer(objValue, srcValue, (key + ''), object, source, stack)
+      : undefined;
+
+    var isCommon = newValue === undefined;
+
+    if (isCommon) {
+      var isArr = isArray(srcValue),
+          isBuff = !isArr && isBuffer(srcValue),
+          isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+
+      newValue = srcValue;
+      if (isArr || isBuff || isTyped) {
+        if (isArray(objValue)) {
+          newValue = objValue;
+        }
+        else if (isArrayLikeObject(objValue)) {
+          newValue = copyArray(objValue);
+        }
+        else if (isBuff) {
+          isCommon = false;
+          newValue = cloneBuffer(srcValue, true);
+        }
+        else if (isTyped) {
+          isCommon = false;
+          newValue = cloneTypedArray(srcValue, true);
+        }
+        else {
+          newValue = [];
+        }
+      }
+      else if (isPlainObject$1(srcValue) || isArguments(srcValue)) {
+        newValue = objValue;
+        if (isArguments(objValue)) {
+          newValue = toPlainObject(objValue);
+        }
+        else if (!isObject$1(objValue) || isFunction(objValue)) {
+          newValue = initCloneObject(srcValue);
+        }
+      }
+      else {
+        isCommon = false;
+      }
+    }
+    if (isCommon) {
+      // Recursively merge objects and arrays (susceptible to call stack limits).
+      stack.set(srcValue, newValue);
+      mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
+      stack['delete'](srcValue);
+    }
+    assignMergeValue(object, key, newValue);
+  }
+
+  /**
+   * The base implementation of `_.merge` without support for multiple sources.
+   *
+   * @private
+   * @param {Object} object The destination object.
+   * @param {Object} source The source object.
+   * @param {number} srcIndex The index of `source`.
+   * @param {Function} [customizer] The function to customize merged values.
+   * @param {Object} [stack] Tracks traversed source values and their merged
+   *  counterparts.
+   */
+  function baseMerge(object, source, srcIndex, customizer, stack) {
+    if (object === source) {
+      return;
+    }
+    baseFor(source, function(srcValue, key) {
+      stack || (stack = new Stack);
+      if (isObject$1(srcValue)) {
+        baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
+      }
+      else {
+        var newValue = customizer
+          ? customizer(safeGet(object, key), srcValue, (key + ''), object, source, stack)
+          : undefined;
+
+        if (newValue === undefined) {
+          newValue = srcValue;
+        }
+        assignMergeValue(object, key, newValue);
+      }
+    }, keysIn);
+  }
+
   /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeMax = Math.max;
+  var nativeMax$1 = Math.max;
 
   /**
    * This method is like `_.find` except that it returns the index of the first
@@ -11585,10 +12376,45 @@
     }
     var index = fromIndex == null ? 0 : toInteger(fromIndex);
     if (index < 0) {
-      index = nativeMax(length + index, 0);
+      index = nativeMax$1(length + index, 0);
     }
     return baseFindIndex(array, baseIteratee(predicate), index);
   }
+
+  /**
+   * This method is like `_.assign` except that it recursively merges own and
+   * inherited enumerable string keyed properties of source objects into the
+   * destination object. Source properties that resolve to `undefined` are
+   * skipped if a destination value exists. Array and plain object properties
+   * are merged recursively. Other objects and value types are overridden by
+   * assignment. Source objects are applied from left to right. Subsequent
+   * sources overwrite property assignments of previous sources.
+   *
+   * **Note:** This method mutates `object`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.5.0
+   * @category Object
+   * @param {Object} object The destination object.
+   * @param {...Object} [sources] The source objects.
+   * @returns {Object} Returns `object`.
+   * @example
+   *
+   * var object = {
+   *   'a': [{ 'b': 2 }, { 'd': 4 }]
+   * };
+   *
+   * var other = {
+   *   'a': [{ 'c': 3 }, { 'e': 5 }]
+   * };
+   *
+   * _.merge(object, other);
+   * // => { 'a': [{ 'b': 2, 'c': 3 }, { 'd': 4, 'e': 5 }] }
+   */
+  var merge = createAssigner(function(object, source, srcIndex) {
+    baseMerge(object, source, srcIndex);
+  });
 
   /**!
    * Sortable 1.10.2
@@ -14336,18 +15162,9 @@
           onEnd: this.onEnd
         });
       },
-      // Cleanup the model for caller
+      // Return the model for caller
       model: function model() {
-        return this.rows.map(function (row) {
-          return {
-            blocks: row.blocks.map(function (block) {
-              return {
-                span: block.span,
-                content: block.content
-              };
-            })
-          };
-        });
+        return this.rows;
       }
     },
     // Watchers
@@ -14420,7 +15237,7 @@
         e.target.classList.add('use-hover');
         this.isDragging = false;
         e.vdg = this.getEventData(e, 'to');
-        this.$emit('drag-end', e);
+        this.$emit('drag-stop', e);
       },
       // When a sortable row is updated (block moved)
       onUpdate: function onUpdate(e) {
@@ -14545,7 +15362,7 @@
           row: row,
           block: block
         };
-        this.$emit('update', e);
+        this.$emit('block-changed', e);
       },
       // Collapse the span of a block
       collapseBlock: function collapseBlock(e, row, block) {
@@ -14561,7 +15378,7 @@
           row: row,
           block: block
         };
-        this.$emit('update', e);
+        this.$emit('block-changed', e);
       },
       // Delete a block
       deleteBlock: function deleteBlock(e, row, block) {
@@ -14634,6 +15451,10 @@
 
           _this2.$emit('add-row', e);
         });
+      },
+      // Return the full internal data model
+      getFullModel: function getFullModel() {
+        return merge([], this.rows);
       }
     },
     created: function created() {
@@ -14643,27 +15464,24 @@
           _id: v4(),
           blocks: [{
             _id: v4(),
-            span: 2,
+            span: this.blocksPerRow / 2,
             content: ''
           }, {
             _id: v4(),
-            span: 2,
+            span: this.blocksPerRow / 2,
             content: ''
           }]
         }];
       } else {
-        // Deep clone the value to a local property
+        // Deep clone for a local working copy and decorate all elements with an ID
         this.rows = this.value.map(function (row) {
-          return {
-            _id: v4(),
-            blocks: (row.blocks || []).map(function (block) {
-              return {
-                _id: v4(),
-                span: block.span || 1,
-                content: block.content || ''
-              };
-            })
-          };
+          row._id = v4();
+          row.blocks = (row.blocks || []).map(function (block) {
+            block._id = v4();
+            block.span = block.span || 1;
+            return block;
+          });
+          return row;
         });
       }
 
@@ -15962,7 +16780,7 @@
     return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
-  var defineProperty = function (obj, key, value) {
+  var defineProperty$1 = function (obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -16103,7 +16921,7 @@
   }
 
   function objectWithKey(key, value) {
-    return Array.isArray(value) && value.length > 0 || !Array.isArray(value) && value ? defineProperty({}, key, value) : {};
+    return Array.isArray(value) && value.length > 0 || !Array.isArray(value) && value ? defineProperty$1({}, key, value) : {};
   }
 
   function classList(props) {
@@ -16118,7 +16936,7 @@
       'fa-inverse': props.inverse,
       'fa-flip-horizontal': props.flip === 'horizontal' || props.flip === 'both',
       'fa-flip-vertical': props.flip === 'vertical' || props.flip === 'both'
-    }, defineProperty(_classes, 'fa-' + props.size, props.size !== null), defineProperty(_classes, 'fa-rotate-' + props.rotation, props.rotation !== null), defineProperty(_classes, 'fa-pull-' + props.pull, props.pull !== null), defineProperty(_classes, 'fa-swap-opacity', props.swapOpacity), _classes);
+    }, defineProperty$1(_classes, 'fa-' + props.size, props.size !== null), defineProperty$1(_classes, 'fa-rotate-' + props.rotation, props.rotation !== null), defineProperty$1(_classes, 'fa-pull-' + props.pull, props.pull !== null), defineProperty$1(_classes, 'fa-swap-opacity', props.swapOpacity), _classes);
 
     return Object.keys(classes).map(function (key) {
       return classes[key] ? key : null;
@@ -16594,11 +17412,23 @@
           )
         }),
         _vm._v(" "),
-        _vm._t(
-          "footer",
+        _c(
+          "div",
+          {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.mode === "edit",
+                expression: "mode === 'edit'"
+              }
+            ]
+          },
           [
-            _vm.mode === "edit"
-              ? _c(
+            _vm._t(
+              "footer",
+              [
+                _c(
                   "button",
                   {
                     staticClass: "vgd__footer__button",
@@ -16611,11 +17441,13 @@
                       }
                     }
                   },
-                  [_vm._v("Add Row\n\t\t")]
+                  [_vm._v("Add Row\n\t\t\t")]
                 )
-              : _vm._e()
+              ],
+              { addRow: _vm.addRow, maxRows: _vm.maxRows }
+            )
           ],
-          { addRow: _vm.addRow }
+          2
         )
       ],
       2
@@ -16627,12 +17459,12 @@
     /* style */
     const __vue_inject_styles__ = function (inject) {
       if (!inject) return
-      inject("data-v-144886da_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
-  ,inject("data-v-144886da_1", { source: ".vgd[data-v-144886da] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-144886da] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-144886da] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-144886da] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-144886da] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-144886da] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-144886da] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-144886da] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-144886da] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-144886da] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-144886da] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-144886da] {\n  visibility: visible;\n}", map: undefined, media: undefined });
+      inject("data-v-793bc41c_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
+  ,inject("data-v-793bc41c_1", { source: ".vgd[data-v-793bc41c] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-793bc41c] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-793bc41c] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-793bc41c] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-793bc41c]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-793bc41c] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-793bc41c] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-793bc41c] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-793bc41c] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-793bc41c] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-793bc41c]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-793bc41c] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-793bc41c] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-793bc41c] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-793bc41c] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-793bc41c] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-793bc41c] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-793bc41c]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-793bc41c] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-793bc41c]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-793bc41c] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-793bc41c]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-793bc41c] {\n  visibility: visible;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__ = "data-v-144886da";
+    const __vue_scope_id__ = "data-v-793bc41c";
     /* module identifier */
     const __vue_module_identifier__ = undefined;
     /* functional template */
@@ -16661,13 +17493,383 @@
   };
 
   //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  var script$1 = {
+    name: 'BsLayoutBuilder',
+    props: {
+      value: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+      layoutSize: {
+        type: Number
+      }
+    },
+    methods: {
+      getBlockClasses: function getBlockClasses(row, block, blockIdx) {
+        var classes = ["col-".concat(block.span)];
+
+        if ((block.classes || '').length > 0) {
+          classes = classes.concat(block.classes);
+        }
+
+        if (row.isHeader) {
+          classes.push('bg-primary text-white p-4');
+        } else if (row.isFooter) {
+          classes.push('bg-light text-dark border-top p-2');
+        } else {
+          classes.push('p-3');
+          classes.push(blockIdx % 2 > 0 ? 'bg-warning' : 'bg-danger');
+        }
+
+        return classes.join(' ');
+      },
+      getBlockContent: function getBlockContent(rowIdx, blockIdx) {
+        return "".concat(rowIdx + 1, ":").concat(blockIdx + 1);
+      }
+    }
+  };
+
+  /* script */
+  const __vue_script__$1 = script$1;
+
+  /* template */
+  var __vue_render__$1 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c("div", { staticClass: "blb" }, [
+      _c(
+        "div",
+        { staticClass: "container-fluid" },
+        _vm._l(_vm.value, function(row, rowIdx) {
+          return _c(
+            "div",
+            { key: row._id, staticClass: "row" },
+            _vm._l(row.blocks, function(block, blockIdx) {
+              return _c("div", {
+                key: block._id,
+                class: _vm.getBlockClasses(row, block, blockIdx),
+                domProps: {
+                  innerHTML: _vm._s(_vm.getBlockContent(rowIdx, blockIdx))
+                }
+              })
+            }),
+            0
+          )
+        }),
+        0
+      )
+    ])
+  };
+  var __vue_staticRenderFns__$1 = [];
+  __vue_render__$1._withStripped = true;
+
+    /* style */
+    const __vue_inject_styles__$1 = undefined;
+    /* scoped */
+    const __vue_scope_id__$1 = "data-v-5ae64329";
+    /* module identifier */
+    const __vue_module_identifier__$1 = undefined;
+    /* functional template */
+    const __vue_is_functional_template__$1 = false;
+    /* style inject */
+    
+    /* style inject SSR */
+    
+    /* style inject shadow dom */
+    
+
+    
+    const __vue_component__$1 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+      __vue_inject_styles__$1,
+      __vue_script__$1,
+      __vue_scope_id__$1,
+      __vue_is_functional_template__$1,
+      __vue_module_identifier__$1,
+      false,
+      undefined,
+      undefined,
+      undefined
+    );
+
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  var script$2 = {
+    name: 'BsTableBuilder',
+    props: {
+      value: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+      layoutSize: {
+        type: Number
+      }
+    },
+    computed: {
+      header: function header() {
+        var header = this.value.find(function (x) {
+          return x.isHeader;
+        });
+
+        if (header) {
+          header.rowIdx = 0;
+        }
+
+        return header;
+      },
+      footer: function footer() {
+        var footer = this.value.find(function (x) {
+          return x.isFooter;
+        });
+
+        if (footer) {
+          footer.rowIdx = this.value.length - 1;
+        }
+
+        return footer;
+      },
+      body: function body() {
+        return this.value.filter(function (x) {
+          return !x.isHeader && !x.isFooter;
+        }).map(function (row, idx) {
+          row.rowIdx = idx;
+          return row;
+        });
+      }
+    },
+    methods: {
+      getHeaderBlockClasses: function getHeaderBlockClasses(block) {
+        var classes = ['bg-primary text-white p-4'];
+
+        if ((block.classes || '').length > 0) {
+          classes = classes.concat(block.classes);
+        }
+
+        return classes.join(' ');
+      },
+      getFooterBlockClasses: function getFooterBlockClasses(block) {
+        var classes = ['bg-light text-dark border-top p-2'];
+
+        if ((block.classes || '').length > 0) {
+          classes = classes.concat(block.classes);
+        }
+
+        return classes.join(' ');
+      },
+      getBodyBlockClasses: function getBodyBlockClasses(row, block, blockIdx) {
+        var classes = ['p-3'];
+
+        if ((block.classes || '').length > 0) {
+          classes = classes.concat(block.classes);
+        }
+
+        classes.push(blockIdx % 2 > 0 ? 'bg-warning' : 'bg-danger');
+        return classes.join(' ');
+      },
+      getBlockContent: function getBlockContent(rowIdx, blockIdx) {
+        var isBody = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+        return "".concat(rowIdx + (isBody && this.header ? 2 : 1), ":").concat(blockIdx + 1);
+      }
+    }
+  };
+
+  /* script */
+  const __vue_script__$2 = script$2;
+
+  /* template */
+  var __vue_render__$2 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c("div", { staticClass: "btb" }, [
+      _c(
+        "table",
+        { staticClass: "table table-bordered table-hover table-striped" },
+        [
+          _vm.header
+            ? _c("thead", [
+                _c(
+                  "tr",
+                  _vm._l(_vm.header.blocks, function(block, blockIdx) {
+                    return _c("th", {
+                      key: block._id,
+                      class: _vm.getHeaderBlockClasses(block),
+                      attrs: { colspan: block.span },
+                      domProps: {
+                        innerHTML: _vm._s(
+                          _vm.getBlockContent(_vm.header.rowIdx, blockIdx, false)
+                        )
+                      }
+                    })
+                  }),
+                  0
+                )
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          _c(
+            "tbody",
+            _vm._l(_vm.body, function(row) {
+              return _c(
+                "tr",
+                { key: row._id },
+                _vm._l(row.blocks, function(block, blockIdx) {
+                  return _c("td", {
+                    key: block._id,
+                    class: _vm.getBodyBlockClasses(row, block, blockIdx),
+                    attrs: { colspan: block.span },
+                    domProps: {
+                      innerHTML: _vm._s(_vm.getBlockContent(row.rowIdx, blockIdx))
+                    }
+                  })
+                }),
+                0
+              )
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _vm.footer
+            ? _c("tfoot", [
+                _c(
+                  "tr",
+                  _vm._l(_vm.footer.blocks, function(block, blockIdx) {
+                    return _c("td", {
+                      key: block._id,
+                      class: _vm.getFooterBlockClasses(block),
+                      attrs: { colspan: block.span },
+                      domProps: {
+                        innerHTML: _vm._s(
+                          _vm.getBlockContent(_vm.footer.rowIdx, blockIdx, false)
+                        )
+                      }
+                    })
+                  }),
+                  0
+                )
+              ])
+            : _vm._e()
+        ]
+      )
+    ])
+  };
+  var __vue_staticRenderFns__$2 = [];
+  __vue_render__$2._withStripped = true;
+
+    /* style */
+    const __vue_inject_styles__$2 = undefined;
+    /* scoped */
+    const __vue_scope_id__$2 = undefined;
+    /* module identifier */
+    const __vue_module_identifier__$2 = undefined;
+    /* functional template */
+    const __vue_is_functional_template__$2 = false;
+    /* style inject */
+    
+    /* style inject SSR */
+    
+    /* style inject shadow dom */
+    
+
+    
+    const __vue_component__$2 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+      __vue_inject_styles__$2,
+      __vue_script__$2,
+      __vue_scope_id__$2,
+      __vue_is_functional_template__$2,
+      __vue_module_identifier__$2,
+      false,
+      undefined,
+      undefined,
+      undefined
+    );
+
+  //
   library.add(faInfo);
   library.add(faPlusSquare);
-  var script$1 = {
+  var script$3 = {
     name: 'App',
     components: {
       VueGridDesigner: __vue_component__,
-      FontAwesomeIcon: FontAwesomeIcon
+      FontAwesomeIcon: FontAwesomeIcon,
+      BsLayoutBuilder: __vue_component__$1,
+      BsTableBuilder: __vue_component__$2
     },
     data: function data() {
       return {
@@ -16710,16 +17912,21 @@
             }]
           }],
           content: [{
+            label: 'First row',
             blocks: [{
               span: 4,
+              source: 'https://www.blindtextgenerator.com/lorem-ipsum',
               content: '<h5 class="mt-2">Far, far away</h5><p class="p-2">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</p>'
             }]
           }, {
+            label: 'Second row',
             blocks: [{
               span: 2,
+              source: 'https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog',
               content: '<h5 class="mt-2 ml-2 text-left">Quick ol\' foxy</h5><p class="text-left p-2">The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog.</p>'
             }, {
               span: 2,
+              source: 'via.placeholder.com',
               content: '<div class="m-2"><img class="img-fluid rounded" src="https://via.placeholder.com/468x60?text=Image: 468x60" /></div>'
             }]
           }],
@@ -16732,7 +17939,51 @@
               content: 'Two'
             }]
           }],
-          slots: []
+          slots: [],
+          events: [],
+          html: [{
+            isHeader: true,
+            blocks: [{
+              span: 2,
+              classes: 'text-center'
+            }, {
+              span: 2,
+              classes: 'text-center'
+            }, {
+              span: 2,
+              classes: 'text-center'
+            }, {
+              span: 2,
+              classes: 'text-center'
+            }, {
+              span: 2,
+              classes: 'text-center'
+            }, {
+              span: 2,
+              classes: 'text-center'
+            }]
+          }, {
+            blocks: [{
+              span: 3,
+              classes: 'text-center'
+            }, {
+              span: 3,
+              classes: 'text-center'
+            }, {
+              span: 3,
+              classes: 'text-center'
+            }, {
+              span: 3,
+              classes: 'text-center'
+            }]
+          }, {
+            isFooter: true,
+            classes: 'text-center',
+            blocks: [{
+              span: 12,
+              classes: 'text-center'
+            }]
+          }]
         },
         controls: {
           basic: {
@@ -16754,10 +18005,20 @@
           },
           slots: {
             mode: 'edit'
+          },
+          events: {
+            mode: 'edit'
+          },
+          html: {
+            mode: 'edit',
+            blocksPerRow: 12,
+            maxRows: 4,
+            minBlockHeight: 70
           }
         }
       };
     },
+    computed: {},
     methods: {
       getJSON: function getJSON(data) {
         return JSON.stringify(data, null, 4);
@@ -16771,23 +18032,45 @@
             return '<vue-grid-designer v-model="grids.content" />';
 
           case 'customStyleMarkup':
-            return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    :mode=\"controls.customStyle.mode\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
+            return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    mode=\"edit\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
 
           case 'customStyleScss':
             return "#demo {\n\n    .vgd__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vgd__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vgd__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vgd__row.demo__row {\n            &:hover {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vgd__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
 
           case 'slotsMarkup':
-            return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    :mode=\"controls.slots.mode\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button class=\"btn btn-block btn-primary\" @click=\"blockScope.addRow\">\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
+            return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    mode=\"edit\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button\n            class=\"btn btn-block btn-primary\"\n            @click=\"blockScope.addRow\"\n            :disabled=\"blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows\"\n        >\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
+
+          case 'eventsMarkup':
+            return "<vue-grid-designer\n    v-model=\"grids.events\"\n    mode=\"edit\"\n    @ready=\"showDemoEvent('ready', $event)\"\n    @update=\"showDemoEvent('update', $event)\"\n    @remove-block=\"showDemoEvent('remove-block', $event)\"\n    @remove-row=\"showDemoEvent('remove-row', $event)\"\n    @add-block=\"showDemoEvent('add-block', $event)\"\n    @add-row=\"showDemoEvent('add-row', $event)\"\n    @drag-start=\"showDemoEvent('drag-start', $event)\"\n    @drag-stop=\"showDemoEvent('drag-stop', $event)\"\n    @block-changed=\"showDemoEvent('block-changed', $event)\"\n    @input=\"showDemoEvent('input (manual handler)', $event)\"\n/>";
+
+          case 'contentDataModel':
+            return "getFullDataModel () {\n\n    const $comp = this.$refs[ 'demoComponentContent' ];\n    console.log ( 'Full Data Model: ', $comp.getFullModel () );\n\n}";
+
+          case 'htmlLayout':
+            return "<bs-layout-builder\n    v-model=\"grids.html\"\n    :layout-size=\"controls.html.blocksPerRow\"\n    class=\"border rounded shadow-sm p-2\"\n/>";
+
+          case 'htmlTable':
+            return "<bs-table-builder\n    v-model=\"grids.html\"\n    :layout-size=\"controls.html.blocksPerRow\"\n    class=\"border rounded shadow-sm p-2\"\n/>";
+
+          case 'htmlMarkup':
+            return "<vue-grid-designer\n    v-model=\"grids.html\"\n    mode=\"edit\"\n    :blocks-per-row=\"12\"\n    :max-rows=\"4\"\n    :min-block-height=\"70\"\n/>";
         }
+      },
+      showDemoEvent: function showDemoEvent(name, e) {
+        console.log("Event: ".concat(name), e);
+      },
+      getFullDataModel: function getFullDataModel() {
+        var $comp = this.$refs['demoComponentContent'];
+        console.log('Full Data Model: ', $comp.getFullModel());
       }
     }
   };
 
   /* script */
-  const __vue_script__$1 = script$1;
+  const __vue_script__$3 = script$3;
 
   /* template */
-  var __vue_render__$1 = function() {
+  var __vue_render__$3 = function() {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -17176,7 +18459,9 @@
                         )
                       ],
                       1
-                    )
+                    ),
+                    _vm._v(" "),
+                    _vm._m(5)
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "col-6" }, [
@@ -17193,6 +18478,21 @@
                         ]
                       },
                       [_c("code", { staticClass: "html" })]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("contentDataModel"),
+                            expression: "getCode('contentDataModel')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "js" })]
                     )
                   ])
                 ]),
@@ -17261,12 +18561,23 @@
                                   _vm._v("View")
                                 ])
                               ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-light",
+                                attrs: { type: "button" },
+                                on: { click: _vm.getFullDataModel }
+                              },
+                              [_vm._v("Full Model\n\t\t\t\t\t\t\t\t")]
                             )
                           ])
                         ]
                       ),
                       _vm._v(" "),
                       _c("vue-grid-designer", {
+                        ref: "demoComponentContent",
                         attrs: {
                           mode: _vm.controls.content.mode,
                           "blocks-per-row": 4
@@ -17319,7 +18630,7 @@
             [
               _c("div", { staticClass: "container" }, [
                 _c("div", { staticClass: "row" }, [
-                  _vm._m(5),
+                  _vm._m(6),
                   _vm._v(" "),
                   _c("div", { staticClass: "col-6" }, [
                     _c(
@@ -17477,7 +18788,7 @@
             [
               _c("div", { staticClass: "container" }, [
                 _c("div", { staticClass: "row" }, [
-                  _vm._m(6),
+                  _vm._m(7),
                   _vm._v(" "),
                   _c("div", { staticClass: "col-6" }, [
                     _c(
@@ -17577,6 +18888,12 @@
                                   "button",
                                   {
                                     staticClass: "btn btn-block btn-primary",
+                                    attrs: {
+                                      disabled:
+                                        blockScope.maxRows > 0 &&
+                                        _vm.grids.slots.length >=
+                                          blockScope.maxRows
+                                    },
                                     on: { click: blockScope.addRow }
                                   },
                                   [
@@ -17633,12 +18950,266 @@
                 )
               ])
             ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "tab-pane fade show",
+              attrs: {
+                id: "demoContentEvents",
+                role: "tabpanel",
+                "aria-labelledby": "demoTabEvents"
+              }
+            },
+            [
+              _c("div", { staticClass: "container" }, [
+                _c("div", { staticClass: "row" }, [
+                  _vm._m(8),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-6" }, [
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("eventsMarkup"),
+                            expression: "getCode('eventsMarkup')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "html" })]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c(
+                    "div",
+                    { staticClass: "col shadow border p-2" },
+                    [
+                      _c("vue-grid-designer", {
+                        attrs: { mode: _vm.controls.events.mode },
+                        on: {
+                          ready: function($event) {
+                            return _vm.showDemoEvent("ready", $event)
+                          },
+                          update: function($event) {
+                            return _vm.showDemoEvent("update", $event)
+                          },
+                          "remove-block": function($event) {
+                            return _vm.showDemoEvent("remove-block", $event)
+                          },
+                          "remove-row": function($event) {
+                            return _vm.showDemoEvent("remove-row", $event)
+                          },
+                          "add-block": function($event) {
+                            return _vm.showDemoEvent("add-block", $event)
+                          },
+                          "add-row": function($event) {
+                            return _vm.showDemoEvent("add-row", $event)
+                          },
+                          "drag-start": function($event) {
+                            return _vm.showDemoEvent("drag-start", $event)
+                          },
+                          "drag-stop": function($event) {
+                            return _vm.showDemoEvent("drag-stop", $event)
+                          },
+                          "block-changed": function($event) {
+                            return _vm.showDemoEvent("block-changed", $event)
+                          },
+                          input: function($event) {
+                            _vm.showDemoEvent("input (manual handler)", $event);
+                          }
+                        },
+                        model: {
+                          value: _vm.grids.events,
+                          callback: function($$v) {
+                            _vm.$set(_vm.grids, "events", $$v);
+                          },
+                          expression: "grids.events"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "mt-4 px-2" }, [
+                _c("h5", [_vm._v("Data Model")]),
+                _vm._v(" "),
+                _c(
+                  "pre",
+                  {
+                    directives: [
+                      {
+                        name: "highlightjs",
+                        rawName: "v-highlightjs",
+                        value: _vm.getJSON(_vm.grids.events),
+                        expression: "getJSON ( grids.events )"
+                      }
+                    ]
+                  },
+                  [_c("code", { staticClass: "json" })]
+                )
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "tab-pane fade show",
+              attrs: {
+                id: "demoContentHtml",
+                role: "tabpanel",
+                "aria-labelledby": "demoTabHtml"
+              }
+            },
+            [
+              _c("div", { staticClass: "container" }, [
+                _c("div", { staticClass: "row" }, [
+                  _vm._m(9),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-6" }, [
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("htmlMarkup"),
+                            expression: "getCode('htmlMarkup')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "html" })]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c(
+                    "div",
+                    { staticClass: "col shadow border p-2" },
+                    [
+                      _c("vue-grid-designer", {
+                        attrs: {
+                          mode: _vm.controls.html.mode,
+                          "blocks-per-row": _vm.controls.html.blocksPerRow,
+                          "max-rows": _vm.controls.html.maxRows,
+                          "min-block-height": _vm.controls.html.minBlockHeight
+                        },
+                        model: {
+                          value: _vm.grids.html,
+                          callback: function($$v) {
+                            _vm.$set(_vm.grids, "html", $$v);
+                          },
+                          expression: "grids.html"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "card-deck mt-4 px-2" }, [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-header" }, [
+                    _vm._v("Layout Builder Component")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "card-body" },
+                    [
+                      _c("bs-layout-builder", {
+                        staticClass: "border rounded shadow-sm p-2",
+                        attrs: { "layout-size": _vm.controls.html.blocksPerRow },
+                        model: {
+                          value: _vm.grids.html,
+                          callback: function($$v) {
+                            _vm.$set(_vm.grids, "html", $$v);
+                          },
+                          expression: "grids.html"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "card-footer" }, [
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("htmlLayout"),
+                            expression: "getCode('htmlLayout')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "html" })]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-header" }, [
+                    _vm._v("Table Builder Component")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "card-body" },
+                    [
+                      _c("bs-table-builder", {
+                        staticClass: "border rounded shadow-sm p-2",
+                        attrs: { "layout-size": _vm.controls.html.blocksPerRow },
+                        model: {
+                          value: _vm.grids.html,
+                          callback: function($$v) {
+                            _vm.$set(_vm.grids, "html", $$v);
+                          },
+                          expression: "grids.html"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "card-footer" }, [
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("htmlTable"),
+                            expression: "getCode('htmlTable')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "html" })]
+                    )
+                  ])
+                ])
+              ])
+            ]
           )
         ]
       )
     ])
   };
-  var __vue_staticRenderFns__$1 = [
+  var __vue_staticRenderFns__$3 = [
     function() {
       var _vm = this;
       var _h = _vm.$createElement;
@@ -17772,6 +19343,42 @@
               },
               [_vm._v("Slots")]
             )
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "nav-item", attrs: { role: "presentation" } }, [
+            _c(
+              "a",
+              {
+                staticClass: "nav-link",
+                attrs: {
+                  id: "demoTabEvents",
+                  "data-toggle": "tab",
+                  href: "#demoContentEvents",
+                  role: "tab",
+                  "aria-controls": "home",
+                  "aria-selected": "true"
+                }
+              },
+              [_vm._v("Events")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "nav-item", attrs: { role: "presentation" } }, [
+            _c(
+              "a",
+              {
+                staticClass: "nav-link",
+                attrs: {
+                  id: "demoTabHtml",
+                  "data-toggle": "tab",
+                  href: "#demoContentHtml",
+                  role: "tab",
+                  "aria-controls": "home",
+                  "aria-selected": "true"
+                }
+              },
+              [_vm._v("HTML Generator")]
+            )
           ])
         ]
       )
@@ -17799,7 +19406,19 @@
         _c("code", [_vm._v("view")]),
         _vm._v(" mode. However, it is hidden when in\n\t\t\t\t\t\t\t"),
         _c("code", [_vm._v("edit")]),
-        _vm._v(" mode")
+        _vm._v(" mode.")
+      ])
+    },
+    function() {
+      var _vm = this;
+      var _h = _vm.$createElement;
+      var _c = _vm._self._c || _h;
+      return _c("p", [
+        _vm._v("This demo model implements custom model properties. Click the "),
+        _c("code", [_vm._v("Full Model")]),
+        _vm._v(
+          "\n\t\t\t\t\t\t   button and open the browser console, to see the full internal model."
+        )
       ])
     },
     function() {
@@ -17845,35 +19464,74 @@
           )
         ])
       ])
+    },
+    function() {
+      var _vm = this;
+      var _h = _vm.$createElement;
+      var _c = _vm._self._c || _h;
+      return _c("div", { staticClass: "col-6" }, [
+        _c("p", [
+          _vm._v(
+            "Open the browser console to see events being fired.\n\t\t\t\t\t\t   Or use the "
+          ),
+          _c(
+            "a",
+            {
+              attrs: {
+                href: "https://github.com/vuejs/vue-devtools",
+                target: "_blank"
+              }
+            },
+            [
+              _vm._v(
+                "Vue developer\n\t\t\t\t\t\t                                                                              tools"
+              )
+            ]
+          ),
+          _vm._v(".")
+        ])
+      ])
+    },
+    function() {
+      var _vm = this;
+      var _h = _vm.$createElement;
+      var _c = _vm._self._c || _h;
+      return _c("div", { staticClass: "col-6" }, [
+        _c("p", [
+          _vm._v(
+            "This demo shows the grid model being used to dynamically render Bootstrap layout and\n\t\t\t\t\t\t   table components"
+          )
+        ])
+      ])
     }
   ];
-  __vue_render__$1._withStripped = true;
+  __vue_render__$3._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$1 = function (inject) {
+    const __vue_inject_styles__$3 = function (inject) {
       if (!inject) return
-      inject("data-v-265ba241_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
+      inject("data-v-a90ff5be_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__$1 = undefined;
+    const __vue_scope_id__$3 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$1 = undefined;
+    const __vue_module_identifier__$3 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$1 = false;
+    const __vue_is_functional_template__$3 = false;
     /* style inject SSR */
     
     /* style inject shadow dom */
     
 
     
-    const __vue_component__$1 = /*#__PURE__*/normalizeComponent(
-      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
-      __vue_inject_styles__$1,
-      __vue_script__$1,
-      __vue_scope_id__$1,
-      __vue_is_functional_template__$1,
-      __vue_module_identifier__$1,
+    const __vue_component__$3 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+      __vue_inject_styles__$3,
+      __vue_script__$3,
+      __vue_scope_id__$3,
+      __vue_is_functional_template__$3,
+      __vue_module_identifier__$3,
       false,
       createInjector,
       undefined,
@@ -46212,7 +47870,7 @@
   Vue.use(vueHighlightjs);
   new Vue({
     render: function render(h) {
-      return h(__vue_component__$1);
+      return h(__vue_component__$3);
     }
   }).$mount('#app');
 

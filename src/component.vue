@@ -106,18 +106,20 @@
 
 		</div>
 
-		<slot
-				name="footer"
-				:addRow="addRow"
-		>
-			<button
-					v-if="mode === 'edit'"
-					class="vgd__footer__button"
-					@click="addRow($event)"
-					:disabled="maxRows > 0 && rows.length >= maxRows"
-			>Add Row
-			</button>
-		</slot>
+		<div v-show="mode === 'edit'">
+			<slot
+					name="footer"
+					:addRow="addRow"
+					:maxRows="maxRows"
+			>
+				<button
+						class="vgd__footer__button"
+						@click="addRow($event)"
+						:disabled="maxRows > 0 && rows.length >= maxRows"
+				>Add Row
+				</button>
+			</slot>
+		</div>
 
 	</div>
 </template>

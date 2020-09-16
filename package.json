@@ -2,8 +2,12 @@
     "name"           : "@thefoot/vue-grid-designer",
     "version"        : "0.0.1",
     "description"    : "Vue 2.x component for designing grid layouts using SortableJS.",
-    "main"           : "dist/component.esm.js",
+    "main"           : "dist/component.umd.js",
     "module"         : "dist/component.esm.js",
+    "unpkg"          : "dist/component.min.js",
+    "browser"        : {
+        "./sfc": "src/component.vue"
+    },
     "scripts"        : {
         "test"          : "npm run test:unit",
         "test:unit"     : "jest --verbose ./test/unit",
@@ -15,7 +19,7 @@
         "release"       : "./release.sh",
         "prebuild"      : "echo false > .buildstatus",
         "postbuild"     : "echo true > .buildstatus",
-        "make-badges"   : "node_modules/.bin/jest-badges-readme"
+        "update-readme" : "node_modules/.bin/jest-badges-readme"
     },
     "repository"     : {
         "type": "git",
@@ -81,20 +85,16 @@
     },
     "pre-commit"     : [
         "test",
-        "build",
-        "make-badges"
+        "build"
     ],
     "dependencies"   : {
-        "@fortawesome/fontawesome-svg-core"  : "^1.2.30",
-        "@fortawesome/free-regular-svg-icons": "^5.14.0",
-        "@fortawesome/free-solid-svg-icons"  : "^5.14.0",
-        "@fortawesome/vue-fontawesome"       : "^2.0.0",
-        "highlight.js"                       : "^10.2.0",
-        "lodash-es"                          : "^4.17.15",
-        "sortablejs"                         : "^1.10.2",
-        "uuid"                               : "^8.3.0",
-        "vue"                                : "^2.6.12",
-        "vue-highlightjs"                    : "^1.3.3"
+        "@fortawesome/fontawesome-svg-core": "^1.2.30",
+        "@fortawesome/free-solid-svg-icons": "^5.14.0",
+        "@fortawesome/vue-fontawesome"     : "^2.0.0",
+        "lodash-es"                        : "^4.17.15",
+        "sortablejs"                       : "^1.10.2",
+        "uuid"                             : "^8.3.0",
+        "vue"                              : "^2.6.12"
     },
     "devDependencies": {
         "@babel/core"                   : "^7.11.6",
@@ -113,6 +113,7 @@
         "babel-polyfill"                : "^6.26.0",
         "eslint"                        : "^7.8.1",
         "eslint-plugin-vue"             : "^7.0.0-beta.3",
+        "highlight.js"                  : "^10.2.0",
         "jest"                          : "^26.4.2",
         "pre-commit"                    : "^1.2.2",
         "release-it"                    : "^14.0.2",
@@ -123,7 +124,9 @@
         "rollup-plugin-multi-input"     : "^1.1.1",
         "rollup-plugin-node-polyfills"  : "^0.2.1",
         "rollup-plugin-serve"           : "^1.0.4",
+        "rollup-plugin-terser"          : "^7.0.2",
         "rollup-plugin-vue"             : "^5.1.9",
+        "vue-highlightjs"               : "^1.3.3",
         "vue-jest"                      : "^3.0.6",
         "vue-template-compiler"         : "^2.6.12"
     }

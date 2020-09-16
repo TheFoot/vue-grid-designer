@@ -1,9 +1,9 @@
 /**
  The component mixin
  */
-import { v4 as UUID } from 'uuid';
-import { findIndex }  from 'lodash-es';
-import Sortable       from 'sortablejs/modular/sortable.core.esm.js';
+import { v4 as UUID }       from 'uuid';
+import { merge, findIndex } from 'lodash-es';
+import Sortable             from 'sortablejs/modular/sortable.core.esm.js';
 
 // Exported interface
 export default {
@@ -53,18 +53,9 @@ export default {
 
         },
 
-        // Cleanup the model for caller
+        // Return the model for caller
         model () {
-            return this.rows.map ( row => {
-                return {
-                    blocks: row.blocks.map ( block => {
-                        return {
-                            span   : block.span,
-                            content: block.content
-                        };
-                    } )
-                };
-            } );
+            return this.rows;
         }
 
     },
@@ -155,7 +146,7 @@ export default {
             this.isDragging = false;
 
             e.vdg = this.getEventData ( e, 'to' );
-            this.$emit ( 'drag-end', e );
+            this.$emit ( 'drag-stop', e );
 
         },
 
@@ -292,7 +283,7 @@ export default {
             this.fireChanged ();
 
             e.vdg = { row, block };
-            this.$emit ( 'update', e );
+            this.$emit ( 'block-changed', e );
 
         },
 
@@ -308,7 +299,7 @@ export default {
             this.fireChanged ();
 
             e.vdg = { row, block };
-            this.$emit ( 'update', e );
+            this.$emit ( 'block-changed', e );
 
         },
 
@@ -388,6 +379,11 @@ export default {
 
             } );
 
+        },
+
+        // Return the full internal data model
+        getFullModel () {
+            return merge ( [], this.rows );
         }
 
     },
@@ -401,30 +397,28 @@ export default {
                 {
                     _id   : UUID (),
                     blocks: [
-                        { _id: UUID (), span: 2, content: '' },
-                        { _id: UUID (), span: 2, content: '' }
+                        { _id: UUID (), span: this.blocksPerRow / 2, content: '' },
+                        { _id: UUID (), span: this.blocksPerRow / 2, content: '' }
                     ]
                 }
             ];
 
         } else {
 
-            // Deep clone the value to a local property
+            // Deep clone for a local working copy and decorate all elements with an ID
             this.rows = this.value.map ( row => {
 
-                return {
+                row._id = UUID ();
+                row.blocks = ( row.blocks || [] ).map ( block => {
 
-                    _id: UUID (),
+                    block._id = UUID ();
+                    block.span = block.span || 1;
 
-                    blocks: ( row.blocks || [] ).map ( block => {
-                        return {
-                            _id    : UUID (),
-                            span   : block.span || 1,
-                            content: block.content || ''
-                        };
-                    } )
+                    return block;
 
-                };
+                } );
+
+                return row;
 
             } );
 

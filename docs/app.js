@@ -14420,7 +14420,7 @@
         e.target.classList.add('use-hover');
         this.isDragging = false;
         e.vdg = this.getEventData(e, 'to');
-        this.$emit('drag-end', e);
+        this.$emit('drag-stop', e);
       },
       // When a sortable row is updated (block moved)
       onUpdate: function onUpdate(e) {
@@ -14545,7 +14545,7 @@
           row: row,
           block: block
         };
-        this.$emit('update', e);
+        this.$emit('block-changed', e);
       },
       // Collapse the span of a block
       collapseBlock: function collapseBlock(e, row, block) {
@@ -14561,7 +14561,7 @@
           row: row,
           block: block
         };
-        this.$emit('update', e);
+        this.$emit('block-changed', e);
       },
       // Delete a block
       deleteBlock: function deleteBlock(e, row, block) {
@@ -16594,11 +16594,23 @@
           )
         }),
         _vm._v(" "),
-        _vm._t(
-          "footer",
+        _c(
+          "div",
+          {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.mode === "edit",
+                expression: "mode === 'edit'"
+              }
+            ]
+          },
           [
-            _vm.mode === "edit"
-              ? _c(
+            _vm._t(
+              "footer",
+              [
+                _c(
                   "button",
                   {
                     staticClass: "vgd__footer__button",
@@ -16611,11 +16623,13 @@
                       }
                     }
                   },
-                  [_vm._v("Add Row\n\t\t")]
+                  [_vm._v("Add Row\n\t\t\t")]
                 )
-              : _vm._e()
+              ],
+              { addRow: _vm.addRow, maxRows: _vm.maxRows }
+            )
           ],
-          { addRow: _vm.addRow }
+          2
         )
       ],
       2
@@ -16627,12 +16641,12 @@
     /* style */
     const __vue_inject_styles__ = function (inject) {
       if (!inject) return
-      inject("data-v-144886da_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
-  ,inject("data-v-144886da_1", { source: ".vgd[data-v-144886da] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-144886da] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-144886da] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-144886da] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-144886da] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-144886da] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-144886da] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-144886da] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-144886da]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-144886da] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-144886da] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-144886da] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-144886da] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-144886da] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-144886da] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-144886da]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-144886da] {\n  visibility: visible;\n}", map: undefined, media: undefined });
+      inject("data-v-793bc41c_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
+  ,inject("data-v-793bc41c_1", { source: ".vgd[data-v-793bc41c] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-793bc41c] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-793bc41c] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-793bc41c] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-793bc41c]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-793bc41c] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-793bc41c] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-793bc41c] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-793bc41c] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-793bc41c] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-793bc41c]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-793bc41c] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-793bc41c] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-793bc41c] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-793bc41c] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-793bc41c] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-793bc41c] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-793bc41c]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-793bc41c] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-793bc41c]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-793bc41c] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-793bc41c]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-793bc41c] {\n  visibility: visible;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__ = "data-v-144886da";
+    const __vue_scope_id__ = "data-v-793bc41c";
     /* module identifier */
     const __vue_module_identifier__ = undefined;
     /* functional template */
@@ -16732,7 +16746,8 @@
               content: 'Two'
             }]
           }],
-          slots: []
+          slots: [],
+          events: []
         },
         controls: {
           basic: {
@@ -16754,6 +16769,9 @@
           },
           slots: {
             mode: 'edit'
+          },
+          events: {
+            mode: 'edit'
           }
         }
       };
@@ -16771,14 +16789,20 @@
             return '<vue-grid-designer v-model="grids.content" />';
 
           case 'customStyleMarkup':
-            return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    :mode=\"controls.customStyle.mode\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
+            return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    mode=\"edit\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
 
           case 'customStyleScss':
             return "#demo {\n\n    .vgd__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vgd__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vgd__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vgd__row.demo__row {\n            &:hover {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vgd__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
 
           case 'slotsMarkup':
-            return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    :mode=\"controls.slots.mode\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button class=\"btn btn-block btn-primary\" @click=\"blockScope.addRow\">\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
+            return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    mode=\"edit\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button\n            class=\"btn btn-block btn-primary\"\n            @click=\"blockScope.addRow\"\n            :disabled=\"blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows\"\n        >\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
+
+          case 'eventsMarkup':
+            return "<vue-grid-designer\n    v-model=\"grids.events\"\n    mode=\"edit\"\n    @ready=\"showDemoEvent('ready', $event)\"\n    @update=\"showDemoEvent('update', $event)\"\n    @remove-block=\"showDemoEvent('remove-block', $event)\"\n    @remove-row=\"showDemoEvent('remove-row', $event)\"\n    @add-block=\"showDemoEvent('add-block', $event)\"\n    @add-row=\"showDemoEvent('add-row', $event)\"\n    @drag-start=\"showDemoEvent('drag-start', $event)\"\n    @drag-stop=\"showDemoEvent('drag-stop', $event)\"\n    @block-changed=\"showDemoEvent('block-changed', $event)\"\n    @input=\"showDemoEvent('input (manual handler)', $event)\"\n/>";
         }
+      },
+      showDemoEvent: function showDemoEvent(name, e) {
+        console.log("Event: ".concat(name), e);
       }
     }
   };
@@ -17577,6 +17601,12 @@
                                   "button",
                                   {
                                     staticClass: "btn btn-block btn-primary",
+                                    attrs: {
+                                      disabled:
+                                        blockScope.maxRows > 0 &&
+                                        _vm.grids.slots.length >=
+                                          blockScope.maxRows
+                                    },
                                     on: { click: blockScope.addRow }
                                   },
                                   [
@@ -17626,6 +17656,113 @@
                         rawName: "v-highlightjs",
                         value: _vm.getJSON(_vm.grids.slots),
                         expression: "getJSON ( grids.slots )"
+                      }
+                    ]
+                  },
+                  [_c("code", { staticClass: "json" })]
+                )
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "tab-pane fade show",
+              attrs: {
+                id: "demoContentEvents",
+                role: "tabpanel",
+                "aria-labelledby": "demoTabEvents"
+              }
+            },
+            [
+              _c("div", { staticClass: "container" }, [
+                _c("div", { staticClass: "row" }, [
+                  _vm._m(7),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-6" }, [
+                    _c(
+                      "pre",
+                      {
+                        directives: [
+                          {
+                            name: "highlightjs",
+                            rawName: "v-highlightjs",
+                            value: _vm.getCode("eventsMarkup"),
+                            expression: "getCode('eventsMarkup')"
+                          }
+                        ]
+                      },
+                      [_c("code", { staticClass: "html" })]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "row" }, [
+                  _c(
+                    "div",
+                    { staticClass: "col shadow border p-2" },
+                    [
+                      _c("vue-grid-designer", {
+                        attrs: { mode: _vm.controls.events.mode },
+                        on: {
+                          ready: function($event) {
+                            return _vm.showDemoEvent("ready", $event)
+                          },
+                          update: function($event) {
+                            return _vm.showDemoEvent("update", $event)
+                          },
+                          "remove-block": function($event) {
+                            return _vm.showDemoEvent("remove-block", $event)
+                          },
+                          "remove-row": function($event) {
+                            return _vm.showDemoEvent("remove-row", $event)
+                          },
+                          "add-block": function($event) {
+                            return _vm.showDemoEvent("add-block", $event)
+                          },
+                          "add-row": function($event) {
+                            return _vm.showDemoEvent("add-row", $event)
+                          },
+                          "drag-start": function($event) {
+                            return _vm.showDemoEvent("drag-start", $event)
+                          },
+                          "drag-stop": function($event) {
+                            return _vm.showDemoEvent("drag-stop", $event)
+                          },
+                          "block-changed": function($event) {
+                            return _vm.showDemoEvent("block-changed", $event)
+                          },
+                          input: function($event) {
+                            _vm.showDemoEvent("input (manual handler)", $event);
+                          }
+                        },
+                        model: {
+                          value: _vm.grids.events,
+                          callback: function($$v) {
+                            _vm.$set(_vm.grids, "events", $$v);
+                          },
+                          expression: "grids.events"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "mt-4 px-2" }, [
+                _c("h5", [_vm._v("Data Model")]),
+                _vm._v(" "),
+                _c(
+                  "pre",
+                  {
+                    directives: [
+                      {
+                        name: "highlightjs",
+                        rawName: "v-highlightjs",
+                        value: _vm.getJSON(_vm.grids.events),
+                        expression: "getJSON ( grids.events )"
                       }
                     ]
                   },
@@ -17772,6 +17909,24 @@
               },
               [_vm._v("Slots")]
             )
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "nav-item", attrs: { role: "presentation" } }, [
+            _c(
+              "a",
+              {
+                staticClass: "nav-link",
+                attrs: {
+                  id: "demoTabEvents",
+                  "data-toggle": "tab",
+                  href: "#demoContentEvents",
+                  role: "tab",
+                  "aria-controls": "home",
+                  "aria-selected": "true"
+                }
+              },
+              [_vm._v("Events")]
+            )
           ])
         ]
       )
@@ -17845,6 +18000,29 @@
           )
         ])
       ])
+    },
+    function() {
+      var _vm = this;
+      var _h = _vm.$createElement;
+      var _c = _vm._self._c || _h;
+      return _c("div", { staticClass: "col-6" }, [
+        _c("p", [
+          _vm._v(
+            "Open the browser console to see events being fired.\n\t\t\t\t\t\t   Or use the "
+          ),
+          _c(
+            "a",
+            {
+              attrs: {
+                href: "https://github.com/vuejs/vue-devtools",
+                target: "_blank"
+              }
+            },
+            [_vm._v("Vue developer tools")]
+          ),
+          _vm._v(".")
+        ])
+      ])
     }
   ];
   __vue_render__$1._withStripped = true;
@@ -17852,7 +18030,7 @@
     /* style */
     const __vue_inject_styles__$1 = function (inject) {
       if (!inject) return
-      inject("data-v-265ba241_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
+      inject("data-v-1367dcaa_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
