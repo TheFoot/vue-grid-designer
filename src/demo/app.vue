@@ -290,7 +290,11 @@
 							>
 
 								<template v-slot:footer="blockScope">
-									<button class="btn btn-block btn-primary" @click="blockScope.addRow">
+									<button
+											class="btn btn-block btn-primary"
+											@click="blockScope.addRow"
+											:disabled="blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows"
+									>
 										<font-awesome-icon :icon="['fas', 'plus-square']" size="2x" class="mr-3"/>
 										<span style="font-size: 2rem;">Create Row</span>
 									</button>
@@ -535,7 +539,11 @@ export default {
 >
 
     <template v-slot:footer="blockScope">
-        <button class="btn btn-block btn-primary" @click="blockScope.addRow">
+        <button
+            class="btn btn-block btn-primary"
+            @click="blockScope.addRow"
+            :disabled="blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows"
+        >
             <font-awesome-icon :icon="['fas', 'plus-square']" size="2x" class="mr-3"/>
             <span style="font-size: 2rem;">Create Row</span>
         </button>
