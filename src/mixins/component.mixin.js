@@ -37,7 +37,7 @@ export default {
                     dragClass      : this.sortableDragClass,
                     animation      : this.sortableAnimation,
                     disabled       : this.mode === 'view',
-                    group          : this.enableMoveBlocksBetweenRows ? 'vld' : undefined,
+                    group          : this.enableMoveBlocksBetweenRows ? 'vgd' : undefined,
                     filter         : '.no-drag',
                     preventOnFilter: true,
                     onUpdate       : this.onUpdate,
@@ -108,6 +108,30 @@ export default {
     // Component methods
     methods: {
 
+        // Get VGD event object
+        getEventData ( e, sourceRow = 'from' ) {
+
+            const vgd = {
+                row  : null,
+                block: null
+            };
+
+            // Find the row
+            if ( e[ sourceRow ] ) {
+                const rowId = e[ sourceRow ].getAttribute ( 'data-id' );
+                vgd.row = this.rows.find ( x => x._id === rowId );
+            }
+
+            // Find the block
+            if ( vgd.row && e.item ) {
+                const blockId = e.item.getAttribute ( 'data-id' );
+                vgd.block = vgd.row.blocks.find ( x => x._id === blockId );
+            }
+
+            return vgd;
+
+        },
+
         // Fire input event for v-model
         fireChanged () {
             this.$emit ( 'input', this.model );
@@ -119,6 +143,9 @@ export default {
             e.target.classList.remove ( 'use-hover' );
             this.isDragging = true;
 
+            e.vdg = this.getEventData ( e );
+            this.$emit ( 'drag-start', e );
+
         },
 
         // Add row class to enable hover state
@@ -126,6 +153,9 @@ export default {
 
             e.target.classList.add ( 'use-hover' );
             this.isDragging = false;
+
+            e.vdg = this.getEventData ( e, 'to' );
+            this.$emit ( 'drag-end', e );
 
         },
 
@@ -148,14 +178,20 @@ export default {
             // Update model
             this.fireChanged ();
 
+            e.vdg = this.getEventData ( e );
+            this.$emit ( 'update', e );
+
         },
 
-        // When a sortable block is removed its row
+        // When a sortable block is removed from its row
         onRemove ( e ) {
 
             // Get the row the block was removed from
             const rowId = e.from.getAttribute ( 'data-id' );
             const row = this.rows.find ( x => x._id === rowId );
+
+            e.vdg = this.getEventData ( e );
+            this.$emit ( 'remove-block', e );
 
             // Remove from the model
             row.blocks.splice ( e.oldDraggableIndex, 1 );
@@ -184,6 +220,9 @@ export default {
             // Update model
             this.fireChanged ();
 
+            e.vdg = this.getEventData ( e, 'to' );
+            this.$emit ( 'add-block', e );
+
         },
 
         // Initialise the whole grid
@@ -192,6 +231,8 @@ export default {
             for ( const [ , row ] of this.rows.entries () ) {
                 this.initSortableRow ( row );
             }
+
+            this.$emit ( 'ready' );
 
         },
 
@@ -240,7 +281,7 @@ export default {
         },
 
         // Expand the span of a block
-        expandBlock ( row, block, num = 1 ) {
+        expandBlock ( e, row, block, num = 1 ) {
 
             if ( block.span >= this.blocksPerRow ) {
                 return;
@@ -250,10 +291,13 @@ export default {
 
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'update', e );
+
         },
 
         // Collapse the span of a block
-        collapseBlock ( row, block, num = 1 ) {
+        collapseBlock ( e, row, block, num = 1 ) {
 
             if ( block.span <= 1 ) {
                 return;
@@ -263,20 +307,26 @@ export default {
 
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'update', e );
+
         },
 
         // Delete a block
-        deleteBlock ( row, block ) {
+        deleteBlock ( e, row, block ) {
 
             const blockIdx = findIndex ( row.blocks, x => x._id === block._id );
             row.blocks.splice ( blockIdx, 1 );
 
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'remove-block', e );
+
         },
 
         // Add a block to a row
-        addBlock ( row, span = 1 ) {
+        addBlock ( e, row, span = 1 ) {
 
             const block = {
                 _id    : UUID (),
@@ -289,10 +339,13 @@ export default {
             // Update model
             this.fireChanged ();
 
+            e.vdg = { row, block };
+            this.$emit ( 'add-block', e );
+
         },
 
         // Delete a row
-        deleteRow ( row ) {
+        deleteRow ( e, row ) {
 
             // Remove row from our model
             this.rows.splice (
@@ -302,11 +355,13 @@ export default {
 
             // Update model
             this.fireChanged ();
+            e.vdg = { row, block: null };
+            this.$emit ( 'remove-row', e );
 
         },
 
         // Add a new row
-        addRow () {
+        addRow ( e ) {
 
             const row = {
                 _id   : UUID (),
@@ -327,6 +382,9 @@ export default {
 
                 // Update model
                 this.fireChanged ();
+
+                e.vdg = { row, block: null };
+                this.$emit ( 'add-row', e );
 
             } );
 

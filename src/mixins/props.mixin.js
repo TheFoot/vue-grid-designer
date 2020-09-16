@@ -69,25 +69,19 @@ export default {
         // CSS Class for the ghost position indicator element
         sortableGhostClass: {
             type   : String,
-            default: 'vld__block--ghost'
+            default: 'vgd__block--ghost'
         },
 
         // CSS Class for the selected element
         sortableChosenClass: {
             type   : String,
-            default: 'vld__block--chosen'
+            default: 'vgd__block--chosen'
         },
 
         // CSS Class for the element when dragged
         sortableDragClass: {
             type   : String,
-            default: 'vld__block--drag'
-        },
-
-        // CSS Class for the grab handle element
-        sortableDragHandleClass: {
-            type   : String,
-            default: 'vld__block__toolbar'
+            default: 'vgd__block--drag'
         },
 
         // Animation speed. 0 for no animation

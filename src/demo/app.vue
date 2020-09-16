@@ -447,11 +447,11 @@ export default {
                 case 'customStyleScss':
                     return `#demo {
 
-    .vld__row.demo__row {
+    .vgd__row.demo__row {
         padding: 1rem;
         background-color: black;
 
-        .vld__row__toolbar {
+        .vgd__row__toolbar {
             background-color: rgba(0, 0, 0, .5);
             &__button {
                 color: white;
@@ -459,17 +459,17 @@ export default {
         }
     }
 
-    .vld__block.demo__block {
+    .vgd__block.demo__block {
         padding: .6rem;
         background-color: rgba(255, 127, 80, .5);
     }
 
     .use-hover {
-        &.vld__row.demo__row {
+        &.vgd__row.demo__row {
             &:hover {
                 background-color: rgba(0, 0, 0, .5);
             }
-            .vld__block.demo__block:hover {
+            .vgd__block.demo__block:hover {
                 background-color: rgb(255, 127, 80);
             }
         }
@@ -554,11 +554,11 @@ pre code.hljs.css::before {
 
 #demo {
 
-	.vld__row.demo__row {
+	.vgd__row.demo__row {
 		padding: 1rem;
 		background-color: black;
 
-		.vld__row__toolbar {
+		.vgd__row__toolbar {
 			background-color: rgba(0, 0, 0, .5);
 
 			&__button {
@@ -567,19 +567,19 @@ pre code.hljs.css::before {
 		}
 	}
 
-	.vld__block.demo__block {
+	.vgd__block.demo__block {
 		padding: .6rem;
 		background-color: rgba(255, 127, 80, .5);
 	}
 
 	.use-hover {
 
-		&.vld__row.demo__row {
+		&.vgd__row.demo__row {
 			&:hover {
 				background-color: rgba(0, 0, 0, .5);
 			}
 
-			.vld__block.demo__block:hover {
+			.vgd__block.demo__block:hover {
 				background-color: rgb(255, 127, 80);
 			}
 		}

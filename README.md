@@ -12,7 +12,7 @@ A Vue 2.x drag-and-drop grid layout designer, based on [Gridster.js](http://dsmo
 ---
 | Vue | Build | Statements | Branches | Functions | Lines
 | ------ | ------ | ------ | ------- | ------- | ------
-| ![Vue](https://img.shields.io/badge/vue-2.2.x-brightgreen.svg "Vue Version") | ![BuildStatus](https://img.shields.io/badge/Build-Passing-brightgreen.svg "Building Status") | ![Statements](https://img.shields.io/badge/Coverage-26.13%25-red.svg "Make me better!") | ![Branches](https://img.shields.io/badge/Coverage-15.79%25-red.svg "Make me better!") | ![Functions](https://img.shields.io/badge/Coverage-34.88%25-red.svg "Make me better!") | ![Lines](https://img.shields.io/badge/Coverage-27.62%25-red.svg "Make me better!")
+| ![Vue](https://img.shields.io/badge/vue-2.2.x-brightgreen.svg "Vue Version") | ![BuildStatus](https://img.shields.io/badge/Build-Passing-brightgreen.svg "Building Status") | ![Statements](https://img.shields.io/badge/Coverage-30.85%25-red.svg "Make me better!") | ![Branches](https://img.shields.io/badge/Coverage-18.18%25-red.svg "Make me better!") | ![Functions](https://img.shields.io/badge/Coverage-38.46%25-red.svg "Make me better!") | ![Lines](https://img.shields.io/badge/Coverage-32.95%25-red.svg "Make me better!")
 ---
 
 ## Installation

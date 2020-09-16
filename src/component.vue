@@ -1,5 +1,5 @@
 <template>
-	<div class="vld">
+	<div class="vgd">
 
 		<!-- Row -->
 		<div
@@ -7,7 +7,7 @@
 				:key="row._id"
 				:data-id="row._id"
 				:ref="`row_${row._id}`"
-				class="vld__row use-hover"
+				class="vgd__row use-hover"
 				:class="rowClass"
 				:style="getAnimationStyle()"
 		>
@@ -17,7 +17,7 @@
 					v-for="block in row.blocks"
 					:key="block._id"
 					:data-id="block._id"
-					class="vld__block"
+					class="vgd__block"
 					:class="blockClass"
 					:style="getBlockStyles(row, block)"
 			>
@@ -25,7 +25,7 @@
 				<!-- Block toolbar -->
 				<div
 						v-if="mode === 'edit'"
-						class="vld__block__toolbar no-drag"
+						class="vgd__block__toolbar no-drag"
 						:style="getAnimationStyle()"
 				>
 					<slot
@@ -37,27 +37,27 @@
 					>
 
 						<span
-								@click="expandBlock(row, block)"
+								@click="expandBlock($event, row, block)"
 								title="Expand"
-								class="vld__block__toolbar__button"
+								class="vgd__block__toolbar__button"
 								:class="{ disabled: block.span >= blocksPerRow }"
 						>
 							<font-awesome-icon :icon="['fas', 'plus']"/>
 						</span>
 
 						<span
-								@click="collapseBlock(row, block)"
+								@click="collapseBlock($event, row, block)"
 								title="Collapse"
-								class="vld__block__toolbar__button"
+								class="vgd__block__toolbar__button"
 								:class="{ disabled: block.span <= 1 }"
 						>
 							<font-awesome-icon :icon="['fas', 'minus']"/>
 						</span>
 
 						<span
-								@click="deleteBlock(row, block)"
+								@click="deleteBlock($event, row, block)"
 								title="Delete"
-								class="vld__block__toolbar__button"
+								class="vgd__block__toolbar__button"
 						>
 							<font-awesome-icon :icon="['fas', 'times']"/>
 						</span>
@@ -67,14 +67,14 @@
 				</div>
 
 				<!-- Block content -->
-				<div v-if="mode === 'view'" class="vld__block__content" v-html="block.content"></div>
+				<div v-if="mode === 'view'" class="vgd__block__content" v-html="block.content"></div>
 
 			</div>
 
 			<!-- Row toolbar -->
 			<div
 					v-if="mode === 'edit'"
-					class="vld__row__toolbar no-drag"
+					class="vgd__row__toolbar no-drag"
 					:style="getAnimationStyle()"
 			>
 				<slot
@@ -85,17 +85,17 @@
 				>
 
 					<span
-							@click="deleteRow(row)"
+							@click="deleteRow($event, row)"
 							title="Delete row"
-							class="vld__row__toolbar__button"
+							class="vgd__row__toolbar__button"
 					>
 							<font-awesome-icon :icon="['fas', 'times']"/>
 						</span>
 
 					<span
-							@click="addBlock(row)"
+							@click="addBlock($event, row)"
 							title="Add block"
-							class="vld__row__toolbar__button"
+							class="vgd__row__toolbar__button"
 					>
 							<font-awesome-icon :icon="['fas', 'plus']"/>
 						</span>
@@ -112,8 +112,8 @@
 		>
 			<button
 					v-if="mode === 'edit'"
-					class="vld__footer__button"
-					@click="addRow"
+					class="vgd__footer__button"
+					@click="addRow($event)"
 					:disabled="maxRows > 0 && rows.length >= maxRows"
 			>Add Row
 			</button>
@@ -168,7 +168,7 @@ export default {
 </style>
 
 <style scoped lang="scss">
-.vld {
+.vgd {
 
 	font-family: sans-serif;
 
@@ -317,21 +317,21 @@ export default {
 	/* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */
 	.use-hover {
 
-		&.vld__row:hover {
+		&.vgd__row:hover {
 
 			background-color: rgb(var(--color-highlight-faded));
 
-			.vld__row__toolbar {
+			.vgd__row__toolbar {
 				visibility: visible;
 			}
 
 		}
 
-		.vld__block:hover {
+		.vgd__block:hover {
 
 			background-color: rgb(var(--color-highlight));
 
-			.vld__block__toolbar {
+			.vgd__block__toolbar {
 				visibility: visible;
 			}
 
