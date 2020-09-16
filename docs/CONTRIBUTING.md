@@ -14,7 +14,7 @@ Run using `npm build <command>`.
 | lint        | Runs eslint on all .js and .vue files.                                                       |
 | build       | Runs `lint`, `scanner` commands, and builds distributable production assets.                 |
 | scanner     | Runs code vulnerability scanner, including checking for outdated NPM modules.                |
-| make-badges | Updates README.md badges from README-template.md.                                            |
+| update-readme | Updates README.md with status badges from README-template.md.                                            |
 | release     | Bumps package version, create git tag, a new github release, merges `develop` into `master`. |
 
 ## Pre-commit hooks

@@ -11,6 +11,21 @@ Design a responsive grid based on rows and blocks using HTML5 drag and drop. The
 actual HTML grid using any CSS framework you choose or saved to a database for subsequent use. It can be decorated with 
 any additional JSON properties to allow you to extend your grid in any way you need.
 
+## Dependencies
+`vue-grid-designer` has no external dependency requirements. The following dependencies are included in the 
+exported ESM package:
+```json
+{
+    "@fortawesome/fontawesome-svg-core"  : "^1.2.30",
+    "@fortawesome/free-solid-svg-icons"  : "^5.14.0",
+    "@fortawesome/vue-fontawesome"       : "^2.0.0",
+    "lodash-es"                          : "^4.17.15",
+    "sortablejs"                         : "^1.10.2",
+    "uuid"                               : "^8.3.0",
+    "vue"                                : "^2.6.12"
+}
+```
+
 ![Screenshot](docs/img/vue-grid-designer-demo.gif)
 
 ---
@@ -72,6 +87,13 @@ Then simply add the component to your template and bind your grid model to it:
         }   
     };
 </script>
+```
+
+You can even use it via a script tag:
+
+```html
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/vue-grid-designer"></script>
 ```
 
 ### Grid Data Model
@@ -142,7 +164,8 @@ is relevant), and contain `row` and `block` properties.
 | add-row      | Fired after a new row has been added.                                                                                                                                                                                      | `vue-grid-designer @add-row="addRowHandler" />`           |
 | drag-start   | Fired when a drag action has started.                                                                                                                                                                                      | `vue-grid-designer @drag-start="dragStartHandler" />`     |
 | drag-stop    | Fired when a drag action has ended.                                                                                                                                                                                        | `vue-grid-designer @drag-stop="dragStopHandler" />`       |
-| input        | Fired by Vue implicitly for `v-model` support. Handling this manually will cause `v-model` behaviour to break!                                                                                                             | -                                                         |
+| block-changed| Fired when a block has been expanded or collapsed.                                                                                                                                                                         | `vue-grid-designer @block-changed="blockChangedHandler" />`       |
+| input        | Fired by Vue implicitly for `v-model` support.                                                                                                                                                                             | -                                                         |
 
 ### Methods
 Methods that receive an `event` parameter fire a custom event.
