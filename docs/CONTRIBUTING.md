@@ -14,7 +14,6 @@ Run using `npm build <command>`.
 | lint        | Runs eslint on all .js and .vue files.                                                       |
 | build       | Runs `lint`, `scanner` commands, and builds distributable production assets.                 |
 | scanner     | Runs code vulnerability scanner, including checking for outdated NPM modules.                |
-| update-readme | Updates README.md with status badges from README-template.md.                                            |
 | release     | Bumps package version, create git tag, a new github release, merges `develop` into `master`. |
 
 ## Pre-commit hooks
@@ -29,10 +28,6 @@ IDEA IDE's (WebStorm for example) for automatic code formatting. **Pull requests
 adhere to this coding style.**
 
 Please read [Wiki Coding Standards] (docs/CODING-STANDARDS.md) for the coding style guidelines.
-
-## Updating README
-Please ensure any new features or relevant changes are reflected in the README.md file, by updating the 
-README-template.md file. The build command `update-readme` creates the actual README.md file from README-template.md.
 
 ## Vulnerability scanning
 The build command `scanner` uses [Hawkeye](https://github.com/hawkeyesec/scanner-cli) security scanner. CI builds will

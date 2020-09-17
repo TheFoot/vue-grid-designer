@@ -8,9 +8,9 @@
 A Vue 2.x component for designing grid layouts using [Sortable.js](Vue 2.x component for designing grid layouts using SortableJS.)
 
 ---
-| Vue | Build | Statements | Branches | Functions | Lines
-| ------ | ------ | ------ | ------- | ------- | ------
-| ![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version") | ![BuildStatus](https://img.shields.io/badge/Build-Passing-brightgreen.svg "Building Status") | ![Statements](https://img.shields.io/badge/Coverage-65.79%25-red.svg "Make me better!") | ![Branches](https://img.shields.io/badge/Coverage-61.29%25-red.svg "Make me better!") | ![Functions](https://img.shields.io/badge/Coverage-71.43%25-red.svg "Make me better!") | ![Lines](https://img.shields.io/badge/Coverage-68.52%25-red.svg "Make me better!")
+| Vue | Build
+| ------ | ------ 
+| ![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version") | [![CI Build](https://github.com/thefoot/vue-grid-designer/workflows/ci-build/badge.svg)](https://github.com/thefoot/vue-grid-designer/actions)
 ---
 
 Design a responsive grid based on rows and blocks using HTML5 drag and drop. The JSON model can be used to generate an 
@@ -178,7 +178,7 @@ is relevant), and contain `row` and `block` properties.
 | Name         | Description                                                                                                                                                                                                                | Example                                                   |
 |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 | ready        | Fired when the grid is initialised and ready for use. No event data is emitted.                                                                                                                                            |                                                           |
-| update       | Fired after a block has been moved, or expanded / collapsed (no native event available). Only fired when a block is moved within a row. When block is moved between rows, `remove-block` and `add-block` events are fired. | `vue-grid-designer @update="updateHandler" />`            |
+| update       | Fired after a block has been moved. Only fired when a block is moved within a row. When block is moved between rows, `remove-block` and `add-block` events are fired. | `vue-grid-designer @update="updateHandler" />`            |
 | remove-block | Fired after a block has been removed.                                                                                                                                                                                      | `vue-grid-designer @remove-block="removeBlockHandler" />` |
 | remove-row   | Fired after a row has been removed.                                                                                                                                                                                        | `vue-grid-designer @remove-row="rowRemoveHandler" />`     |
 | add-block    | Fired after a new block has been added.                                                                                                                                                                                    | `vue-grid-designer @add-block="addBlockHandler" />`       |

@@ -18,8 +18,7 @@
         "create-release": "node ./node_modules/release-it/bin/release-it.js",
         "release"       : "./release.sh",
         "prebuild"      : "echo false > .buildstatus",
-        "postbuild"     : "echo true > .buildstatus",
-        "update-readme" : "node_modules/.bin/jest-badges-readme"
+        "postbuild"     : "echo true > .buildstatus"
     },
     "repository"     : {
         "type": "git",
@@ -69,19 +68,7 @@
         "moduleNameMapper"       : {
             "^@/(.*)$": "<rootDir>/src/$1",
             "^~/(.*)$": "<rootDir>/node_modules/$1"
-        },
-        "collectCoverage"        : true,
-        "collectCoverageFrom"    : [
-            "src/**/*.{js,vue}",
-            "!src/demo/**",
-            "!src/component.js",
-            "!**/node_modules/**"
-        ],
-        "coverageReporters"      : [
-            "json-summary",
-            "text",
-            "lcov"
-        ]
+        }
     },
     "pre-commit"     : [
         "test",
