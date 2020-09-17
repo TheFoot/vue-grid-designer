@@ -2,7 +2,7 @@
  The component mixin
  */
 import { v4 as UUID }       from 'uuid';
-import { merge, findIndex } from 'lodash-es';
+import { findIndex } from 'lodash-es';
 import Sortable             from 'sortablejs/modular/sortable.core.esm.js';
 
 // Exported interface
@@ -100,7 +100,6 @@ export default {
     methods: {
 
         // Get VGD event object
-        /* istanbul ignore next */
         getEventData ( e, sourceRow = 'from' ) {
 
             const vgd = {
@@ -218,7 +217,6 @@ export default {
         },
 
         // Initialise the whole grid
-        /* istanbul ignore next */
         initGrid () {
 
             for ( const [ , row ] of this.rows.entries () ) {
@@ -230,7 +228,6 @@ export default {
         },
 
         // Initialise a single row
-        /* istanbul ignore next */
         initSortableRow ( row ) {
 
             // Get the UI element
@@ -385,12 +382,6 @@ export default {
 
             } );
 
-        },
-
-        // Return the full internal data model
-        /* istanbul ignore next */
-        getFullModel () {
-            return merge ( [], this.rows );
         }
 
     },
