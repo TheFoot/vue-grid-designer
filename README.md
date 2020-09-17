@@ -113,7 +113,7 @@ You can even use it via a script tag:
 
 ```html
 <script src="https://unpkg.com/vue"></script>
-<script src="https://unpkg.com/vue-grid-designer"></script>
+<script src="https://unpkg.com/@thefootonline/vue-grid-designer"></script>
 ```
 
 ### Grid Data Model
