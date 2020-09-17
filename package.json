@@ -16,9 +16,7 @@
         "lint"          : "eslint --ext .js,.vue src",
         "scanner"       : "npx hawkeye scan",
         "create-release": "node ./node_modules/release-it/bin/release-it.js",
-        "release"       : "./release.sh",
-        "prebuild"      : "echo false > .buildstatus",
-        "postbuild"     : "echo true > .buildstatus"
+        "release"       : "./release.sh"
     },
     "repository"     : {
         "type": "git",
