@@ -1,6 +1,6 @@
 {
     "name"           : "@thefoot/vue-grid-designer",
-    "version"        : "0.0.1",
+    "version"        : "0.1.0",
     "description"    : "Vue 2.x component for designing grid layouts using SortableJS.",
     "main"           : "dist/component.umd.js",
     "module"         : "dist/component.esm.js",
@@ -39,9 +39,6 @@
         "> 1%",
         "last 2 versions"
     ],
-    "publishConfig"  : {
-        "registry": "https://npm.pkg.github.com/@thefoot"
-    },
     "release-it"     : {
         "github": {
             "release": true
