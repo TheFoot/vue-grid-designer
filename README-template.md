@@ -10,7 +10,7 @@ A Vue 2.x component for designing grid layouts using [Sortable.js](Vue 2.x compo
 ---
 | Vue | Build | Statements | Branches | Functions | Lines
 | ------ | ------ | ------ | ------- | ------- | ------
-| ![Vue](https://img.shields.io/badge/vue-2.2.x-brightgreen.svg "Vue Version") | ![BuildStatus](#buildstatus#) | ![Statements](#statements# "Make me better!") | ![Branches](#branches# "Make me better!") | ![Functions](#functions# "Make me better!") | ![Lines](#lines# "Make me better!")
+| ![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version") | ![BuildStatus](#buildstatus#) | ![Statements](#statements# "Make me better!") | ![Branches](#branches# "Make me better!") | ![Functions](#functions# "Make me better!") | ![Lines](#lines# "Make me better!")
 ---
 
 Design a responsive grid based on rows and blocks using HTML5 drag and drop. The JSON model can be used to generate an 
@@ -18,6 +18,27 @@ actual HTML grid using any CSS framework you choose or saved to a database for s
 any additional JSON properties to allow you to extend your grid in any way you need.
 
 ![Screenshot](docs/img/vue-grid-designer-demo.gif)
+
+## Table of Contents
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+  * [Grid Data Model](#grid-data-model)
+    + [Internal model](#internal-model)
+  * [Component Props](#component-props)
+  * [Overidden Sortable JS Options](#overidden-sortable-js-options)
+  * [Events](#events)
+  * [Methods](#methods)
+  * [CSS and Styles](#css-and-styles)
+    + [CSS Classes Used](#css-classes-used)
+    + [Specificity and Overriding Scoped Styles](#specificity-and-overriding-scoped-styles)
+    + [Using :hover styles](#using--hover-styles)
+- [Demo](#demo)
+- [Contributing](#contributing)
+- [Credits](#credits)
+  * [Author](#author)
+  * [Contributors](#contributors)
+- [Licence](#licence)
 
 ## Dependencies
 `vue-grid-designer` has no external dependency requirements. The following dependencies are included in the 

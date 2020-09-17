@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, test } from '@jest/globals';
-import { shallowMount }                                    from '@vue/test-utils';
-import VueGridDesigner                                     from '@/component.vue';
+import { shallowMount }                          from '@vue/test-utils';
+import VueGridDesigner                           from '@/component.vue';
 
 // For async/await
 import 'babel-polyfill';
