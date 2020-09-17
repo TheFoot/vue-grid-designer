@@ -7,9 +7,38 @@
 # Vue Grid Designer
 A Vue 2.x component for designing grid layouts using [Sortable.js](Vue 2.x component for designing grid layouts using SortableJS.)
 
+---
+| Vue | Build
+| ------ | ------ 
+| ![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version") | [![CI Build](https://github.com/thefoot/vue-grid-designer/workflows/ci-build/badge.svg)](https://github.com/thefoot/vue-grid-designer/actions)
+---
+
 Design a responsive grid based on rows and blocks using HTML5 drag and drop. The JSON model can be used to generate an 
 actual HTML grid using any CSS framework you choose or saved to a database for subsequent use. It can be decorated with 
 any additional JSON properties to allow you to extend your grid in any way you need.
+
+![Screenshot](docs/img/vue-grid-designer-demo.gif)
+
+## Table of Contents
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+  * [Grid Data Model](#grid-data-model)
+    + [Internal model](#internal-model)
+  * [Component Props](#component-props)
+  * [Overidden Sortable JS Options](#overidden-sortable-js-options)
+  * [Events](#events)
+  * [Methods](#methods)
+  * [CSS and Styles](#css-and-styles)
+    + [CSS Classes Used](#css-classes-used)
+    + [Specificity and Overriding Scoped Styles](#specificity-and-overriding-scoped-styles)
+    + [Using :hover styles](#using--hover-styles)
+- [Demo](#demo)
+- [Contributing](#contributing)
+- [Credits](#credits)
+  * [Author](#author)
+  * [Contributors](#contributors)
+- [Licence](#licence)
 
 ## Dependencies
 `vue-grid-designer` has no external dependency requirements. The following dependencies are included in the 
@@ -25,14 +54,6 @@ exported ESM package:
     "vue"                                : "^2.6.12"
 }
 ```
-
-![Screenshot](docs/img/vue-grid-designer-demo.gif)
-
----
-| Vue | Build | Statements | Branches | Functions | Lines
-| ------ | ------ | ------ | ------- | ------- | ------
-| ![Vue](https://img.shields.io/badge/vue-2.2.x-brightgreen.svg "Vue Version") | ![BuildStatus](https://img.shields.io/badge/Build-Passing-brightgreen.svg "Building Status") | ![Statements](https://img.shields.io/badge/Coverage-23.62%25-red.svg "Make me better!") | ![Branches](https://img.shields.io/badge/Coverage-15%25-red.svg "Make me better!") | ![Functions](https://img.shields.io/badge/Coverage-35.71%25-red.svg "Make me better!") | ![Lines](https://img.shields.io/badge/Coverage-25.21%25-red.svg "Make me better!")
----
 
 ## Installation
 
@@ -157,7 +178,7 @@ is relevant), and contain `row` and `block` properties.
 | Name         | Description                                                                                                                                                                                                                | Example                                                   |
 |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 | ready        | Fired when the grid is initialised and ready for use. No event data is emitted.                                                                                                                                            |                                                           |
-| update       | Fired after a block has been moved, or expanded / collapsed (no native event available). Only fired when a block is moved within a row. When block is moved between rows, `remove-block` and `add-block` events are fired. | `vue-grid-designer @update="updateHandler" />`            |
+| update       | Fired after a block has been moved. Only fired when a block is moved within a row. When block is moved between rows, `remove-block` and `add-block` events are fired. | `vue-grid-designer @update="updateHandler" />`            |
 | remove-block | Fired after a block has been removed.                                                                                                                                                                                      | `vue-grid-designer @remove-block="removeBlockHandler" />` |
 | remove-row   | Fired after a row has been removed.                                                                                                                                                                                        | `vue-grid-designer @remove-row="rowRemoveHandler" />`     |
 | add-block    | Fired after a new block has been added.                                                                                                                                                                                    | `vue-grid-designer @add-block="addBlockHandler" />`       |
@@ -172,7 +193,7 @@ Methods that receive an `event` parameter fire a custom event.
 
 | Name              | Params                           | Description                                                                               |
 |-------------------|----------------------------------|-------------------------------------------------------------------------------------------|
-| getFullModel      | `()`                             | Append a new row to the grid.  Return the full internal model including custom properties.|
+| getFullModel      | `()`                             | Return the full internal model including custom properties.|
 | addBlock          | `( event, row, span = 1 )`       | Append a new block to a row.                                                              |
 | deleteRow         | `( event, row )`                 | Delete a row from the grid.                                                               |
 | deleteBlock       | `( event, row, block )`          | Delete a block from a row.                                                                |

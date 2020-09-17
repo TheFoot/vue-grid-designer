@@ -150,12 +150,9 @@
 								<font-awesome-icon :icon="['fas', 'info']" class="mr-4"/>
 								NOTE: Vue components cannot be embedded this way.
 							</div>
-							<p>This demo model implements custom model properties. Click the <code>Full Model</code>
-							   button and open the browser console, to see the full internal model.</p>
 						</div>
 						<div class="col-6">
 							<pre v-highlightjs="getCode('contentStyleMarkup')"><code class="html"></code></pre>
-							<pre v-highlightjs="getCode('contentDataModel')"><code class="js"></code></pre>
 						</div>
 					</div>
 
@@ -174,9 +171,6 @@
 										<option selected value="edit">Edit</option>
 										<option value="view">View</option>
 									</select>
-
-									<button type="button" class="btn btn-light" @click="getFullDataModel">Full Model
-									</button>
 
 								</form>
 							</nav>
@@ -683,14 +677,6 @@ export default {
     @input="showDemoEvent('input (manual handler)', $event)"
 />`;
 
-                case 'contentDataModel':
-                    return `getFullDataModel () {
-
-    const $comp = this.$refs[ 'demoComponentContent' ];
-    console.log ( 'Full Data Model: ', $comp.getFullModel () );
-
-}`;
-
                 case 'htmlLayout':
                     return `<bs-layout-builder
     v-model="grids.html"
@@ -719,13 +705,6 @@ export default {
 
         showDemoEvent ( name, e ) {
             console.log ( `Event: ${ name }`, e );
-        },
-
-        getFullDataModel () {
-
-            const $comp = this.$refs[ 'demoComponentContent' ];
-            console.log ( 'Full Data Model: ', $comp.getFullModel () );
-
         }
 
     }

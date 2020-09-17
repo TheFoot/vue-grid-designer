@@ -12,14 +12,11 @@
         "test"          : "npm run test:unit",
         "test:unit"     : "jest --verbose ./test/unit",
         "serve"         : "rollup --config rollup/demo.config.js --watch",
-        "build"         : "npm run lint && npm run scanner && rollup --config rollup/main.config.js",
+        "build"         : "npm run lint && npm run scanner && NODE_ENV=production rollup --config rollup/main.config.js && NODE_ENV=production rollup --config rollup/demo.config.js",
         "lint"          : "eslint --ext .js,.vue src",
         "scanner"       : "npx hawkeye scan",
         "create-release": "node ./node_modules/release-it/bin/release-it.js",
-        "release"       : "./release.sh",
-        "prebuild"      : "echo false > .buildstatus",
-        "postbuild"     : "echo true > .buildstatus",
-        "update-readme" : "node_modules/.bin/jest-badges-readme"
+        "release"       : "./release.sh"
     },
     "repository"     : {
         "type": "git",
@@ -69,19 +66,7 @@
         "moduleNameMapper"       : {
             "^@/(.*)$": "<rootDir>/src/$1",
             "^~/(.*)$": "<rootDir>/node_modules/$1"
-        },
-        "collectCoverage"        : true,
-        "collectCoverageFrom"    : [
-            "src/**/*.{js,vue}",
-            "!src/demo/**",
-            "!src/component.js",
-            "!**/node_modules/**"
-        ],
-        "coverageReporters"      : [
-            "json-summary",
-            "text",
-            "lcov"
-        ]
+        }
     },
     "pre-commit"     : [
         "test",

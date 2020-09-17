@@ -2,7 +2,7 @@
  The component mixin
  */
 import { v4 as UUID }       from 'uuid';
-import { merge, findIndex } from 'lodash-es';
+import { findIndex } from 'lodash-es';
 import Sortable             from 'sortablejs/modular/sortable.core.esm.js';
 
 // Exported interface
@@ -274,7 +274,7 @@ export default {
         // Expand the span of a block
         expandBlock ( e, row, block, num = 1 ) {
 
-            if ( block.span >= this.blocksPerRow ) {
+            if ( ( block.span + num ) >= this.blocksPerRow ) {
                 return;
             }
 
@@ -307,6 +307,9 @@ export default {
         deleteBlock ( e, row, block ) {
 
             const blockIdx = findIndex ( row.blocks, x => x._id === block._id );
+            if ( blockIdx === -1 ) {
+                throw new Error ( 'Block not found in the row specified.' );
+            }
             row.blocks.splice ( blockIdx, 1 );
 
             this.fireChanged ();
@@ -379,11 +382,6 @@ export default {
 
             } );
 
-        },
-
-        // Return the full internal data model
-        getFullModel () {
-            return merge ( [], this.rows );
         }
 
     },
