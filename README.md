@@ -5,7 +5,7 @@
 </p>
 
 # Vue Grid Designer
-A Vue 2.x component for designing grid layouts using [Sortable.js](Vue 2.x component for designing grid layouts using SortableJS.)
+A Vue 2.x component for designing grid layouts using [Sortable.js](https://github.com/SortableJS/Sortable).
 
 [![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version")](https://vuejs.org/)
 [![CI Build](https://github.com/thefoot/vue-grid-designer/workflows/ci-build/badge.svg)](https://github.com/thefoot/vue-grid-designer/actions)
