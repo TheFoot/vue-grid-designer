@@ -7,11 +7,10 @@
 # Vue Grid Designer
 A Vue 2.x component for designing grid layouts using [Sortable.js](Vue 2.x component for designing grid layouts using SortableJS.)
 
----
-| Vue | Build
-| ------ | ------ 
-| ![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version") | [![CI Build](https://github.com/thefoot/vue-grid-designer/workflows/ci-build/badge.svg)](https://github.com/thefoot/vue-grid-designer/actions)
----
+![Vue](https://img.shields.io/badge/vue-2.6.x-brightgreen.svg "Vue Version")
+[![CI Build](https://github.com/thefoot/vue-grid-designer/workflows/ci-build/badge.svg)](https://github.com/thefoot/vue-grid-designer/actions)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/thefoot/vue-grid-designer)
+![npm (scoped)](https://img.shields.io/npm/v/@thefootonline/vue-grid-designer) 
 
 Design a responsive grid based on rows and blocks using HTML5 drag and drop. The JSON model can be used to generate an 
 actual HTML grid using any CSS framework you choose or saved to a database for subsequent use. It can be decorated with 
