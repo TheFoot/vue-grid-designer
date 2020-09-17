@@ -100,6 +100,7 @@ export default {
     methods: {
 
         // Get VGD event object
+        /* istanbul ignore next */
         getEventData ( e, sourceRow = 'from' ) {
 
             const vgd = {
@@ -217,6 +218,7 @@ export default {
         },
 
         // Initialise the whole grid
+        /* istanbul ignore next */
         initGrid () {
 
             for ( const [ , row ] of this.rows.entries () ) {
@@ -228,6 +230,7 @@ export default {
         },
 
         // Initialise a single row
+        /* istanbul ignore next */
         initSortableRow ( row ) {
 
             // Get the UI element
@@ -274,7 +277,7 @@ export default {
         // Expand the span of a block
         expandBlock ( e, row, block, num = 1 ) {
 
-            if ( block.span >= this.blocksPerRow ) {
+            if ( ( block.span + num ) >= this.blocksPerRow ) {
                 return;
             }
 
@@ -307,6 +310,9 @@ export default {
         deleteBlock ( e, row, block ) {
 
             const blockIdx = findIndex ( row.blocks, x => x._id === block._id );
+            if ( blockIdx === -1 ) {
+                throw new Error ( 'Block not found in the row specified.' );
+            }
             row.blocks.splice ( blockIdx, 1 );
 
             this.fireChanged ();
@@ -382,6 +388,7 @@ export default {
         },
 
         // Return the full internal data model
+        /* istanbul ignore next */
         getFullModel () {
             return merge ( [], this.rows );
         }

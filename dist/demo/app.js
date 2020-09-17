@@ -15352,7 +15352,7 @@
       expandBlock: function expandBlock(e, row, block) {
         var num = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
 
-        if (block.span >= this.blocksPerRow) {
+        if (block.span + num >= this.blocksPerRow) {
           return;
         }
 
@@ -15385,6 +15385,11 @@
         var blockIdx = findIndex(row.blocks, function (x) {
           return x._id === block._id;
         });
+
+        if (blockIdx === -1) {
+          throw new Error('Block not found in the row specified.');
+        }
+
         row.blocks.splice(blockIdx, 1);
         this.fireChanged();
         e.vdg = {
