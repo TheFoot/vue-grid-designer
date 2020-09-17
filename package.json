@@ -12,7 +12,7 @@
         "test"          : "npm run test:unit",
         "test:unit"     : "jest --verbose ./test/unit",
         "serve"         : "rollup --config rollup/demo.config.js --watch",
-        "build"         : "npm run lint && npm run scanner && rollup --config rollup/main.config.js",
+        "build"         : "npm run lint && npm run scanner && NODE_ENV=production rollup --config rollup/main.config.js && NODE_ENV=production rollup --config rollup/demo.config.js",
         "lint"          : "eslint --ext .js,.vue src",
         "scanner"       : "npx hawkeye scan",
         "create-release": "node ./node_modules/release-it/bin/release-it.js",

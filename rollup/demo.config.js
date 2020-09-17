@@ -9,6 +9,9 @@ import babel         from '@rollup/plugin-babel';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
 import path          from 'path';
 import alias         from '@rollup/plugin-alias';
+import { terser }    from 'rollup-plugin-terser';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 const customResolver = resolve (
     {
@@ -16,6 +19,70 @@ const customResolver = resolve (
     }
 );
 const projectRootDir = path.resolve ( __dirname, '../' );
+
+// Common plugins
+const plugins = [
+    alias (
+        {
+            entries: [
+                { find: '@', replacement: path.resolve ( projectRootDir, 'src' ) },
+                { find: '~', replacement: path.resolve ( projectRootDir, 'node_modules' ) }
+            ],
+            customResolver
+        }
+    ),
+    resolve (
+        { browser: true }
+    ),
+    commonjs (),
+    nodePolyfills (),
+    vue (
+        {
+            needMap: false,
+            css    : true
+        }
+    ),
+    replace (
+        {
+            'process.env.NODE_ENV': JSON.stringify ( process.env.NODE_ENV || 'development' )
+        }
+    ),
+    babel (
+        {
+            babelHelpers: 'bundled',
+            exclude     : 'node_modules/**'
+        }
+    )
+];
+
+// Server and hot reload for development
+if ( !isProduction ) {
+    plugins.push ( serve (
+        {
+            contentBase: 'dist/demo',
+            host       : 'localhost',
+            port       : 3001,
+            open       : true
+        }
+    ) );
+    plugins.push ( livereload (
+        {
+            watch: 'dist'
+        }
+    ) );
+}
+
+// Copy demo files into docs
+plugins.push ( copy (
+    {
+        targets: [
+            {
+                src : 'src/demo/index.html',
+                dest: 'dist/demo/'
+            }
+        ]
+    }
+) );
 
 export default {
 
@@ -33,68 +100,13 @@ export default {
             name     : 'demo',
             file     : 'dist/demo/app.js',
             sourcemap: true,
-
-            globals: {}
+            globals  : {},
+            plugins  : isProduction ? [ terser () ] : []
 
         }
 
     ],
 
-    plugins: [
-        alias (
-            {
-                entries: [
-                    { find: '@', replacement: path.resolve ( projectRootDir, 'src' ) },
-                    { find: '~', replacement: path.resolve ( projectRootDir, 'node_modules' ) }
-                ],
-                customResolver
-            }
-        ),
-        resolve (
-            { browser: true }
-        ),
-        commonjs (),
-        nodePolyfills (),
-        vue (
-            {
-                needMap: false,
-                css    : true
-            }
-        ),
-        replace (
-            {
-                'process.env.NODE_ENV': JSON.stringify ( process.env.NODE_ENV || 'development' )
-            }
-        ),
-        babel (
-            {
-                babelHelpers: 'bundled',
-                exclude     : 'node_modules/**'
-            }
-        ),
-        copy (
-            {
-                targets: [
-                    {
-                        src : 'src/demo/index.html',
-                        dest: 'dist/demo/'
-                    }
-                ]
-            }
-        ),
-        serve (
-            {
-                contentBase: 'dist/demo',
-                host       : 'localhost',
-                port       : 3001,
-                open       : true
-            }
-        ),
-        livereload (
-            {
-                watch: 'dist'
-            }
-        )
-    ]
+    plugins
 
 };
