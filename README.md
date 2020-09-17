@@ -57,7 +57,7 @@ exported ESM package:
 ## Installation
 
 ~~~
-npm i @thefoot/vue-grid-designer --save
+npm i @thefootonline/vue-grid-designer --save
 ~~~
 
 ## Usage
@@ -65,7 +65,7 @@ npm i @thefoot/vue-grid-designer --save
 Either register `vue-grid-designer` as a global component in your main Vue application file:
 ```javascript
 import Vue             from 'vue';
-import VueGridDesigner from '@thefoot/vue-grid-designer';
+import VueGridDesigner from '@thefootonline/vue-grid-designer';
 Vue.component('vue-grid-designer', VueGridDesigner);
 
 new Vue (
@@ -78,7 +78,7 @@ new Vue (
 or use locally (recommended) in your Vue component:
 
 ```javascript
-import VueGridDesigner from '@thefoot/vue-grid-designer';
+import VueGridDesigner from '@thefootonline/vue-grid-designer';
 
 export default {
     ...
@@ -97,7 +97,7 @@ Then simply add the component to your template and bind your grid model to it:
 </template>
 
 <script>
-    import VueGridDesigner from '@thefoot/vue-grid-designer';
+    import VueGridDesigner from '@thefootonline/vue-grid-designer';
     export default { 
         components: { VueGridDesigner },
         data () {
