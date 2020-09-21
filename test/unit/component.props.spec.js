@@ -178,6 +178,28 @@ describe ( 'Props Test', () => {
 
     } );
 
+    test ( 'onNewRow', () => {
+
+        expect ( VueGridDesignerPropsMixin.props )
+            .toMatchObject ( {
+                onNewRow: {
+                    type   : Function
+                }
+            } );
+
+    } );
+
+    test ( 'onNewBlock', () => {
+
+        expect ( VueGridDesignerPropsMixin.props )
+            .toMatchObject ( {
+                onNewBlock: {
+                    type   : Function
+                }
+            } );
+
+    } );
+
     afterEach ( () => wrapper && wrapper.destroy () );
 
 } );

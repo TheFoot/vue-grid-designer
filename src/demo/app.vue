@@ -150,6 +150,8 @@
 								<font-awesome-icon :icon="['fas', 'info']" class="mr-4"/>
 								NOTE: Vue components cannot be embedded this way.
 							</div>
+							<p>This also demonstrates the <code>onNewRow</code> and <code>onNewBlock</code>
+							callbacks to create custom new entities.</p>
 						</div>
 						<div class="col-6">
 							<pre v-highlightjs="getCode('contentStyleMarkup')"><code class="html"></code></pre>
@@ -180,6 +182,8 @@
 									ref="demoComponentContent"
 									:mode="controls.content.mode"
 									:blocks-per-row="4"
+									:on-new-row="getNewContentRow"
+									:on-new-block="getNewContentBlock"
 							/>
 
 						</div>
@@ -449,7 +453,14 @@ export default {
 
             grids: {
 
-                basic: [],
+                basic: [
+	                {
+	                    blocks: [
+		                    { span: 2},
+		                    { span: 2}
+	                    ]
+	                }
+                ],
 
                 bones: [
                     {
@@ -516,9 +527,23 @@ export default {
                     }
                 ],
 
-                slots: [],
+                slots: [
+                    {
+                        blocks: [
+                            { span: 2},
+                            { span: 2}
+                        ]
+                    }
+                ],
 
-                events: [],
+                events: [
+                    {
+                        blocks: [
+                            { span: 2},
+                            { span: 2}
+                        ]
+                    }
+                ],
 
                 html: [
                     {
@@ -599,7 +624,11 @@ export default {
                     return '<vue-grid-designer v-model="grids.basic" />';
 
                 case 'contentStyleMarkup':
-                    return '<vue-grid-designer v-model="grids.content" />';
+                    return `<vue-grid-designer
+    v-model="grids.content"
+    :on-new-row="getNewContentRow"
+    :on-new-block="getNewContentBlock"
+>`;
 
                 case 'customStyleMarkup':
                     return `<vue-grid-designer
@@ -705,6 +734,27 @@ export default {
 
         showDemoEvent ( name, e ) {
             console.log ( `Event: ${ name }`, e );
+        },
+
+        async getNewContentRow () {
+
+            return {
+                label : `Row ${ this.grids.content.length }`,
+                blocks: [
+                    await this.getNewContentBlock ()
+                ]
+            };
+
+        },
+
+        async getNewContentBlock ( row, span ) {
+
+            return {
+                span   : span || 4,
+                source : 'https://www.lipsum.com/',
+                content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+            };
+
         }
 
     }
