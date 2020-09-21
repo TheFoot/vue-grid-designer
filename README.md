@@ -195,6 +195,7 @@ Methods that receive an `event` parameter fire a custom event.
 | Name              | Params                           | Description                                                                               |
 |-------------------|----------------------------------|-------------------------------------------------------------------------------------------|
 | getFullModel      | `()`                             | Return the full internal model including custom properties.|
+| addRow            | `( event )`                      | Append a new row to the grid.                                                              |
 | addBlock          | `( event, row, span = 1 )`       | Append a new block to a row.                                                              |
 | deleteRow         | `( event, row )`                 | Delete a row from the grid.                                                               |
 | deleteBlock       | `( event, row, block )`          | Delete a block from a row.                                                                |
