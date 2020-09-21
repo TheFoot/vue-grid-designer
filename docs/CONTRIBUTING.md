@@ -17,8 +17,8 @@ Run using `npm build <command>`.
 | release     | Bumps package version, create git tag, a new github release, merges `develop` into `master`. |
 
 ## Pre-commit hooks
-When committing changes, the build commands `test` and `build` are automatically run, and the
-commit will fail if any of these commands fail.
+When committing changes, the build command `test` is automatically run, and the
+commit will fail if tests fail.
 
 ## Code Style, Standards and Linting
 This is open source software. While you might not agree 100% on the standards used, _something_ has to be put in place
