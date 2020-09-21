@@ -49,7 +49,7 @@ const plugins = [
     ),
     babel (
         {
-            babelHelpers: 'bundled',
+            babelHelpers: 'runtime',
             exclude     : 'node_modules/**'
         }
     )

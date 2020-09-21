@@ -13,7 +13,16 @@ describe ( 'Defaults Test', () => {
 
         // Shallow mount component
         wrapper = shallowMount ( VueGridDesigner, {
-            propsData: {}
+            propsData: {
+                value: [
+                    {
+                        blocks: [
+                            { span: 2},
+                            { span: 2}
+                        ]
+                    }
+                ]
+            }
         } );
 
         // Get refs for props and data
@@ -156,7 +165,18 @@ describe ( 'Defaults Test', () => {
     it ( 'should generate the correct set of SortableJS options', () => {
 
         // Accessing the computed properties from the mixin requires a full mount
-        const fullWrapper = mount ( VueGridDesigner );
+        const fullWrapper = mount ( VueGridDesigner, {
+            propsData: {
+                value: [
+                    {
+                        blocks: [
+                            { span: 2},
+                            { span: 2}
+                        ]
+                    }
+                ]
+            }
+        } );
         expect ( fullWrapper.vm.getSortableOptions )
             .toMatchObject ( {
                 'ghostClass'     : 'vgd__block--ghost',

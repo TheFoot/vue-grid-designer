@@ -62,6 +62,16 @@ export default {
             default: true
         },
 
+        // New row callback - allows decoration of the new row object (async)
+        onNewRow: {
+            type   : Function
+        },
+
+        // New block callback - allows decoration of the new block object (async)
+        onNewBlock: {
+            type   : Function
+        },
+
         /*
          SortableJS Props with local defaults and managed locally
          */

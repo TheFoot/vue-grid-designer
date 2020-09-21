@@ -1,18 +1,43 @@
-import { afterEach, beforeEach, describe, test } from '@jest/globals';
-import { shallowMount }                          from '@vue/test-utils';
-import VueGridDesigner                           from '@/component.vue';
+import { afterEach, beforeEach, describe, jest, test } from '@jest/globals';
+import { shallowMount }                                from '@vue/test-utils';
+import VueGridDesigner                                 from '@/component.vue';
 
 // For async/await
 import 'babel-polyfill';
 
 describe ( 'Methods Test', () => {
 
-    let wrapper, vm;
+    let wrapper, vm, onNewRow, onNewBlock;
 
     beforeEach ( () => {
 
+        onNewRow = jest.fn ( () => {
+            return {
+                foo: 'bar'
+            };
+        } );
+
+        onNewBlock = jest.fn ( ( row, span ) => {
+            return {
+                spanCalled: `span ${ span }`
+            };
+        } );
+
         // Shallow mount component
-        wrapper = shallowMount ( VueGridDesigner );
+        wrapper = shallowMount ( VueGridDesigner, {
+            propsData: {
+                value: [
+                    {
+                        blocks: [
+                            { span: 2 },
+                            { span: 2 }
+                        ]
+                    }
+                ],
+                onNewRow,
+                onNewBlock
+            }
+        } );
 
         vm = wrapper.vm;
 
@@ -141,12 +166,12 @@ describe ( 'Methods Test', () => {
 
     } );
 
-    test ( 'addBlock', () => {
+    test ( 'addBlock', async () => {
 
         let row = vm.rows[ 0 ];
         let count = row.blocks.length;
 
-        vm.addBlock ( {}, row, 2 );
+        await vm.addBlock ( {}, row, 2 );
 
         expect ( row.blocks.length )
             .toBe ( count + 1 );
@@ -156,6 +181,10 @@ describe ( 'Methods Test', () => {
             .toBeDefined ();
         expect ( newBlock.span )
             .toBe ( 2 );
+
+        // Test mocked callbacks
+        expect ( onNewBlock.mock.calls.length )
+            .toBe ( 1 );
 
     } );
 
@@ -175,10 +204,9 @@ describe ( 'Methods Test', () => {
 
     } );
 
-    test ( 'addRow', () => {
+    test ( 'addRow', async () => {
 
-        vm.addRow ( {} );
-
+        await vm.addRow ( {} );
         expect ( vm.rows.length )
             .toBe ( 2 );
 
@@ -187,6 +215,12 @@ describe ( 'Methods Test', () => {
 
         expect ( vm.rows[ 1 ].blocks[ 0 ].span )
             .toBe ( vm.blocksPerRow );
+
+        // Test mocked callbacks
+        expect ( onNewRow.mock.calls.length )
+            .toBe ( 1 );
+        expect ( onNewBlock.mock.calls.length )
+            .toBe ( 1 );
 
     } );
 

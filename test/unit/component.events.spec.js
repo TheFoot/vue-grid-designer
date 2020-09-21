@@ -22,7 +22,18 @@ describe ( 'Events Test', () => {
     beforeEach ( () => {
 
         // Shallow mount component
-        wrapper = shallowMount ( VueGridDesigner );
+        wrapper = shallowMount ( VueGridDesigner, {
+            propsData: {
+                value: [
+                    {
+                        blocks: [
+                            { span: 2},
+                            { span: 2}
+                        ]
+                    }
+                ]
+            }
+        } );
 
     } );
 
@@ -117,26 +128,8 @@ describe ( 'Events Test', () => {
 
     test ( 'block-changed', async () => {
 
-        // Expand
-        let btn = wrapper.find (
-            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(1) .vgd__block__toolbar .vgd__block__toolbar__button[title="Expand"]'
-        );
-        btn.trigger ( 'click' );
-
-        // Wait cycle
-        await wrapper.vm.$nextTick ();
-        let event = wrapper.emitted ();
-
-        expect ( event[ 'block-changed' ] )
-            .toBeTruthy ();
-        expect ( event[ 'block-changed' ].length )
-            .toBe ( 1 );
-        expect ( event[ 'block-changed' ][ 0 ].length )
-            .toBe ( 1 );
-        hasVdgObject ( event[ 'block-changed' ][ 0 ][ 0 ] );
-
         // Collapse
-        btn = wrapper.find (
+        let btn = wrapper.find (
             '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(1) .vgd__block__toolbar .vgd__block__toolbar__button[title="Collapse"]'
         );
         btn.trigger ( 'click' );
@@ -148,10 +141,28 @@ describe ( 'Events Test', () => {
         expect ( event[ 'block-changed' ] )
             .toBeTruthy ();
         expect ( event[ 'block-changed' ].length )
-            .toBe ( 2 );
-        expect ( event[ 'block-changed' ][ 1 ].length )
             .toBe ( 1 );
-        hasVdgObject ( event[ 'block-changed' ][ 1 ][ 0 ] );
+        expect ( event[ 'block-changed' ][ 0 ].length )
+            .toBe ( 1 );
+        hasVdgObject ( event[ 'block-changed' ][0 ][ 0 ] );
+
+        // Expand
+        btn = wrapper.find (
+            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(1) .vgd__block__toolbar .vgd__block__toolbar__button[title="Expand"]'
+        );
+        btn.trigger ( 'click' );
+
+        // Wait cycle
+        await wrapper.vm.$nextTick ();
+        let event = wrapper.emitted ();
+
+        expect ( event[ 'block-changed' ] )
+            .toBeTruthy ();
+        expect ( event[ 'block-changed' ].length )
+            .toBe ( 2 );
+        expect ( event[ 'block-changed' ][ 0 ].length )
+            .toBe ( 1 );
+        hasVdgObject ( event[ 'block-changed' ][ 0 ][ 0 ] );
 
     } );
 

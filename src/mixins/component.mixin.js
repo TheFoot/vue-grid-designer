@@ -2,7 +2,7 @@
  The component mixin
  */
 import { v4 as UUID }       from 'uuid';
-import { findIndex } from 'lodash-es';
+import { findIndex, merge } from 'lodash-es';
 import Sortable             from 'sortablejs/modular/sortable.core.esm.js';
 
 // Exported interface
@@ -320,13 +320,29 @@ export default {
         },
 
         // Add a block to a row
-        addBlock ( e, row, span = 1 ) {
+        async addBlock ( e, row, span = 1 ) {
 
-            const block = {
-                _id    : UUID (),
-                content: '',
-                span   : span
-            };
+            // Do we have a custom callback?
+            let custom = {};
+            if ( typeof this.onNewBlock === 'function' ) {
+                custom = await this.onNewBlock ( row, span );
+            }
+
+            const block = merge (
+                // Default structure
+                {
+                    content: '',
+                    span   : span
+                },
+
+                // User-specific
+                custom,
+
+                // Mandatory
+                {
+                    _id: UUID ()
+                }
+            );
 
             row.blocks.push ( block );
 
@@ -355,18 +371,34 @@ export default {
         },
 
         // Add a new row
-        addRow ( e ) {
+        async addRow ( e ) {
 
-            const row = {
-                _id   : UUID (),
-                blocks: [
-                    {
-                        _id    : UUID (),
-                        content: '',
-                        span   : this.blocksPerRow
-                    }
-                ]
-            };
+            // Do we have a custom callback?
+            let custom = {};
+            if ( typeof this.onNewRow === 'function' ) {
+                custom = await this.onNewRow ();
+            }
+
+            const row = merge (
+                // Default blocks structure
+                {
+                    blocks: []
+                },
+
+                // User-specific
+                custom,
+
+                // Mandatory
+                {
+                    _id: UUID ()
+                }
+            );
+
+            // Default block needed?
+            if ( row.blocks.length === 0 ) {
+                await this.addBlock ( e, row, this.blocksPerRow );
+            }
+
             this.rows.push ( row );
 
             // Init sortable
@@ -391,15 +423,7 @@ export default {
         // Initialise grid default if no grid given
         if ( ( this.value || [] ).length === 0 ) {
 
-            this.rows = [
-                {
-                    _id   : UUID (),
-                    blocks: [
-                        { _id: UUID (), span: this.blocksPerRow / 2, content: '' },
-                        { _id: UUID (), span: this.blocksPerRow / 2, content: '' }
-                    ]
-                }
-            ];
+            this.rows = [];
 
         } else {
 
@@ -428,7 +452,6 @@ export default {
 
     mounted () {
 
-        // Initialise the sortable grid
         this.initGrid ();
 
     }

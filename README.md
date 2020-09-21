@@ -152,6 +152,8 @@ custom properties, call the `getFullModel ()` component method.
 | blockMargin                 | block-margin                    | Number  | `6`     | Block margin in pixels.                                                                                                                                                           |
 | enableMoveBlocksBetweenRows | enable-more-blocks-between-rows | Boolean | `true`  | Allow blocks to be moved between different rows. Setting to `false` restricts blocks to their own row.                                                                            |
 | sortableOptions             | sortable-options                | Object  | `{}`    | Native options passed directly through to the SortableJS constructor. Some options are overridden (see table below).                                                              |
+| onNewRow                    | on-new-row                      | Function  |     | Callback for creating a custom row object. No parameters. Return a new row object.                                                            |
+| onNewBlock                    | on-new-block                      | Function  |     | Callback for creating a custom block object. Receives `( row, span )` params. Return a new block object.                                                            |
 
 ### Overidden Sortable JS Options
 | Prop                | Attr                  | SortableJS Option | Type     | Default              | Description                                                                |
