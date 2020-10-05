@@ -6890,7 +6890,6 @@ var ComponentMixin = {
             const block = merge (
                 // Default structure
                 {
-                    content: '',
                     span   : span
                 },
 
