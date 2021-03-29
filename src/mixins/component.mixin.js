@@ -274,7 +274,7 @@ export default {
         // Expand the span of a block
         expandBlock ( e, row, block, num = 1 ) {
 
-            if ( ( block.span + num ) >= this.blocksPerRow ) {
+            if ( ( block.span + num ) > this.blocksPerRow ) {
                 return;
             }
 
