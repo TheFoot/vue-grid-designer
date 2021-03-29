@@ -55,7 +55,7 @@ describe ( 'Methods Test', () => {
                 margin                : '6px',
                 '--block-width'       : `${ vm.blockWidthPercentage * 2 }%`,
                 '--block-total-margin': `${ 2 * vm.blockMargin }px`,
-                cursor                : 'pointer',
+                cursor                : 'move',
                 'min-height'          : `${ vm.minBlockHeight }px`
             } )
         ;
