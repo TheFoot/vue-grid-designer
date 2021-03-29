@@ -660,7 +660,8 @@ export default {
 
     .use-hover {
         &.vgd__row.demo__row {
-            &:hover {
+            &:hover,
+            &:hover:after {
                 background-color: rgba(0, 0, 0, .5);
             }
             .vgd__block.demo__block:hover {
@@ -837,7 +838,9 @@ pre code.hljs.css::before {
 	.use-hover {
 
 		&.vgd__row.demo__row {
-			&:hover {
+
+            &:hover,
+			&:hover:after {
 				background-color: rgba(0, 0, 0, .5);
 			}
 
