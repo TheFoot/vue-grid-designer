@@ -47,7 +47,7 @@ describe ( 'Events Test', () => {
     test ( 'remove-block', async () => {
 
         const btn = wrapper.find (
-            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(1) .vgd__block__toolbar .vgd__block__toolbar__button[title="Delete"]'
+            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(2) .vgd__block__toolbar .vgd__block__toolbar__button[title="Delete"]'
         );
         btn.trigger ( 'click' );
 
@@ -130,7 +130,7 @@ describe ( 'Events Test', () => {
 
         // Collapse
         let btn = wrapper.find (
-            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(1) .vgd__block__toolbar .vgd__block__toolbar__button[title="Collapse"]'
+            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(2) .vgd__block__toolbar .vgd__block__toolbar__button[title="Collapse"]'
         );
         btn.trigger ( 'click' );
 
@@ -148,7 +148,7 @@ describe ( 'Events Test', () => {
 
         // Expand
         btn = wrapper.find (
-            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(1) .vgd__block__toolbar .vgd__block__toolbar__button[title="Expand"]'
+            '.vgd div.vgd__row:nth-child(1) > div.vgd__block:nth-child(2) .vgd__block__toolbar .vgd__block__toolbar__button[title="Expand"]'
         );
         btn.trigger ( 'click' );
 
