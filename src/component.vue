@@ -12,6 +12,39 @@
 				:style="getAnimationStyle()"
 		>
 
+            <!-- Row toolbar -->
+            <div
+                v-if="mode === 'edit'"
+                class="vgd__row__toolbar no-drag"
+                :style="getAnimationStyle()"
+            >
+                <slot
+                    name="row-toolbar"
+                    :row="row"
+                    :addBlock="addBlock"
+                    :deleteRow="deleteRow"
+                >
+
+					<span
+                        @click="deleteRow($event, row)"
+                        title="Delete row"
+                        class="vgd__row__toolbar__button"
+                    >
+							<font-awesome-icon :icon="['fas', 'times']"/>
+						</span>
+
+                    <span
+                        @click="addBlock($event, row)"
+                        title="Add block"
+                        class="vgd__row__toolbar__button"
+                    >
+							<font-awesome-icon :icon="['fas', 'plus']"/>
+						</span>
+
+                </slot>
+
+            </div>
+
 			<!-- Blocks -->
 			<div
 					v-for="block in row.blocks"
@@ -71,38 +104,7 @@
 
 			</div>
 
-			<!-- Row toolbar -->
-			<div
-					v-if="mode === 'edit'"
-					class="vgd__row__toolbar no-drag"
-					:style="getAnimationStyle()"
-			>
-				<slot
-						name="row-toolbar"
-						:row="row"
-						:addBlock="addBlock"
-						:deleteRow="deleteRow"
-				>
 
-					<span
-							@click="deleteRow($event, row)"
-							title="Delete row"
-							class="vgd__row__toolbar__button"
-					>
-							<font-awesome-icon :icon="['fas', 'times']"/>
-						</span>
-
-					<span
-							@click="addBlock($event, row)"
-							title="Add block"
-							class="vgd__row__toolbar__button"
-					>
-							<font-awesome-icon :icon="['fas', 'plus']"/>
-						</span>
-
-				</slot>
-
-			</div>
 
 		</div>
 

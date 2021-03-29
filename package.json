@@ -1,6 +1,6 @@
 {
     "name": "@thefoot/vue-grid-designer",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Vue 2.x component for designing grid layouts using SortableJS.",
     "main": "dist/component.umd.js",
     "module": "dist/component.esm.js",
@@ -74,7 +74,7 @@
         "@fortawesome/free-solid-svg-icons": "^5.14.0",
         "@fortawesome/vue-fontawesome": "^2.0.0",
         "lodash-es": "^4.17.15",
-        "sortablejs": "^1.10.2",
+        "sortablejs": "^1.13.0",
         "uuid": "^8.3.0"
     },
     "devDependencies": {
