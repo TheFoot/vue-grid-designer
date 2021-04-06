@@ -63,10 +63,25 @@ export default {
     // Watchers
     watch: {
 
-        // When blocks per row changes, re-calculate the width of each block "space"
         blocksPerRow ( n, o ) {
             if ( n !== o ) {
+
+                // When blocks per row changes, re-calculate the width of each block "space"
                 this.blockWidthPercentage = 100 / this.blocksPerRow;
+
+                // Blocks can not be wider then blocksPerRow
+                let changed = false;
+                for ( const [ rowId, row ] of this.rows.entries () ) {
+                    for ( const [ blockId, block ] of row.blocks.entries () ) {
+                        if ( block.span > this.blocksPerRow ) {
+                            this.rows[rowId].blocks[blockId].span = this.blocksPerRow;
+                        }
+                    }
+                }
+                if ( changed ) {
+                    this.fireChanged();
+                }
+
             }
         },
 
@@ -76,6 +91,8 @@ export default {
 
                 // For view mode create a non-existent handle to disable DnD
                 const disable = n === 'view';
+
+                this.setModeClass();
 
                 this.rows.forEach ( row => {
 
@@ -90,6 +107,10 @@ export default {
                     ;
 
                 } );
+
+                Sortable
+                    .get ( this.$el.firstChild )
+                    .option ( 'disabled', disable );
 
             }
         }
@@ -121,6 +142,12 @@ export default {
 
             return vgd;
 
+        },
+
+        setModeClass () {
+            this.mode === 'view'
+                ? this.$el.classList.remove ( 'editmode' )
+                : this.$el.classList.add ( 'editmode' );
         },
 
         // Fire input event for v-model
@@ -158,19 +185,39 @@ export default {
                 return;
             }
 
-            // Get the updated row
-            const rowId = e.from.getAttribute ( 'data-id' );
-            const row = this.rows.find ( x => x._id === rowId );
+            if ( e.item.className.match ( /vgd__row/ ) ) {
 
-            // Move the item in the model
-            const temp = row.blocks.splice ( e.oldDraggableIndex, 1 );
-            row.blocks.splice ( e.newDraggableIndex, 0, temp[ 0 ] );
+                // 1. When moving a ROW
+                this.$emit ( 'update', e );
 
-            // Update model
-            this.fireChanged ();
+                // Move the item in the model
+                const temp = this.rows.splice ( e.oldDraggableIndex, 1 );
+                this.rows.splice ( e.newDraggableIndex, 0, temp[ 0 ] );
 
-            e.vdg = this.getEventData ( e );
-            this.$emit ( 'update', e );
+                // Update model
+                this.fireChanged ();
+
+                e.vdg = this.getEventData ( e );
+                this.$emit ( 'update', e );
+
+            } else {
+
+                // 2. When moving a BLOCK
+                // Get the updated row
+                const rowId = e.from.getAttribute ( 'data-id' );
+                const row = this.rows.find ( x => x._id === rowId );
+
+                // Move the item in the model
+                const temp = row.blocks.splice ( e.oldDraggableIndex - 1, 1 );
+                row.blocks.splice ( e.newDraggableIndex - 1, 0, temp[ 0 ] );
+
+                // Update model
+                this.fireChanged ();
+
+                e.vdg = this.getEventData ( e );
+                this.$emit ( 'update', e );
+
+            }
 
         },
 
@@ -185,7 +232,7 @@ export default {
             this.$emit ( 'remove-block', e );
 
             // Remove from the model
-            row.blocks.splice ( e.oldDraggableIndex, 1 );
+            row.blocks.splice ( e.oldDraggableIndex - 1, 1 );
 
             // Update model
             this.fireChanged ();
@@ -206,7 +253,7 @@ export default {
             const block = sourceRow.blocks.find ( x => x._id === blockId );
 
             // Add block to new row
-            destRow.blocks.splice ( e.newDraggableIndex, 0, block );
+            destRow.blocks.splice ( e.newDraggableIndex - 1, 0, block );
 
             // Update model
             this.fireChanged ();
@@ -219,9 +266,27 @@ export default {
         // Initialise the whole grid
         initGrid () {
 
+            // Init all rows one by one
             for ( const [ , row ] of this.rows.entries () ) {
                 this.initSortableRow ( row );
             }
+
+            // Init sortable grid
+            Sortable.create (
+                this.$el.firstChild,
+                {
+                    ...this.getSortableOptions,
+                    ...{
+                        group: {
+                            name: 'vgd-rows',
+                            pull: 'vgd-rows',
+                            put : 'vgd-rows'
+                        }
+                    }
+                }
+            );
+
+            this.setModeClass();
 
             this.$emit ( 'ready' );
 
@@ -250,7 +315,7 @@ export default {
                 margin                : `${ this.blockMargin }px`,
                 '--block-width'       : `${ this.blockWidthPercentage * block.span }%`,
                 '--block-total-margin': `${ 2 * this.blockMargin }px`,
-                cursor                : this.mode === 'edit' ? 'pointer' : 'inherit',
+                cursor                : this.mode === 'edit' ? 'move' : 'inherit',
                 'min-height'          : `${ this.minBlockHeight }px`
             };
 
@@ -274,7 +339,7 @@ export default {
         // Expand the span of a block
         expandBlock ( e, row, block, num = 1 ) {
 
-            if ( ( block.span + num ) >= this.blocksPerRow ) {
+            if ( ( block.span + num ) > this.blocksPerRow ) {
                 return;
             }
 
@@ -331,7 +396,7 @@ export default {
             const block = merge (
                 // Default structure
                 {
-                    span   : span
+                    span: span
                 },
 
                 // User-specific

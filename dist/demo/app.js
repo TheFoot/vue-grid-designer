@@ -15928,10 +15928,50 @@
     },
     // Watchers
     watch: {
-      // When blocks per row changes, re-calculate the width of each block "space"
       blocksPerRow: function blocksPerRow(n, o) {
         if (n !== o) {
-          this.blockWidthPercentage = 100 / this.blocksPerRow;
+          // When blocks per row changes, re-calculate the width of each block "space"
+          this.blockWidthPercentage = 100 / this.blocksPerRow; // Blocks can not be wider then blocksPerRow
+
+          var changed = false;
+
+          var _iterator = _createForOfIteratorHelper(this.rows.entries()),
+              _step;
+
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var _step$value = slicedToArray(_step.value, 2),
+                  rowId = _step$value[0],
+                  row = _step$value[1];
+
+              var _iterator2 = _createForOfIteratorHelper(row.blocks.entries()),
+                  _step2;
+
+              try {
+                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                  var _step2$value = slicedToArray(_step2.value, 2),
+                      blockId = _step2$value[0],
+                      block = _step2$value[1];
+
+                  if (block.span > this.blocksPerRow) {
+                    this.rows[rowId].blocks[blockId].span = this.blocksPerRow;
+                  }
+                }
+              } catch (err) {
+                _iterator2.e(err);
+              } finally {
+                _iterator2.f();
+              }
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+
+          if (changed) {
+            this.fireChanged();
+          }
         }
       },
       // When mode changes, update the "handle" option
@@ -15941,6 +15981,7 @@
         if (n !== o) {
           // For view mode create a non-existent handle to disable DnD
           var disable = n === 'view';
+          this.setModeClass();
           this.rows.forEach(function (row) {
             var $comp = _this.$refs["row_".concat(row._id)];
 
@@ -15950,6 +15991,7 @@
 
             Sortable.get($comp[0]).option('disabled', disable);
           });
+          Sortable.get(this.$el.firstChild).option('disabled', disable);
         }
       }
     },
@@ -15980,6 +16022,9 @@
 
         return vgd;
       },
+      setModeClass: function setModeClass() {
+        this.mode === 'view' ? this.$el.classList.remove('editmode') : this.$el.classList.add('editmode');
+      },
       // Fire input event for v-model
       fireChanged: function fireChanged() {
         this.$emit('input', this.model);
@@ -16003,20 +16048,34 @@
         // Did it actually move?
         if (e.oldDraggableIndex === e.newDraggableIndex) {
           return;
-        } // Get the updated row
+        }
 
+        if (e.item.className.match(/vgd__row/)) {
+          // 1. When moving a ROW
+          this.$emit('update', e); // Move the item in the model
 
-        var rowId = e.from.getAttribute('data-id');
-        var row = this.rows.find(function (x) {
-          return x._id === rowId;
-        }); // Move the item in the model
+          var temp = this.rows.splice(e.oldDraggableIndex, 1);
+          this.rows.splice(e.newDraggableIndex, 0, temp[0]); // Update model
 
-        var temp = row.blocks.splice(e.oldDraggableIndex, 1);
-        row.blocks.splice(e.newDraggableIndex, 0, temp[0]); // Update model
+          this.fireChanged();
+          e.vdg = this.getEventData(e);
+          this.$emit('update', e);
+        } else {
+          // 2. When moving a BLOCK
+          // Get the updated row
+          var rowId = e.from.getAttribute('data-id');
+          var row = this.rows.find(function (x) {
+            return x._id === rowId;
+          }); // Move the item in the model
 
-        this.fireChanged();
-        e.vdg = this.getEventData(e);
-        this.$emit('update', e);
+          var _temp = row.blocks.splice(e.oldDraggableIndex - 1, 1);
+
+          row.blocks.splice(e.newDraggableIndex - 1, 0, _temp[0]); // Update model
+
+          this.fireChanged();
+          e.vdg = this.getEventData(e);
+          this.$emit('update', e);
+        }
       },
       // When a sortable block is removed from its row
       onRemove: function onRemove(e) {
@@ -16028,7 +16087,7 @@
         e.vdg = this.getEventData(e);
         this.$emit('remove-block', e); // Remove from the model
 
-        row.blocks.splice(e.oldDraggableIndex, 1); // Update model
+        row.blocks.splice(e.oldDraggableIndex - 1, 1); // Update model
 
         this.fireChanged();
       },
@@ -16049,7 +16108,7 @@
           return x._id === blockId;
         }); // Add block to new row
 
-        destRow.blocks.splice(e.newDraggableIndex, 0, block); // Update model
+        destRow.blocks.splice(e.newDraggableIndex - 1, 0, block); // Update model
 
         this.fireChanged();
         e.vdg = this.getEventData(e, 'to');
@@ -16057,22 +16116,32 @@
       },
       // Initialise the whole grid
       initGrid: function initGrid() {
-        var _iterator = _createForOfIteratorHelper(this.rows.entries()),
-            _step;
+        // Init all rows one by one
+        var _iterator3 = _createForOfIteratorHelper(this.rows.entries()),
+            _step3;
 
         try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var _step$value = slicedToArray(_step.value, 2),
-                row = _step$value[1];
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var _step3$value = slicedToArray(_step3.value, 2),
+                row = _step3$value[1];
 
             this.initSortableRow(row);
-          }
+          } // Init sortable grid
+
         } catch (err) {
-          _iterator.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator.f();
+          _iterator3.f();
         }
 
+        Sortable.create(this.$el.firstChild, _objectSpread$1(_objectSpread$1({}, this.getSortableOptions), {
+          group: {
+            name: 'vgd-rows',
+            pull: 'vgd-rows',
+            put: 'vgd-rows'
+          }
+        }));
+        this.setModeClass();
         this.$emit('ready');
       },
       // Initialise a single row
@@ -16092,7 +16161,7 @@
           margin: "".concat(this.blockMargin, "px"),
           '--block-width': "".concat(this.blockWidthPercentage * block.span, "%"),
           '--block-total-margin': "".concat(2 * this.blockMargin, "px"),
-          cursor: this.mode === 'edit' ? 'pointer' : 'inherit',
+          cursor: this.mode === 'edit' ? 'move' : 'inherit',
           'min-height': "".concat(this.minBlockHeight, "px")
         };
       },
@@ -16111,7 +16180,7 @@
       expandBlock: function expandBlock(e, row, block) {
         var num = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
 
-        if (block.span + num >= this.blocksPerRow) {
+        if (block.span + num > this.blocksPerRow) {
           return;
         }
 
@@ -18047,10 +18116,10 @@
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
-    return _c(
-      "div",
-      { staticClass: "vgd" },
-      [
+    return _c("div", { staticClass: "vgd" }, [
+      _c(
+        "div",
+        { staticClass: "vgd__rows" },
         _vm._l(_vm.rows, function(row) {
           return _c(
             "div",
@@ -18114,9 +18183,9 @@
                           )
                         ],
                         {
-                          row: row,
                           addBlock: _vm.addBlock,
-                          deleteRow: _vm.deleteRow
+                          deleteRow: _vm.deleteRow,
+                          row: row
                         }
                       )
                     ],
@@ -18212,10 +18281,10 @@
                                 )
                               ],
                               {
-                                row: row,
                                 block: block,
+                                collapseBlock: _vm.collapseBlock,
                                 expandBlock: _vm.expandBlock,
-                                collapseBlock: _vm.collapseBlock
+                                row: row
                               }
                             )
                           ],
@@ -18236,47 +18305,48 @@
             2
           )
         }),
-        _vm._v(" "),
-        _c(
-          "div",
-          {
-            directives: [
-              {
-                name: "show",
-                rawName: "v-show",
-                value: _vm.mode === "edit",
-                expression: "mode === 'edit'"
-              }
-            ]
-          },
-          [
-            _vm._t(
-              "footer",
-              [
-                _c(
-                  "button",
-                  {
-                    staticClass: "vgd__footer__button",
-                    attrs: {
-                      disabled: _vm.maxRows > 0 && _vm.rows.length >= _vm.maxRows
-                    },
-                    on: {
-                      click: function($event) {
-                        return _vm.addRow($event)
-                      }
-                    }
-                  },
-                  [_vm._v("Add Row\n\t\t\t\t")]
-                )
-              ],
-              { addRow: _vm.addRow, maxRows: _vm.maxRows }
-            )
+        0
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.mode === "edit",
+              expression: "mode === 'edit'"
+            }
           ],
-          2
-        )
-      ],
-      2
-    )
+          staticClass: "no-drag"
+        },
+        [
+          _vm._t(
+            "footer",
+            [
+              _c(
+                "button",
+                {
+                  staticClass: "vgd__footer__button",
+                  attrs: {
+                    disabled: _vm.maxRows > 0 && _vm.rows.length >= _vm.maxRows
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.addRow($event)
+                    }
+                  }
+                },
+                [_vm._v("Add Row\n                ")]
+              )
+            ],
+            { addRow: _vm.addRow, maxRows: _vm.maxRows }
+          )
+        ],
+        2
+      )
+    ])
   };
   var __vue_staticRenderFns__ = [];
   __vue_render__._withStripped = true;
@@ -18284,12 +18354,12 @@
     /* style */
     const __vue_inject_styles__ = function (inject) {
       if (!inject) return
-      inject("data-v-13418bf7_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
-  ,inject("data-v-13418bf7_1", { source: ".vgd[data-v-13418bf7] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-13418bf7] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-13418bf7] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-13418bf7] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-13418bf7]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-13418bf7] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-13418bf7] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-13418bf7] {\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-13418bf7] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-13418bf7] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-13418bf7]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-13418bf7] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-13418bf7] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-13418bf7] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-13418bf7] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-13418bf7] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-13418bf7] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-13418bf7]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-13418bf7] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-13418bf7]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-13418bf7] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-13418bf7]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-13418bf7] {\n  visibility: visible;\n}", map: undefined, media: undefined });
+      inject("data-v-33565a1a_0", { source: ":root {\n  --color-highlight: 55, 114, 255;\n  --color-highlight-faded: 215, 227, 255;\n  --color-active: 150, 5, 5;\n  --color-black: 0, 0, 0;\n  --color-white: 255, 255, 255;\n  --color-lightgrey: 240, 240, 240;\n  --color-darkgrey: 76, 76, 76;\n}", map: undefined, media: undefined })
+  ,inject("data-v-33565a1a_1", { source: ".vgd[data-v-33565a1a] {\n  font-family: sans-serif;\n  /* Chrome has a hover bug https://github.com/SortableJS/Sortable/issues/232 */\n}\n.vgd__row[data-v-33565a1a] {\n  position: relative;\n  min-height: 65px;\n}\n.vgd__row__toolbar[data-v-33565a1a] {\n  display: flex;\n  visibility: hidden;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: -30px;\n  width: 30px;\n  background-color: rgb(var(--color-highlight-faded));\n  padding: 0;\n}\n.vgd__row__toolbar__button[data-v-33565a1a] {\n  cursor: pointer;\n  width: 100%;\n  text-align: center;\n  color: rgb(var(--color-darkgrey));\n  margin: 4px 0 4px -4px;\n}\n.vgd__row__toolbar__button[data-v-33565a1a]:hover {\n  color: rgb(var(--color-highlight));\n}\n.vgd__row__toolbar__button.disabled[data-v-33565a1a] {\n  cursor: default;\n  color: rgb(var(--color-lightgrey));\n  opacity: 0.4;\n}\n.vgd__block[data-v-33565a1a] {\n  position: relative;\n  vertical-align: top;\n  box-sizing: border-box;\n  display: inline-block;\n  background-color: rgb(var(--color-lightgrey));\n  padding: 0;\n  width: calc(var(--block-width) - var(--block-total-margin));\n}\n.vgd__block__toolbar[data-v-33565a1a] {\n  cursor: initial;\n  display: block;\n  visibility: hidden;\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  margin-top: -15px;\n  margin-left: -38px;\n  padding: 0;\n  height: 30px;\n  width: 76px;\n  line-height: 30px;\n  z-index: 10;\n  text-align: center;\n  background-color: rgba(var(--color-black), 0.3);\n}\n.vgd__block__toolbar__drag-handle[data-v-33565a1a] {\n  float: left;\n  margin-left: 6px;\n}\n.vgd__block__toolbar__button[data-v-33565a1a] {\n  cursor: pointer;\n  color: lightgray;\n  margin-right: 4px;\n}\n.vgd__block__toolbar__button[data-v-33565a1a]:hover {\n  color: rgb(var(--color-white));\n}\n.vgd__block__toolbar__button.disabled[data-v-33565a1a] {\n  cursor: not-allowed;\n  opacity: 0.4;\n}\n.vgd__block__content[data-v-33565a1a] {\n  color: rgb(var(--color-darkgrey));\n  text-align: center;\n}\n.vgd__block--drag[data-v-33565a1a] {\n  opacity: 0.7;\n}\n.vgd__block--chosen[data-v-33565a1a] {\n  opacity: 0.7;\n}\n.vgd__block--ghost[data-v-33565a1a] {\n  opacity: 0.2;\n  background-color: rgb(var(--color-active));\n}\n.vgd__footer__button[data-v-33565a1a] {\n  border: 0 none;\n  padding: 0.3rem 0.6rem;\n  background-color: rgb(var(--color-darkgrey));\n  color: rgb(var(--color-white));\n  margin: 10px 6px;\n  cursor: pointer;\n}\n.vgd__footer__button[data-v-33565a1a]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd__footer__button[disabled][data-v-33565a1a] {\n  cursor: not-allowed;\n  opacity: 0.4;\n  background-color: rgb(var(--color-darkgrey));\n}\n.vgd .use-hover.vgd__row[data-v-33565a1a]:hover {\n  background-color: rgb(var(--color-highlight-faded));\n}\n.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-33565a1a] {\n  visibility: visible;\n}\n.vgd .use-hover .vgd__block[data-v-33565a1a]:hover {\n  background-color: rgb(var(--color-highlight));\n}\n.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-33565a1a] {\n  visibility: visible;\n}\n.vgd.editmode .use-hover.vgd__row[data-v-33565a1a]:hover {\n  cursor: move;\n}\n.vgd.editmode .use-hover.vgd__row[data-v-33565a1a]:hover:after {\n  cursor: move;\n  content: \"............\";\n  position: absolute;\n  left: -20px;\n  top: 0px;\n  padding-left: 9px;\n  padding-bottom: 5px;\n  width: 20px;\n  height: 100%;\n  vertical-align: middle;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-direction: column;\n  background-color: rgb(var(--color-highlight-faded));\n  line-break: anywhere;\n  line-height: 5px;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
-    const __vue_scope_id__ = "data-v-13418bf7";
+    const __vue_scope_id__ = "data-v-33565a1a";
     /* module identifier */
     const __vue_module_identifier__ = undefined;
     /* functional template */
@@ -18877,7 +18947,7 @@
             return "<vue-grid-designer\n    v-model=\"grids.customStyle\"\n    mode=\"edit\"\n    row-class=\"demo__row\"\n    block-class=\"demo__block\"\n/>";
 
           case 'customStyleScss':
-            return "#demo {\n\n    .vgd__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vgd__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vgd__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vgd__row.demo__row {\n            &:hover {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vgd__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
+            return "#demo {\n\n    .vgd__row.demo__row {\n        padding: 1rem;\n        background-color: black;\n\n        .vgd__row__toolbar {\n            background-color: rgba(0, 0, 0, .5);\n            &__button {\n                color: white;\n            }\n        }\n    }\n\n    .vgd__block.demo__block {\n        padding: .6rem;\n        background-color: rgba(255, 127, 80, .5);\n    }\n\n    .use-hover {\n        &.vgd__row.demo__row {\n            &:hover,\n            &:hover:after {\n                background-color: rgba(0, 0, 0, .5);\n            }\n            .vgd__block.demo__block:hover {\n                background-color: rgb(255, 127, 80);\n            }\n        }\n    }\n\n};";
 
           case 'slotsMarkup':
             return "<vue-grid-designer\n    v-model=\"grids.slots\"\n    mode=\"edit\"\n>\n\n    <template v-slot:footer=\"blockScope\">\n        <button\n            class=\"btn btn-block btn-primary\"\n            @click=\"blockScope.addRow\"\n            :disabled=\"blockScope.maxRows > 0 && grids.slots.length >= blockScope.maxRows\"\n        >\n            <font-awesome-icon :icon=\"['fas', 'plus-square']\" size=\"2x\" class=\"mr-3\"/>\n            <span style=\"font-size: 2rem;\">Create Row</span>\n        </button>\n    </template>\n\n</vue-grid-designer>";
@@ -20370,7 +20440,7 @@
     /* style */
     const __vue_inject_styles__$3 = function (inject) {
       if (!inject) return
-      inject("data-v-2b96050c_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
+      inject("data-v-0f44dad4_0", { source: "pre {\n  font-size: 0.8rem;\n  max-height: 400px;\n  position: relative;\n}\npre code.hljs.html::before,\npre code.hljs.js::before,\npre code.hljs.json::before,\npre code.hljs.scss::before,\npre code.hljs.css::before {\n  font-family: \"Source Sans Pro\", \"Helvetica Neue\", Arial, sans-serif;\n  position: absolute;\n  top: 0;\n  right: 10px;\n  color: #cccccc;\n  text-align: right;\n  font-size: 0.9em;\n  padding: 5px 10px 0;\n  line-height: 15px;\n  height: 15px;\n  font-weight: 600;\n}\npre code.hljs.html::before {\n  content: \"HTML\";\n}\npre code.hljs.js::before {\n  content: \"JS\";\n}\npre code.hljs.json::before {\n  content: \"JSON\";\n}\npre code.hljs.scss::before {\n  content: \"SCSS\";\n}\npre code.hljs.css::before {\n  content: \"CSS\";\n}\n.navbar input[type=number] {\n  width: 100px;\n}\n#demo .vgd__row.demo__row {\n  padding: 1rem;\n  background-color: black;\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .vgd__row.demo__row .vgd__row__toolbar__button {\n  color: white;\n}\n#demo .vgd__block.demo__block {\n  padding: 0.6rem;\n  background-color: rgba(255, 127, 80, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row:hover, #demo .use-hover.vgd__row.demo__row:hover:after {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n#demo .use-hover.vgd__row.demo__row .vgd__block.demo__block:hover {\n  background-color: coral;\n}", map: undefined, media: undefined });
 
     };
     /* scoped */
