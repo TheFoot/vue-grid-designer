@@ -1,3 +1,5 @@
+import 'process';
+
 /**
  The props mixin
  */
@@ -197,20 +199,20 @@ var root = freeGlobal || freeSelf || Function('return this')();
 var Symbol$1 = root.Symbol;
 
 /** Used for built-in method references. */
-var objectProto = Object.prototype;
+var objectProto$e = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
+var hasOwnProperty$b = objectProto$e.hasOwnProperty;
 
 /**
  * Used to resolve the
  * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
  * of values.
  */
-var nativeObjectToString = objectProto.toString;
+var nativeObjectToString$1 = objectProto$e.toString;
 
 /** Built-in value references. */
-var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
+var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
 
 /**
  * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
@@ -220,34 +222,34 @@ var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
  * @returns {string} Returns the raw `toStringTag`.
  */
 function getRawTag(value) {
-  var isOwn = hasOwnProperty.call(value, symToStringTag),
-      tag = value[symToStringTag];
+  var isOwn = hasOwnProperty$b.call(value, symToStringTag$1),
+      tag = value[symToStringTag$1];
 
   try {
-    value[symToStringTag] = undefined;
+    value[symToStringTag$1] = undefined;
     var unmasked = true;
   } catch (e) {}
 
-  var result = nativeObjectToString.call(value);
+  var result = nativeObjectToString$1.call(value);
   if (unmasked) {
     if (isOwn) {
-      value[symToStringTag] = tag;
+      value[symToStringTag$1] = tag;
     } else {
-      delete value[symToStringTag];
+      delete value[symToStringTag$1];
     }
   }
   return result;
 }
 
 /** Used for built-in method references. */
-var objectProto$1 = Object.prototype;
+var objectProto$d = Object.prototype;
 
 /**
  * Used to resolve the
  * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
  * of values.
  */
-var nativeObjectToString$1 = objectProto$1.toString;
+var nativeObjectToString = objectProto$d.toString;
 
 /**
  * Converts `value` to a string using `Object.prototype.toString`.
@@ -257,7 +259,7 @@ var nativeObjectToString$1 = objectProto$1.toString;
  * @returns {string} Returns the converted string.
  */
 function objectToString(value) {
-  return nativeObjectToString$1.call(value);
+  return nativeObjectToString.call(value);
 }
 
 /** `Object#toString` result references. */
@@ -265,7 +267,7 @@ var nullTag = '[object Null]',
     undefinedTag = '[object Undefined]';
 
 /** Built-in value references. */
-var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
+var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
 
 /**
  * The base implementation of `getTag` without fallbacks for buggy environments.
@@ -278,7 +280,7 @@ function baseGetTag(value) {
   if (value == null) {
     return value === undefined ? undefinedTag : nullTag;
   }
-  return (symToStringTag$1 && symToStringTag$1 in Object(value))
+  return (symToStringTag && symToStringTag in Object(value))
     ? getRawTag(value)
     : objectToString(value);
 }
@@ -312,7 +314,7 @@ function isObjectLike(value) {
 }
 
 /** `Object#toString` result references. */
-var symbolTag = '[object Symbol]';
+var symbolTag$1 = '[object Symbol]';
 
 /**
  * Checks if `value` is classified as a `Symbol` primitive or object.
@@ -333,7 +335,7 @@ var symbolTag = '[object Symbol]';
  */
 function isSymbol(value) {
   return typeof value == 'symbol' ||
-    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+    (isObjectLike(value) && baseGetTag(value) == symbolTag$1);
 }
 
 /**
@@ -382,11 +384,11 @@ function arrayMap(array, iteratee) {
 var isArray = Array.isArray;
 
 /** Used as references for various `Number` constants. */
-var INFINITY = 1 / 0;
+var INFINITY$2 = 1 / 0;
 
 /** Used to convert symbols to primitives and strings. */
-var symbolProto = Symbol$1 ? Symbol$1.prototype : undefined,
-    symbolToString = symbolProto ? symbolProto.toString : undefined;
+var symbolProto$1 = Symbol$1 ? Symbol$1.prototype : undefined,
+    symbolToString = symbolProto$1 ? symbolProto$1.toString : undefined;
 
 /**
  * The base implementation of `_.toString` which doesn't convert nullish
@@ -409,7 +411,7 @@ function baseToString(value) {
     return symbolToString ? symbolToString.call(value) : '';
   }
   var result = (value + '');
-  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+  return (result == '0' && (1 / value) == -INFINITY$2) ? '-0' : result;
 }
 
 /**
@@ -598,7 +600,7 @@ function identity(value) {
 
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
-    funcTag = '[object Function]',
+    funcTag$1 = '[object Function]',
     genTag = '[object GeneratorFunction]',
     proxyTag = '[object Proxy]';
 
@@ -626,7 +628,7 @@ function isFunction(value) {
   // The use of `Object#toString` avoids issues with the `typeof` operator
   // in Safari 9 which returns 'object' for typed arrays and other constructors.
   var tag = baseGetTag(value);
-  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+  return tag == funcTag$1 || tag == genTag || tag == asyncTag || tag == proxyTag;
 }
 
 /** Used to detect overreaching core-js shims. */
@@ -650,10 +652,10 @@ function isMasked(func) {
 }
 
 /** Used for built-in method references. */
-var funcProto = Function.prototype;
+var funcProto$2 = Function.prototype;
 
 /** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
+var funcToString$2 = funcProto$2.toString;
 
 /**
  * Converts `func` to its source code.
@@ -665,7 +667,7 @@ var funcToString = funcProto.toString;
 function toSource(func) {
   if (func != null) {
     try {
-      return funcToString.call(func);
+      return funcToString$2.call(func);
     } catch (e) {}
     try {
       return (func + '');
@@ -685,17 +687,17 @@ var reIsHostCtor = /^\[object .+?Constructor\]$/;
 
 /** Used for built-in method references. */
 var funcProto$1 = Function.prototype,
-    objectProto$2 = Object.prototype;
+    objectProto$c = Object.prototype;
 
 /** Used to resolve the decompiled source of functions. */
 var funcToString$1 = funcProto$1.toString;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
+var hasOwnProperty$a = objectProto$c.hasOwnProperty;
 
 /** Used to detect if a method is native. */
 var reIsNative = RegExp('^' +
-  funcToString$1.call(hasOwnProperty$1).replace(reRegExpChar, '\\$&')
+  funcToString$1.call(hasOwnProperty$a).replace(reRegExpChar, '\\$&')
   .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 );
 
@@ -870,7 +872,7 @@ function constant(value) {
   };
 }
 
-var defineProperty = (function() {
+var defineProperty$1 = (function() {
   try {
     var func = getNative(Object, 'defineProperty');
     func({}, '', {});
@@ -886,8 +888,8 @@ var defineProperty = (function() {
  * @param {Function} string The `toString` result.
  * @returns {Function} Returns `func`.
  */
-var baseSetToString = !defineProperty ? identity : function(func, string) {
-  return defineProperty(func, 'toString', {
+var baseSetToString = !defineProperty$1 ? identity : function(func, string) {
+  return defineProperty$1(func, 'toString', {
     'configurable': true,
     'enumerable': false,
     'value': constant(string),
@@ -929,7 +931,7 @@ function baseFindIndex(array, predicate, fromIndex, fromRight) {
 }
 
 /** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
+var MAX_SAFE_INTEGER$1 = 9007199254740991;
 
 /** Used to detect unsigned integer values. */
 var reIsUint = /^(?:0|[1-9]\d*)$/;
@@ -944,7 +946,7 @@ var reIsUint = /^(?:0|[1-9]\d*)$/;
  */
 function isIndex(value, length) {
   var type = typeof value;
-  length = length == null ? MAX_SAFE_INTEGER : length;
+  length = length == null ? MAX_SAFE_INTEGER$1 : length;
 
   return !!length &&
     (type == 'number' ||
@@ -962,8 +964,8 @@ function isIndex(value, length) {
  * @param {*} value The value to assign.
  */
 function baseAssignValue(object, key, value) {
-  if (key == '__proto__' && defineProperty) {
-    defineProperty(object, key, {
+  if (key == '__proto__' && defineProperty$1) {
+    defineProperty$1(object, key, {
       'configurable': true,
       'enumerable': true,
       'value': value,
@@ -1011,10 +1013,10 @@ function eq(value, other) {
 }
 
 /** Used for built-in method references. */
-var objectProto$3 = Object.prototype;
+var objectProto$b = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
+var hasOwnProperty$9 = objectProto$b.hasOwnProperty;
 
 /**
  * Assigns `value` to `key` of `object` if the existing value is not equivalent
@@ -1028,7 +1030,7 @@ var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
  */
 function assignValue(object, key, value) {
   var objValue = object[key];
-  if (!(hasOwnProperty$2.call(object, key) && eq(objValue, value)) ||
+  if (!(hasOwnProperty$9.call(object, key) && eq(objValue, value)) ||
       (value === undefined && !(key in object))) {
     baseAssignValue(object, key, value);
   }
@@ -1071,7 +1073,7 @@ function copyObject(source, props, object, customizer) {
 }
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMax = Math.max;
+var nativeMax$1 = Math.max;
 
 /**
  * A specialized version of `baseRest` which transforms the rest array.
@@ -1083,11 +1085,11 @@ var nativeMax = Math.max;
  * @returns {Function} Returns the new function.
  */
 function overRest(func, start, transform) {
-  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+  start = nativeMax$1(start === undefined ? (func.length - 1) : start, 0);
   return function() {
     var args = arguments,
         index = -1,
-        length = nativeMax(args.length - start, 0),
+        length = nativeMax$1(args.length - start, 0),
         array = Array(length);
 
     while (++index < length) {
@@ -1116,7 +1118,7 @@ function baseRest(func, start) {
 }
 
 /** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER$1 = 9007199254740991;
+var MAX_SAFE_INTEGER = 9007199254740991;
 
 /**
  * Checks if `value` is a valid array-like length.
@@ -1146,7 +1148,7 @@ var MAX_SAFE_INTEGER$1 = 9007199254740991;
  */
 function isLength(value) {
   return typeof value == 'number' &&
-    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER$1;
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
 }
 
 /**
@@ -1236,7 +1238,7 @@ function createAssigner(assigner) {
 }
 
 /** Used for built-in method references. */
-var objectProto$4 = Object.prototype;
+var objectProto$a = Object.prototype;
 
 /**
  * Checks if `value` is likely a prototype object.
@@ -1247,7 +1249,7 @@ var objectProto$4 = Object.prototype;
  */
 function isPrototype(value) {
   var Ctor = value && value.constructor,
-      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$4;
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$a;
 
   return value === proto;
 }
@@ -1272,7 +1274,7 @@ function baseTimes(n, iteratee) {
 }
 
 /** `Object#toString` result references. */
-var argsTag = '[object Arguments]';
+var argsTag$2 = '[object Arguments]';
 
 /**
  * The base implementation of `_.isArguments`.
@@ -1282,17 +1284,17 @@ var argsTag = '[object Arguments]';
  * @returns {boolean} Returns `true` if `value` is an `arguments` object,
  */
 function baseIsArguments(value) {
-  return isObjectLike(value) && baseGetTag(value) == argsTag;
+  return isObjectLike(value) && baseGetTag(value) == argsTag$2;
 }
 
 /** Used for built-in method references. */
-var objectProto$5 = Object.prototype;
+var objectProto$9 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$3 = objectProto$5.hasOwnProperty;
+var hasOwnProperty$8 = objectProto$9.hasOwnProperty;
 
 /** Built-in value references. */
-var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
+var propertyIsEnumerable$1 = objectProto$9.propertyIsEnumerable;
 
 /**
  * Checks if `value` is likely an `arguments` object.
@@ -1313,8 +1315,8 @@ var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
  * // => false
  */
 var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
-  return isObjectLike(value) && hasOwnProperty$3.call(value, 'callee') &&
-    !propertyIsEnumerable.call(value, 'callee');
+  return isObjectLike(value) && hasOwnProperty$8.call(value, 'callee') &&
+    !propertyIsEnumerable$1.call(value, 'callee');
 };
 
 /**
@@ -1335,19 +1337,19 @@ function stubFalse() {
 }
 
 /** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+var freeExports$2 = typeof exports == 'object' && exports && !exports.nodeType && exports;
 
 /** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+var freeModule$2 = freeExports$2 && typeof module == 'object' && module && !module.nodeType && module;
 
 /** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
+var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
 
 /** Built-in value references. */
-var Buffer = moduleExports ? root.Buffer : undefined;
+var Buffer$1 = moduleExports$2 ? root.Buffer : undefined;
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+var nativeIsBuffer = Buffer$1 ? Buffer$1.isBuffer : undefined;
 
 /**
  * Checks if `value` is a buffer.
@@ -1370,21 +1372,21 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 /** `Object#toString` result references. */
 var argsTag$1 = '[object Arguments]',
-    arrayTag = '[object Array]',
-    boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    errorTag = '[object Error]',
-    funcTag$1 = '[object Function]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    objectTag = '[object Object]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    weakMapTag = '[object WeakMap]';
+    arrayTag$1 = '[object Array]',
+    boolTag$1 = '[object Boolean]',
+    dateTag$1 = '[object Date]',
+    errorTag$1 = '[object Error]',
+    funcTag = '[object Function]',
+    mapTag$2 = '[object Map]',
+    numberTag$1 = '[object Number]',
+    objectTag$3 = '[object Object]',
+    regexpTag$1 = '[object RegExp]',
+    setTag$2 = '[object Set]',
+    stringTag$1 = '[object String]',
+    weakMapTag$1 = '[object WeakMap]';
 
-var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
+var arrayBufferTag$1 = '[object ArrayBuffer]',
+    dataViewTag$2 = '[object DataView]',
     float32Tag = '[object Float32Array]',
     float64Tag = '[object Float64Array]',
     int8Tag = '[object Int8Array]',
@@ -1402,14 +1404,14 @@ typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
 typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
 typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
 typedArrayTags[uint32Tag] = true;
-typedArrayTags[argsTag$1] = typedArrayTags[arrayTag] =
-typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
-typedArrayTags[errorTag] = typedArrayTags[funcTag$1] =
-typedArrayTags[mapTag] = typedArrayTags[numberTag] =
-typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
-typedArrayTags[setTag] = typedArrayTags[stringTag] =
-typedArrayTags[weakMapTag] = false;
+typedArrayTags[argsTag$1] = typedArrayTags[arrayTag$1] =
+typedArrayTags[arrayBufferTag$1] = typedArrayTags[boolTag$1] =
+typedArrayTags[dataViewTag$2] = typedArrayTags[dateTag$1] =
+typedArrayTags[errorTag$1] = typedArrayTags[funcTag] =
+typedArrayTags[mapTag$2] = typedArrayTags[numberTag$1] =
+typedArrayTags[objectTag$3] = typedArrayTags[regexpTag$1] =
+typedArrayTags[setTag$2] = typedArrayTags[stringTag$1] =
+typedArrayTags[weakMapTag$1] = false;
 
 /**
  * The base implementation of `_.isTypedArray` without Node.js optimizations.
@@ -1486,10 +1488,10 @@ var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
 var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
 
 /** Used for built-in method references. */
-var objectProto$6 = Object.prototype;
+var objectProto$8 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$4 = objectProto$6.hasOwnProperty;
+var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
 
 /**
  * Creates an array of the enumerable property names of the array-like `value`.
@@ -1509,7 +1511,7 @@ function arrayLikeKeys(value, inherited) {
       length = result.length;
 
   for (var key in value) {
-    if ((inherited || hasOwnProperty$4.call(value, key)) &&
+    if ((inherited || hasOwnProperty$7.call(value, key)) &&
         !(skipIndexes && (
            // Safari 9 has enumerable `arguments.length` in strict mode.
            key == 'length' ||
@@ -1547,7 +1549,7 @@ var nativeKeys = overArg(Object.keys, Object);
 var objectProto$7 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
+var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
 
 /**
  * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -1562,7 +1564,7 @@ function baseKeys(object) {
   }
   var result = [];
   for (var key in Object(object)) {
-    if (hasOwnProperty$5.call(object, key) && key != 'constructor') {
+    if (hasOwnProperty$6.call(object, key) && key != 'constructor') {
       result.push(key);
     }
   }
@@ -1621,10 +1623,10 @@ function nativeKeysIn(object) {
 }
 
 /** Used for built-in method references. */
-var objectProto$8 = Object.prototype;
+var objectProto$6 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
+var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
 
 /**
  * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
@@ -1641,7 +1643,7 @@ function baseKeysIn(object) {
       result = [];
 
   for (var key in object) {
-    if (!(key == 'constructor' && (isProto || !hasOwnProperty$6.call(object, key)))) {
+    if (!(key == 'constructor' && (isProto || !hasOwnProperty$5.call(object, key)))) {
       result.push(key);
     }
   }
@@ -1732,13 +1734,13 @@ function hashDelete(key) {
 }
 
 /** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED = '__lodash_hash_undefined__';
+var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
 
 /** Used for built-in method references. */
-var objectProto$9 = Object.prototype;
+var objectProto$5 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
+var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
 
 /**
  * Gets the hash value for `key`.
@@ -1753,16 +1755,16 @@ function hashGet(key) {
   var data = this.__data__;
   if (nativeCreate) {
     var result = data[key];
-    return result === HASH_UNDEFINED ? undefined : result;
+    return result === HASH_UNDEFINED$2 ? undefined : result;
   }
-  return hasOwnProperty$7.call(data, key) ? data[key] : undefined;
+  return hasOwnProperty$4.call(data, key) ? data[key] : undefined;
 }
 
 /** Used for built-in method references. */
-var objectProto$a = Object.prototype;
+var objectProto$4 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$8 = objectProto$a.hasOwnProperty;
+var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
 
 /**
  * Checks if a hash value for `key` exists.
@@ -1775,7 +1777,7 @@ var hasOwnProperty$8 = objectProto$a.hasOwnProperty;
  */
 function hashHas(key) {
   var data = this.__data__;
-  return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$8.call(data, key);
+  return nativeCreate ? (data[key] !== undefined) : hasOwnProperty$3.call(data, key);
 }
 
 /** Used to stand-in for `undefined` hash values. */
@@ -2253,7 +2255,7 @@ function castPath(value, object) {
 }
 
 /** Used as references for various `Number` constants. */
-var INFINITY$2 = 1 / 0;
+var INFINITY = 1 / 0;
 
 /**
  * Converts `value` to a string key if it's not a string or symbol.
@@ -2267,7 +2269,7 @@ function toKey(value) {
     return value;
   }
   var result = (value + '');
-  return (result == '0' && (1 / value) == -INFINITY$2) ? '-0' : result;
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
 }
 
 /**
@@ -2343,20 +2345,20 @@ function arrayPush(array, values) {
 var getPrototype = overArg(Object.getPrototypeOf, Object);
 
 /** `Object#toString` result references. */
-var objectTag$1 = '[object Object]';
+var objectTag$2 = '[object Object]';
 
 /** Used for built-in method references. */
-var funcProto$2 = Function.prototype,
-    objectProto$b = Object.prototype;
+var funcProto = Function.prototype,
+    objectProto$3 = Object.prototype;
 
 /** Used to resolve the decompiled source of functions. */
-var funcToString$2 = funcProto$2.toString;
+var funcToString = funcProto.toString;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$9 = objectProto$b.hasOwnProperty;
+var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
 
 /** Used to infer the `Object` constructor. */
-var objectCtorString = funcToString$2.call(Object);
+var objectCtorString = funcToString.call(Object);
 
 /**
  * Checks if `value` is a plain object, that is, an object created by the
@@ -2387,16 +2389,16 @@ var objectCtorString = funcToString$2.call(Object);
  * // => true
  */
 function isPlainObject(value) {
-  if (!isObjectLike(value) || baseGetTag(value) != objectTag$1) {
+  if (!isObjectLike(value) || baseGetTag(value) != objectTag$2) {
     return false;
   }
   var proto = getPrototype(value);
   if (proto === null) {
     return true;
   }
-  var Ctor = hasOwnProperty$9.call(proto, 'constructor') && proto.constructor;
+  var Ctor = hasOwnProperty$2.call(proto, 'constructor') && proto.constructor;
   return typeof Ctor == 'function' && Ctor instanceof Ctor &&
-    funcToString$2.call(Ctor) == objectCtorString;
+    funcToString.call(Ctor) == objectCtorString;
 }
 
 /**
@@ -2503,17 +2505,17 @@ Stack.prototype.has = stackHas;
 Stack.prototype.set = stackSet;
 
 /** Detect free variable `exports`. */
-var freeExports$2 = typeof exports == 'object' && exports && !exports.nodeType && exports;
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
 
 /** Detect free variable `module`. */
-var freeModule$2 = freeExports$2 && typeof module == 'object' && module && !module.nodeType && module;
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
 
 /** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
+var moduleExports = freeModule && freeModule.exports === freeExports;
 
 /** Built-in value references. */
-var Buffer$1 = moduleExports$2 ? root.Buffer : undefined,
-    allocUnsafe = Buffer$1 ? Buffer$1.allocUnsafe : undefined;
+var Buffer = moduleExports ? root.Buffer : undefined,
+    allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
 
 /**
  * Creates a clone of  `buffer`.
@@ -2581,10 +2583,10 @@ function stubArray() {
 }
 
 /** Used for built-in method references. */
-var objectProto$c = Object.prototype;
+var objectProto$2 = Object.prototype;
 
 /** Built-in value references. */
-var propertyIsEnumerable$1 = objectProto$c.propertyIsEnumerable;
+var propertyIsEnumerable = objectProto$2.propertyIsEnumerable;
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -2602,7 +2604,7 @@ var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
   }
   object = Object(object);
   return arrayFilter(nativeGetSymbols(object), function(symbol) {
-    return propertyIsEnumerable$1.call(object, symbol);
+    return propertyIsEnumerable.call(object, symbol);
   });
 };
 
@@ -2637,24 +2639,24 @@ function getAllKeys(object) {
 var DataView = getNative(root, 'DataView');
 
 /* Built-in method references that are verified to be native. */
-var Promise = getNative(root, 'Promise');
+var Promise$1 = getNative(root, 'Promise');
 
 /* Built-in method references that are verified to be native. */
 var Set$1 = getNative(root, 'Set');
 
 /** `Object#toString` result references. */
 var mapTag$1 = '[object Map]',
-    objectTag$2 = '[object Object]',
+    objectTag$1 = '[object Object]',
     promiseTag = '[object Promise]',
     setTag$1 = '[object Set]',
-    weakMapTag$1 = '[object WeakMap]';
+    weakMapTag = '[object WeakMap]';
 
 var dataViewTag$1 = '[object DataView]';
 
 /** Used to detect maps, sets, and weakmaps. */
 var dataViewCtorString = toSource(DataView),
     mapCtorString = toSource(Map),
-    promiseCtorString = toSource(Promise),
+    promiseCtorString = toSource(Promise$1),
     setCtorString = toSource(Set$1),
     weakMapCtorString = toSource(WeakMap);
 
@@ -2670,12 +2672,12 @@ var getTag = baseGetTag;
 // Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
 if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag$1) ||
     (Map && getTag(new Map) != mapTag$1) ||
-    (Promise && getTag(Promise.resolve()) != promiseTag) ||
+    (Promise$1 && getTag(Promise$1.resolve()) != promiseTag) ||
     (Set$1 && getTag(new Set$1) != setTag$1) ||
-    (WeakMap && getTag(new WeakMap) != weakMapTag$1)) {
+    (WeakMap && getTag(new WeakMap) != weakMapTag)) {
   getTag = function(value) {
     var result = baseGetTag(value),
-        Ctor = result == objectTag$2 ? value.constructor : undefined,
+        Ctor = result == objectTag$1 ? value.constructor : undefined,
         ctorString = Ctor ? toSource(Ctor) : '';
 
     if (ctorString) {
@@ -2684,7 +2686,7 @@ if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag$1) ||
         case mapCtorString: return mapTag$1;
         case promiseCtorString: return promiseTag;
         case setCtorString: return setTag$1;
-        case weakMapCtorString: return weakMapTag$1;
+        case weakMapCtorString: return weakMapTag;
       }
     }
     return result;
@@ -2736,7 +2738,7 @@ function initCloneObject(object) {
 }
 
 /** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
+var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
 /**
  * Adds `value` to the array cache.
@@ -2749,7 +2751,7 @@ var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
  * @returns {Object} Returns the cache instance.
  */
 function setCacheAdd(value) {
-  this.__data__.set(value, HASH_UNDEFINED$2);
+  this.__data__.set(value, HASH_UNDEFINED);
   return this;
 }
 
@@ -2823,8 +2825,8 @@ function cacheHas(cache, key) {
 }
 
 /** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG = 1,
-    COMPARE_UNORDERED_FLAG = 2;
+var COMPARE_PARTIAL_FLAG$5 = 1,
+    COMPARE_UNORDERED_FLAG$3 = 2;
 
 /**
  * A specialized version of `baseIsEqualDeep` for arrays with support for
@@ -2840,7 +2842,7 @@ var COMPARE_PARTIAL_FLAG = 1,
  * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
  */
 function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
-  var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG$5,
       arrLength = array.length,
       othLength = other.length;
 
@@ -2854,7 +2856,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
   }
   var index = -1,
       result = true,
-      seen = (bitmask & COMPARE_UNORDERED_FLAG) ? new SetCache : undefined;
+      seen = (bitmask & COMPARE_UNORDERED_FLAG$3) ? new SetCache : undefined;
 
   stack.set(array, other);
   stack.set(other, array);
@@ -2935,26 +2937,26 @@ function setToArray(set) {
 }
 
 /** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$1 = 1,
-    COMPARE_UNORDERED_FLAG$1 = 2;
+var COMPARE_PARTIAL_FLAG$4 = 1,
+    COMPARE_UNORDERED_FLAG$2 = 2;
 
 /** `Object#toString` result references. */
-var boolTag$1 = '[object Boolean]',
-    dateTag$1 = '[object Date]',
-    errorTag$1 = '[object Error]',
-    mapTag$2 = '[object Map]',
-    numberTag$1 = '[object Number]',
-    regexpTag$1 = '[object RegExp]',
-    setTag$2 = '[object Set]',
-    stringTag$1 = '[object String]',
-    symbolTag$1 = '[object Symbol]';
+var boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    symbolTag = '[object Symbol]';
 
-var arrayBufferTag$1 = '[object ArrayBuffer]',
-    dataViewTag$2 = '[object DataView]';
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]';
 
 /** Used to convert symbols to primitives and strings. */
-var symbolProto$1 = Symbol$1 ? Symbol$1.prototype : undefined,
-    symbolValueOf = symbolProto$1 ? symbolProto$1.valueOf : undefined;
+var symbolProto = Symbol$1 ? Symbol$1.prototype : undefined,
+    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
 
 /**
  * A specialized version of `baseIsEqualDeep` for comparing objects of
@@ -2975,7 +2977,7 @@ var symbolProto$1 = Symbol$1 ? Symbol$1.prototype : undefined,
  */
 function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
   switch (tag) {
-    case dataViewTag$2:
+    case dataViewTag:
       if ((object.byteLength != other.byteLength) ||
           (object.byteOffset != other.byteOffset)) {
         return false;
@@ -2983,35 +2985,35 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
       object = object.buffer;
       other = other.buffer;
 
-    case arrayBufferTag$1:
+    case arrayBufferTag:
       if ((object.byteLength != other.byteLength) ||
           !equalFunc(new Uint8Array$1(object), new Uint8Array$1(other))) {
         return false;
       }
       return true;
 
-    case boolTag$1:
-    case dateTag$1:
-    case numberTag$1:
+    case boolTag:
+    case dateTag:
+    case numberTag:
       // Coerce booleans to `1` or `0` and dates to milliseconds.
       // Invalid dates are coerced to `NaN`.
       return eq(+object, +other);
 
-    case errorTag$1:
+    case errorTag:
       return object.name == other.name && object.message == other.message;
 
-    case regexpTag$1:
-    case stringTag$1:
+    case regexpTag:
+    case stringTag:
       // Coerce regexes to strings and treat strings, primitives and objects,
       // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
       // for more details.
       return object == (other + '');
 
-    case mapTag$2:
+    case mapTag:
       var convert = mapToArray;
 
-    case setTag$2:
-      var isPartial = bitmask & COMPARE_PARTIAL_FLAG$1;
+    case setTag:
+      var isPartial = bitmask & COMPARE_PARTIAL_FLAG$4;
       convert || (convert = setToArray);
 
       if (object.size != other.size && !isPartial) {
@@ -3022,7 +3024,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
       if (stacked) {
         return stacked == other;
       }
-      bitmask |= COMPARE_UNORDERED_FLAG$1;
+      bitmask |= COMPARE_UNORDERED_FLAG$2;
 
       // Recursively compare objects (susceptible to call stack limits).
       stack.set(object, other);
@@ -3030,7 +3032,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
       stack['delete'](object);
       return result;
 
-    case symbolTag$1:
+    case symbolTag:
       if (symbolValueOf) {
         return symbolValueOf.call(object) == symbolValueOf.call(other);
       }
@@ -3039,13 +3041,13 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 }
 
 /** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$2 = 1;
+var COMPARE_PARTIAL_FLAG$3 = 1;
 
 /** Used for built-in method references. */
-var objectProto$d = Object.prototype;
+var objectProto$1 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$a = objectProto$d.hasOwnProperty;
+var hasOwnProperty$1 = objectProto$1.hasOwnProperty;
 
 /**
  * A specialized version of `baseIsEqualDeep` for objects with support for
@@ -3061,7 +3063,7 @@ var hasOwnProperty$a = objectProto$d.hasOwnProperty;
  * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
  */
 function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
-  var isPartial = bitmask & COMPARE_PARTIAL_FLAG$2,
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG$3,
       objProps = getAllKeys(object),
       objLength = objProps.length,
       othProps = getAllKeys(other),
@@ -3073,7 +3075,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
   var index = objLength;
   while (index--) {
     var key = objProps[index];
-    if (!(isPartial ? key in other : hasOwnProperty$a.call(other, key))) {
+    if (!(isPartial ? key in other : hasOwnProperty$1.call(other, key))) {
       return false;
     }
   }
@@ -3125,18 +3127,18 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
 }
 
 /** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$3 = 1;
+var COMPARE_PARTIAL_FLAG$2 = 1;
 
 /** `Object#toString` result references. */
-var argsTag$2 = '[object Arguments]',
-    arrayTag$1 = '[object Array]',
-    objectTag$3 = '[object Object]';
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    objectTag = '[object Object]';
 
 /** Used for built-in method references. */
-var objectProto$e = Object.prototype;
+var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$b = objectProto$e.hasOwnProperty;
+var hasOwnProperty = objectProto.hasOwnProperty;
 
 /**
  * A specialized version of `baseIsEqual` for arrays and objects which performs
@@ -3155,14 +3157,14 @@ var hasOwnProperty$b = objectProto$e.hasOwnProperty;
 function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
   var objIsArr = isArray(object),
       othIsArr = isArray(other),
-      objTag = objIsArr ? arrayTag$1 : getTag$1(object),
-      othTag = othIsArr ? arrayTag$1 : getTag$1(other);
+      objTag = objIsArr ? arrayTag : getTag$1(object),
+      othTag = othIsArr ? arrayTag : getTag$1(other);
 
-  objTag = objTag == argsTag$2 ? objectTag$3 : objTag;
-  othTag = othTag == argsTag$2 ? objectTag$3 : othTag;
+  objTag = objTag == argsTag ? objectTag : objTag;
+  othTag = othTag == argsTag ? objectTag : othTag;
 
-  var objIsObj = objTag == objectTag$3,
-      othIsObj = othTag == objectTag$3,
+  var objIsObj = objTag == objectTag,
+      othIsObj = othTag == objectTag,
       isSameTag = objTag == othTag;
 
   if (isSameTag && isBuffer(object)) {
@@ -3178,9 +3180,9 @@ function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
       ? equalArrays(object, other, bitmask, customizer, equalFunc, stack)
       : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
   }
-  if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
-    var objIsWrapped = objIsObj && hasOwnProperty$b.call(object, '__wrapped__'),
-        othIsWrapped = othIsObj && hasOwnProperty$b.call(other, '__wrapped__');
+  if (!(bitmask & COMPARE_PARTIAL_FLAG$2)) {
+    var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
+        othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
 
     if (objIsWrapped || othIsWrapped) {
       var objUnwrapped = objIsWrapped ? object.value() : object,
@@ -3222,8 +3224,8 @@ function baseIsEqual(value, other, bitmask, customizer, stack) {
 }
 
 /** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$4 = 1,
-    COMPARE_UNORDERED_FLAG$2 = 2;
+var COMPARE_PARTIAL_FLAG$1 = 1,
+    COMPARE_UNORDERED_FLAG$1 = 2;
 
 /**
  * The base implementation of `_.isMatch` without support for iteratee shorthands.
@@ -3269,7 +3271,7 @@ function baseIsMatch(object, source, matchData, customizer) {
         var result = customizer(objValue, srcValue, key, object, source, stack);
       }
       if (!(result === undefined
-            ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$4 | COMPARE_UNORDERED_FLAG$2, customizer, stack)
+            ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$1 | COMPARE_UNORDERED_FLAG$1, customizer, stack)
             : result
           )) {
         return false;
@@ -3421,8 +3423,8 @@ function hasIn(object, path) {
 }
 
 /** Used to compose bitmasks for value comparisons. */
-var COMPARE_PARTIAL_FLAG$5 = 1,
-    COMPARE_UNORDERED_FLAG$3 = 2;
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
 
 /**
  * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
@@ -3440,7 +3442,7 @@ function baseMatchesProperty(path, srcValue) {
     var objValue = get(object, path);
     return (objValue === undefined && objValue === srcValue)
       ? hasIn(object, path)
-      : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG$5 | COMPARE_UNORDERED_FLAG$3);
+      : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
   };
 }
 
@@ -3761,7 +3763,7 @@ function baseMerge(object, source, srcIndex, customizer, stack) {
 }
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMax$1 = Math.max;
+var nativeMax = Math.max;
 
 /**
  * This method is like `_.find` except that it returns the index of the first
@@ -3805,7 +3807,7 @@ function findIndex(array, predicate, fromIndex) {
   }
   var index = fromIndex == null ? 0 : toInteger(fromIndex);
   if (index < 0) {
-    index = nativeMax$1(length + index, 0);
+    index = nativeMax(length + index, 0);
   }
   return baseFindIndex(array, baseIteratee(predicate), index);
 }
@@ -3846,26 +3848,26 @@ var merge = createAssigner(function(object, source, srcIndex) {
 });
 
 /**!
- * Sortable 1.10.2
+ * Sortable 1.13.0
  * @author	RubaXa   <trash@rubaxa.org>
  * @author	owenm    <owen23355@gmail.com>
  * @license MIT
  */
-function _typeof(obj) {
+function _typeof$1(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof = function (obj) {
+    _typeof$1 = function (obj) {
       return typeof obj;
     };
   } else {
-    _typeof = function (obj) {
+    _typeof$1 = function (obj) {
       return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
     };
   }
 
-  return _typeof(obj);
+  return _typeof$1(obj);
 }
 
-function _defineProperty(obj, key, value) {
+function _defineProperty$1(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value,
@@ -3880,8 +3882,8 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function _extends() {
-  _extends = Object.assign || function (target) {
+function _extends$1() {
+  _extends$1 = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -3895,10 +3897,10 @@ function _extends() {
     return target;
   };
 
-  return _extends.apply(this, arguments);
+  return _extends$1.apply(this, arguments);
 }
 
-function _objectSpread(target) {
+function _objectSpread$1(target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i] != null ? arguments[i] : {};
     var ownKeys = Object.keys(source);
@@ -3910,7 +3912,7 @@ function _objectSpread(target) {
     }
 
     ownKeys.forEach(function (key) {
-      _defineProperty(target, key, source[key]);
+      _defineProperty$1(target, key, source[key]);
     });
   }
 
@@ -3953,9 +3955,9 @@ function _objectWithoutProperties(source, excluded) {
   return target;
 }
 
-var version = "1.10.2";
+var version = "1.13.0";
 
-function userAgent(pattern) {
+function userAgent$1(pattern) {
   if (typeof window !== 'undefined' && window.navigator) {
     return !!
     /*@__PURE__*/
@@ -3963,12 +3965,12 @@ function userAgent(pattern) {
   }
 }
 
-var IE11OrLess = userAgent(/(?:Trident.*rv[ :]?11\.|msie|iemobile|Windows Phone)/i);
-var Edge = userAgent(/Edge/i);
-var FireFox = userAgent(/firefox/i);
-var Safari = userAgent(/safari/i) && !userAgent(/chrome/i) && !userAgent(/android/i);
-var IOS = userAgent(/iP(ad|od|hone)/i);
-var ChromeForAndroid = userAgent(/chrome/i) && userAgent(/android/i);
+var IE11OrLess = userAgent$1(/(?:Trident.*rv[ :]?11\.|msie|iemobile|Windows Phone)/i);
+var Edge = userAgent$1(/Edge/i);
+var FireFox = userAgent$1(/firefox/i);
+var Safari = userAgent$1(/safari/i) && !userAgent$1(/chrome/i) && !userAgent$1(/android/i);
+var IOS = userAgent$1(/iP(ad|od|hone)/i);
+var ChromeForAndroid = userAgent$1(/chrome/i) && userAgent$1(/android/i);
 
 var captureMode = {
   capture: false,
@@ -4048,7 +4050,7 @@ function toggleClass(el, name, state) {
   }
 }
 
-function css(el, prop, val) {
+function css$1(el, prop, val) {
   var style = el && el.style;
 
   if (style) {
@@ -4077,7 +4079,7 @@ function matrix(el, selfOnly) {
     appliedTransforms = el;
   } else {
     do {
-      var transform = css(el, 'transform');
+      var transform = css$1(el, 'transform');
 
       if (transform && transform !== 'none') {
         appliedTransforms = transform + ' ' + appliedTransforms;
@@ -4135,7 +4137,7 @@ function getRect(el, relativeToContainingBlock, relativeToNonStaticParent, undoS
   if (!el.getBoundingClientRect && el !== window) return;
   var elRect, top, left, bottom, right, height, width;
 
-  if (el !== window && el !== getWindowScrollingElement()) {
+  if (el !== window && el.parentNode && el !== getWindowScrollingElement()) {
     elRect = el.getBoundingClientRect();
     top = elRect.top;
     left = elRect.left;
@@ -4159,11 +4161,11 @@ function getRect(el, relativeToContainingBlock, relativeToNonStaticParent, undoS
 
     if (!IE11OrLess) {
       do {
-        if (container && container.getBoundingClientRect && (css(container, 'transform') !== 'none' || relativeToNonStaticParent && css(container, 'position') !== 'static')) {
+        if (container && container.getBoundingClientRect && (css$1(container, 'transform') !== 'none' || relativeToNonStaticParent && css$1(container, 'position') !== 'static')) {
           var containerRect = container.getBoundingClientRect(); // Set relative to edges of padding box of container
 
-          top -= containerRect.top + parseInt(css(container, 'border-top-width'));
-          left -= containerRect.left + parseInt(css(container, 'border-left-width'));
+          top -= containerRect.top + parseInt(css$1(container, 'border-top-width'));
+          left -= containerRect.left + parseInt(css$1(container, 'border-left-width'));
           bottom = top + elRect.height;
           right = left + elRect.width;
           break;
@@ -4270,7 +4272,7 @@ function getChild(el, childNum, options) {
 function lastChild(el, selector) {
   var last = el.lastElementChild;
 
-  while (last && (last === Sortable.ghost || css(last, 'display') === 'none' || selector && !matches(last, selector))) {
+  while (last && (last === Sortable.ghost || css$1(last, 'display') === 'none' || selector && !matches(last, selector))) {
     last = last.previousElementSibling;
   }
 
@@ -4356,7 +4358,7 @@ function getParentAutoScrollElement(el, includeSelf) {
   do {
     // we don't need to get elem css if it isn't even overflowing in the first place (performance)
     if (elem.clientWidth < elem.scrollWidth || elem.clientHeight < elem.scrollHeight) {
-      var elemCSS = css(elem);
+      var elemCSS = css$1(elem);
 
       if (elem.clientWidth < elem.scrollWidth && (elemCSS.overflowX == 'auto' || elemCSS.overflowX == 'scroll') || elem.clientHeight < elem.scrollHeight && (elemCSS.overflowY == 'auto' || elemCSS.overflowY == 'scroll')) {
         if (!elem.getBoundingClientRect || elem === document.body) return getWindowScrollingElement();
@@ -4437,13 +4439,13 @@ function AnimationStateManager() {
       if (!this.options.animation) return;
       var children = [].slice.call(this.el.children);
       children.forEach(function (child) {
-        if (css(child, 'display') === 'none' || child === Sortable.ghost) return;
+        if (css$1(child, 'display') === 'none' || child === Sortable.ghost) return;
         animationStates.push({
           target: child,
           rect: getRect(child)
         });
 
-        var fromRect = _objectSpread({}, animationStates[animationStates.length - 1].rect); // If animating: compensate for current animation
+        var fromRect = _objectSpread$1({}, animationStates[animationStates.length - 1].rect); // If animating: compensate for current animation
 
 
         if (child.thisAnimationDuration) {
@@ -4544,8 +4546,8 @@ function AnimationStateManager() {
     },
     animate: function animate(target, currentRect, toRect, duration) {
       if (duration) {
-        css(target, 'transition', '');
-        css(target, 'transform', '');
+        css$1(target, 'transition', '');
+        css$1(target, 'transform', '');
         var elMatrix = matrix(this.el),
             scaleX = elMatrix && elMatrix.a,
             scaleY = elMatrix && elMatrix.d,
@@ -4553,15 +4555,15 @@ function AnimationStateManager() {
             translateY = (currentRect.top - toRect.top) / (scaleY || 1);
         target.animatingX = !!translateX;
         target.animatingY = !!translateY;
-        css(target, 'transform', 'translate3d(' + translateX + 'px,' + translateY + 'px,0)');
-        repaint(target); // repaint
+        css$1(target, 'transform', 'translate3d(' + translateX + 'px,' + translateY + 'px,0)');
+        this.forRepaintDummy = repaint(target); // repaint
 
-        css(target, 'transition', 'transform ' + duration + 'ms' + (this.options.easing ? ' ' + this.options.easing : ''));
-        css(target, 'transform', 'translate3d(0,0,0)');
+        css$1(target, 'transition', 'transform ' + duration + 'ms' + (this.options.easing ? ' ' + this.options.easing : ''));
+        css$1(target, 'transform', 'translate3d(0,0,0)');
         typeof target.animated === 'number' && clearTimeout(target.animated);
         target.animated = setTimeout(function () {
-          css(target, 'transition', '');
-          css(target, 'transform', '');
+          css$1(target, 'transition', '');
+          css$1(target, 'transform', '');
           target.animated = false;
           target.animatingX = false;
           target.animatingY = false;
@@ -4592,6 +4594,11 @@ var PluginManager = {
       }
     }
 
+    plugins.forEach(function (p) {
+      if (p.pluginName === plugin.pluginName) {
+        throw "Sortable: Cannot mount plugin ".concat(plugin.pluginName, " more than once");
+      }
+    });
     plugins.push(plugin);
   },
   pluginEvent: function pluginEvent(eventName, sortable, evt) {
@@ -4608,7 +4615,7 @@ var PluginManager = {
       if (!sortable[plugin.pluginName]) return; // Fire global events if it exists in this sortable
 
       if (sortable[plugin.pluginName][eventNameGlobal]) {
-        sortable[plugin.pluginName][eventNameGlobal](_objectSpread({
+        sortable[plugin.pluginName][eventNameGlobal](_objectSpread$1({
           sortable: sortable
         }, evt));
       } // Only fire plugin event if plugin is enabled in this sortable,
@@ -4616,7 +4623,7 @@ var PluginManager = {
 
 
       if (sortable.options[plugin.pluginName] && sortable[plugin.pluginName][eventName]) {
-        sortable[plugin.pluginName][eventName](_objectSpread({
+        sortable[plugin.pluginName][eventName](_objectSpread$1({
           sortable: sortable
         }, evt));
       }
@@ -4631,7 +4638,7 @@ var PluginManager = {
       initialized.options = sortable.options;
       sortable[pluginName] = initialized; // Add default options from plugin
 
-      _extends(defaults, initialized.defaults);
+      _extends$1(defaults, initialized.defaults);
     });
 
     for (var option in sortable.options) {
@@ -4648,7 +4655,7 @@ var PluginManager = {
     plugins.forEach(function (plugin) {
       if (typeof plugin.eventProperties !== 'function') return;
 
-      _extends(eventProperties, plugin.eventProperties.call(sortable[plugin.pluginName], name));
+      _extends$1(eventProperties, plugin.eventProperties.call(sortable[plugin.pluginName], name));
     });
     return eventProperties;
   },
@@ -4708,7 +4715,7 @@ function dispatchEvent(_ref) {
   evt.originalEvent = originalEvent;
   evt.pullMode = putSortable ? putSortable.lastPutMode : undefined;
 
-  var allEventProperties = _objectSpread({}, extraEventProperties, PluginManager.getEventProperties(name, sortable));
+  var allEventProperties = _objectSpread$1({}, extraEventProperties, PluginManager.getEventProperties(name, sortable));
 
   for (var option in allEventProperties) {
     evt[option] = allEventProperties[option];
@@ -4728,7 +4735,7 @@ var pluginEvent = function pluginEvent(eventName, sortable) {
       originalEvent = _ref.evt,
       data = _objectWithoutProperties(_ref, ["evt"]);
 
-  PluginManager.pluginEvent.bind(Sortable)(eventName, sortable, _objectSpread({
+  PluginManager.pluginEvent.bind(Sortable)(eventName, sortable, _objectSpread$1({
     dragEl: dragEl,
     parentEl: parentEl,
     ghostEl: ghostEl,
@@ -4764,7 +4771,7 @@ var pluginEvent = function pluginEvent(eventName, sortable) {
 };
 
 function _dispatchEvent(info) {
-  dispatchEvent(_objectSpread({
+  dispatchEvent(_objectSpread$1({
     putSortable: putSortable,
     cloneEl: cloneEl,
     targetEl: dragEl,
@@ -4830,12 +4837,12 @@ supportDraggable = documentExists && !ChromeForAndroid && !IOS && 'draggable' in
   return el.style.pointerEvents === 'auto';
 }(),
     _detectDirection = function _detectDirection(el, options) {
-  var elCSS = css(el),
+  var elCSS = css$1(el),
       elWidth = parseInt(elCSS.width) - parseInt(elCSS.paddingLeft) - parseInt(elCSS.paddingRight) - parseInt(elCSS.borderLeftWidth) - parseInt(elCSS.borderRightWidth),
       child1 = getChild(el, 0, options),
       child2 = getChild(el, 1, options),
-      firstChildCSS = child1 && css(child1),
-      secondChildCSS = child2 && css(child2),
+      firstChildCSS = child1 && css$1(child1),
+      secondChildCSS = child2 && css$1(child2),
       firstChildWidth = firstChildCSS && parseInt(firstChildCSS.marginLeft) + parseInt(firstChildCSS.marginRight) + getRect(child1).width,
       secondChildWidth = secondChildCSS && parseInt(secondChildCSS.marginLeft) + parseInt(secondChildCSS.marginRight) + getRect(child2).width;
 
@@ -4910,7 +4917,7 @@ _detectNearestEmptySortable = function _detectNearestEmptySortable(x, y) {
   var group = {};
   var originalGroup = options.group;
 
-  if (!originalGroup || _typeof(originalGroup) != 'object') {
+  if (!originalGroup || _typeof$1(originalGroup) != 'object') {
     originalGroup = {
       name: originalGroup
     };
@@ -4924,12 +4931,12 @@ _detectNearestEmptySortable = function _detectNearestEmptySortable(x, y) {
 },
     _hideGhostForTarget = function _hideGhostForTarget() {
   if (!supportCssPointerEvents && ghostEl) {
-    css(ghostEl, 'display', 'none');
+    css$1(ghostEl, 'display', 'none');
   }
 },
     _unhideGhostForTarget = function _unhideGhostForTarget() {
   if (!supportCssPointerEvents && ghostEl) {
-    css(ghostEl, 'display', '');
+    css$1(ghostEl, 'display', '');
   }
 }; // #1184 fix - Prevent click event on fallback if dragged but item not changed position
 
@@ -4990,7 +4997,7 @@ function Sortable(el, options) {
 
   this.el = el; // root element
 
-  this.options = options = _extends({}, options); // Export instance
+  this.options = options = _extends$1({}, options); // Export instance
 
   el[expando] = this;
   var defaults = {
@@ -5035,7 +5042,7 @@ function Sortable(el, options) {
       x: 0,
       y: 0
     },
-    supportPointer: Sortable.supportPointer !== false && 'PointerEvent' in window,
+    supportPointer: Sortable.supportPointer !== false && 'PointerEvent' in window && !Safari,
     emptyInsertThreshold: 5
   };
   PluginManager.initializePlugins(this, el, defaults); // Set default options
@@ -5078,7 +5085,7 @@ function Sortable(el, options) {
 
   options.store && options.store.get && this.sort(options.store.get(this) || []); // Add animation state manager
 
-  _extends(this, AnimationStateManager());
+  _extends$1(this, AnimationStateManager());
 }
 
 Sortable.prototype =
@@ -5121,6 +5128,11 @@ Sortable.prototype =
 
 
     if (originalTarget.isContentEditable) {
+      return;
+    } // Safari ignores further event handling after mousedown
+
+
+    if (!this.nativeDraggable && Safari && target && target.tagName.toUpperCase() === 'SELECT') {
       return;
     }
 
@@ -5464,10 +5476,10 @@ Sortable.prototype =
         }
 
         var cssMatrix = "matrix(".concat(ghostMatrix.a, ",").concat(ghostMatrix.b, ",").concat(ghostMatrix.c, ",").concat(ghostMatrix.d, ",").concat(ghostMatrix.e, ",").concat(ghostMatrix.f, ")");
-        css(ghostEl, 'webkitTransform', cssMatrix);
-        css(ghostEl, 'mozTransform', cssMatrix);
-        css(ghostEl, 'msTransform', cssMatrix);
-        css(ghostEl, 'transform', cssMatrix);
+        css$1(ghostEl, 'webkitTransform', cssMatrix);
+        css$1(ghostEl, 'mozTransform', cssMatrix);
+        css$1(ghostEl, 'msTransform', cssMatrix);
+        css$1(ghostEl, 'transform', cssMatrix);
         lastDx = dx;
         lastDy = dy;
         touchEvt = touch;
@@ -5488,7 +5500,7 @@ Sortable.prototype =
         // Get relatively positioned parent
         ghostRelativeParent = container;
 
-        while (css(ghostRelativeParent, 'position') === 'static' && css(ghostRelativeParent, 'transform') === 'none' && ghostRelativeParent !== document) {
+        while (css$1(ghostRelativeParent, 'position') === 'static' && css$1(ghostRelativeParent, 'transform') === 'none' && ghostRelativeParent !== document) {
           ghostRelativeParent = ghostRelativeParent.parentNode;
         }
 
@@ -5507,22 +5519,22 @@ Sortable.prototype =
       toggleClass(ghostEl, options.ghostClass, false);
       toggleClass(ghostEl, options.fallbackClass, true);
       toggleClass(ghostEl, options.dragClass, true);
-      css(ghostEl, 'transition', '');
-      css(ghostEl, 'transform', '');
-      css(ghostEl, 'box-sizing', 'border-box');
-      css(ghostEl, 'margin', 0);
-      css(ghostEl, 'top', rect.top);
-      css(ghostEl, 'left', rect.left);
-      css(ghostEl, 'width', rect.width);
-      css(ghostEl, 'height', rect.height);
-      css(ghostEl, 'opacity', '0.8');
-      css(ghostEl, 'position', PositionGhostAbsolutely ? 'absolute' : 'fixed');
-      css(ghostEl, 'zIndex', '100000');
-      css(ghostEl, 'pointerEvents', 'none');
+      css$1(ghostEl, 'transition', '');
+      css$1(ghostEl, 'transform', '');
+      css$1(ghostEl, 'box-sizing', 'border-box');
+      css$1(ghostEl, 'margin', 0);
+      css$1(ghostEl, 'top', rect.top);
+      css$1(ghostEl, 'left', rect.left);
+      css$1(ghostEl, 'width', rect.width);
+      css$1(ghostEl, 'height', rect.height);
+      css$1(ghostEl, 'opacity', '0.8');
+      css$1(ghostEl, 'position', PositionGhostAbsolutely ? 'absolute' : 'fixed');
+      css$1(ghostEl, 'zIndex', '100000');
+      css$1(ghostEl, 'pointerEvents', 'none');
       Sortable.ghost = ghostEl;
       container.appendChild(ghostEl); // Set transform-origin
 
-      css(ghostEl, 'transform-origin', tapDistanceLeft / parseInt(ghostEl.style.width) * 100 + '% ' + tapDistanceTop / parseInt(ghostEl.style.height) * 100 + '%');
+      css$1(ghostEl, 'transform-origin', tapDistanceLeft / parseInt(ghostEl.style.width) * 100 + '% ' + tapDistanceTop / parseInt(ghostEl.style.height) * 100 + '%');
     }
   },
   _onDragStart: function _onDragStart(
@@ -5591,7 +5603,7 @@ Sortable.prototype =
 
       on(document, 'drop', _this); // #1276 fix:
 
-      css(dragEl, 'transform', 'translateZ(0)');
+      css$1(dragEl, 'transform', 'translateZ(0)');
     }
 
     awaitingDragStarted = true;
@@ -5600,7 +5612,7 @@ Sortable.prototype =
     moved = true;
 
     if (Safari) {
-      css(document.body, 'user-select', 'none');
+      css$1(document.body, 'user-select', 'none');
     }
   },
   // Returns true - if no further action is needed (either inserted or another condition)
@@ -5625,7 +5637,7 @@ Sortable.prototype =
     if (_silent) return;
 
     function dragOverEvent(name, extra) {
-      pluginEvent(name, _this, _objectSpread({
+      pluginEvent(name, _this, _objectSpread$1({
         evt: evt,
         isOwner: isOwner,
         axis: vertical ? 'vertical' : 'horizontal',
@@ -5820,7 +5832,7 @@ Sortable.prototype =
           do {
             dragIndex -= direction;
             sibling = parentEl.children[dragIndex];
-          } while (sibling && (css(sibling, 'display') === 'none' || sibling === ghostEl));
+          } while (sibling && (css$1(sibling, 'display') === 'none' || sibling === ghostEl));
         } // If dragEl is already beside target: Do not insert
 
 
@@ -5935,10 +5947,10 @@ Sortable.prototype =
     this._offUpEvents();
 
     if (Safari) {
-      css(document.body, 'user-select', '');
+      css$1(document.body, 'user-select', '');
     }
 
-    css(dragEl, 'transform', '');
+    css$1(dragEl, 'transform', '');
 
     if (evt) {
       if (moved) {
@@ -6119,7 +6131,7 @@ Sortable.prototype =
    * Sorts the elements according to the array.
    * @param  {String[]}  order  order of the items
    */
-  sort: function sort(order) {
+  sort: function sort(order, useAnimation) {
     var items = {},
         rootEl = this.el;
     this.toArray().forEach(function (id, i) {
@@ -6129,12 +6141,14 @@ Sortable.prototype =
         items[id] = el;
       }
     }, this);
+    useAnimation && this.captureAnimationState();
     order.forEach(function (id) {
       if (items[id]) {
         rootEl.removeChild(items[id]);
         rootEl.appendChild(items[id]);
       }
     });
+    useAnimation && this.animateAll();
   },
 
   /**
@@ -6213,7 +6227,7 @@ Sortable.prototype =
     if (!cloneHidden) {
       pluginEvent('hideClone', this);
       if (Sortable.eventCanceled) return;
-      css(cloneEl, 'display', 'none');
+      css$1(cloneEl, 'display', 'none');
 
       if (this.options.removeCloneOnHide && cloneEl.parentNode) {
         cloneEl.parentNode.removeChild(cloneEl);
@@ -6233,7 +6247,7 @@ Sortable.prototype =
       pluginEvent('showClone', this);
       if (Sortable.eventCanceled) return; // show clone at dragEl or original position
 
-      if (rootEl.contains(dragEl) && !this.options.group.revertClone) {
+      if (dragEl.parentNode == rootEl && !this.options.group.revertClone) {
         rootEl.insertBefore(cloneEl, dragEl);
       } else if (nextEl) {
         rootEl.insertBefore(cloneEl, nextEl);
@@ -6245,7 +6259,7 @@ Sortable.prototype =
         this.animate(dragEl, cloneEl);
       }
 
-      css(cloneEl, 'display', '');
+      css$1(cloneEl, 'display', '');
       cloneHidden = false;
     }
   }
@@ -6420,7 +6434,7 @@ if (documentExists) {
 Sortable.utils = {
   on: on,
   off: off,
-  css: css,
+  css: css$1,
   find: find,
   is: function is(el, selector) {
     return !!closest(el, selector, el, false);
@@ -6462,7 +6476,7 @@ Sortable.mount = function () {
       throw "Sortable: Mounted plugin must be a constructor function, not ".concat({}.toString.call(plugin));
     }
 
-    if (plugin.utils) Sortable.utils = _objectSpread({}, Sortable.utils, plugin.utils);
+    if (plugin.utils) Sortable.utils = _objectSpread$1({}, Sortable.utils, plugin.utils);
     PluginManager.mount(plugin);
   });
 };
@@ -6538,7 +6552,7 @@ Revert.prototype = {
   drop: drop
 };
 
-_extends(Revert, {
+_extends$1(Revert, {
   pluginName: 'revertOnSpill'
 });
 
@@ -6556,7 +6570,7 @@ Remove.prototype = {
   drop: drop
 };
 
-_extends(Remove, {
+_extends$1(Remove, {
   pluginName: 'removeOnSpill'
 });
 
@@ -6622,10 +6636,19 @@ var ComponentMixin = {
     // Watchers
     watch: {
 
-        // When blocks per row changes, re-calculate the width of each block "space"
         blocksPerRow ( n, o ) {
             if ( n !== o ) {
+
+                // When blocks per row changes, re-calculate the width of each block "space"
                 this.blockWidthPercentage = 100 / this.blocksPerRow;
+                for ( const [ rowId, row ] of this.rows.entries () ) {
+                    for ( const [ blockId, block ] of row.blocks.entries () ) {
+                        if ( block.span > this.blocksPerRow ) {
+                            this.rows[rowId].blocks[blockId].span = this.blocksPerRow;
+                        }
+                    }
+                }
+
             }
         },
 
@@ -6635,6 +6658,8 @@ var ComponentMixin = {
 
                 // For view mode create a non-existent handle to disable DnD
                 const disable = n === 'view';
+
+                this.setModeClass();
 
                 this.rows.forEach ( row => {
 
@@ -6649,6 +6674,10 @@ var ComponentMixin = {
                     ;
 
                 } );
+
+                Sortable
+                    .get ( this.$el.firstChild )
+                    .option ( 'disabled', disable );
 
             }
         }
@@ -6680,6 +6709,12 @@ var ComponentMixin = {
 
             return vgd;
 
+        },
+
+        setModeClass () {
+            this.mode === 'view'
+                ? this.$el.classList.remove ( 'editmode' )
+                : this.$el.classList.add ( 'editmode' );
         },
 
         // Fire input event for v-model
@@ -6717,19 +6752,39 @@ var ComponentMixin = {
                 return;
             }
 
-            // Get the updated row
-            const rowId = e.from.getAttribute ( 'data-id' );
-            const row = this.rows.find ( x => x._id === rowId );
+            if ( e.item.className.match ( /vgd__row/ ) ) {
 
-            // Move the item in the model
-            const temp = row.blocks.splice ( e.oldDraggableIndex, 1 );
-            row.blocks.splice ( e.newDraggableIndex, 0, temp[ 0 ] );
+                // 1. When moving a ROW
+                this.$emit ( 'update', e );
 
-            // Update model
-            this.fireChanged ();
+                // Move the item in the model
+                const temp = this.rows.splice ( e.oldDraggableIndex, 1 );
+                this.rows.splice ( e.newDraggableIndex, 0, temp[ 0 ] );
 
-            e.vdg = this.getEventData ( e );
-            this.$emit ( 'update', e );
+                // Update model
+                this.fireChanged ();
+
+                e.vdg = this.getEventData ( e );
+                this.$emit ( 'update', e );
+
+            } else {
+
+                // 2. When moving a BLOCK
+                // Get the updated row
+                const rowId = e.from.getAttribute ( 'data-id' );
+                const row = this.rows.find ( x => x._id === rowId );
+
+                // Move the item in the model
+                const temp = row.blocks.splice ( e.oldDraggableIndex - 1, 1 );
+                row.blocks.splice ( e.newDraggableIndex - 1, 0, temp[ 0 ] );
+
+                // Update model
+                this.fireChanged ();
+
+                e.vdg = this.getEventData ( e );
+                this.$emit ( 'update', e );
+
+            }
 
         },
 
@@ -6744,7 +6799,7 @@ var ComponentMixin = {
             this.$emit ( 'remove-block', e );
 
             // Remove from the model
-            row.blocks.splice ( e.oldDraggableIndex, 1 );
+            row.blocks.splice ( e.oldDraggableIndex - 1, 1 );
 
             // Update model
             this.fireChanged ();
@@ -6765,7 +6820,7 @@ var ComponentMixin = {
             const block = sourceRow.blocks.find ( x => x._id === blockId );
 
             // Add block to new row
-            destRow.blocks.splice ( e.newDraggableIndex, 0, block );
+            destRow.blocks.splice ( e.newDraggableIndex - 1, 0, block );
 
             // Update model
             this.fireChanged ();
@@ -6778,9 +6833,27 @@ var ComponentMixin = {
         // Initialise the whole grid
         initGrid () {
 
+            // Init all rows one by one
             for ( const [ , row ] of this.rows.entries () ) {
                 this.initSortableRow ( row );
             }
+
+            // Init sortable grid
+            Sortable.create (
+                this.$el.firstChild,
+                {
+                    ...this.getSortableOptions,
+                    ...{
+                        group: {
+                            name: 'vgd-rows',
+                            pull: 'vgd-rows',
+                            put : 'vgd-rows'
+                        }
+                    }
+                }
+            );
+
+            this.setModeClass();
 
             this.$emit ( 'ready' );
 
@@ -6809,7 +6882,7 @@ var ComponentMixin = {
                 margin                : `${ this.blockMargin }px`,
                 '--block-width'       : `${ this.blockWidthPercentage * block.span }%`,
                 '--block-total-margin': `${ 2 * this.blockMargin }px`,
-                cursor                : this.mode === 'edit' ? 'pointer' : 'inherit',
+                cursor                : this.mode === 'edit' ? 'move' : 'inherit',
                 'min-height'          : `${ this.minBlockHeight }px`
             };
 
@@ -6833,7 +6906,7 @@ var ComponentMixin = {
         // Expand the span of a block
         expandBlock ( e, row, block, num = 1 ) {
 
-            if ( ( block.span + num ) >= this.blocksPerRow ) {
+            if ( ( block.span + num ) > this.blocksPerRow ) {
                 return;
             }
 
@@ -6890,7 +6963,7 @@ var ComponentMixin = {
             const block = merge (
                 // Default structure
                 {
-                    span   : span
+                    span: span
                 },
 
                 // User-specific
@@ -7038,7 +7111,7 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor;
 }
 
-function _defineProperty$1(obj, key, value) {
+function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value,
@@ -7053,7 +7126,7 @@ function _defineProperty$1(obj, key, value) {
   return obj;
 }
 
-function _objectSpread$1(target) {
+function _objectSpread(target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i] != null ? arguments[i] : {};
     var ownKeys = Object.keys(source);
@@ -7065,7 +7138,7 @@ function _objectSpread$1(target) {
     }
 
     ownKeys.forEach(function (key) {
-      _defineProperty$1(target, key, source[key]);
+      _defineProperty(target, key, source[key]);
     });
   }
 
@@ -7129,26 +7202,26 @@ try {
 
 var _ref = _WINDOW.navigator || {},
     _ref$userAgent = _ref.userAgent,
-    userAgent$1 = _ref$userAgent === void 0 ? '' : _ref$userAgent;
+    userAgent = _ref$userAgent === void 0 ? '' : _ref$userAgent;
 
 var WINDOW = _WINDOW;
 var DOCUMENT = _DOCUMENT;
 var PERFORMANCE = _PERFORMANCE;
-var IS_BROWSER = !!WINDOW.document;
+!!WINDOW.document;
 var IS_DOM = !!DOCUMENT.documentElement && !!DOCUMENT.head && typeof DOCUMENT.addEventListener === 'function' && typeof DOCUMENT.createElement === 'function';
-var IS_IE = ~userAgent$1.indexOf('MSIE') || ~userAgent$1.indexOf('Trident/');
+~userAgent.indexOf('MSIE') || ~userAgent.indexOf('Trident/');
 
 var NAMESPACE_IDENTIFIER = '___FONT_AWESOME___';
 var DEFAULT_FAMILY_PREFIX = 'fa';
 var DEFAULT_REPLACEMENT_CLASS = 'svg-inline--fa';
 var DATA_FA_I2SVG = 'data-fa-i2svg';
-var PRODUCTION = function () {
+(function () {
   try {
     return "production" === 'production';
   } catch (e) {
     return false;
   }
-}();
+})();
 var DUOTONE_CLASSES = {
   GROUP: 'group',
   SWAP_OPACITY: 'swap-opacity',
@@ -7205,11 +7278,11 @@ var _default = {
   showMissingIcons: true
 };
 
-var _config = _objectSpread$1({}, _default, initial);
+var _config = _objectSpread({}, _default, initial);
 
 if (!_config.autoReplaceSvg) _config.observeMutations = false;
 
-var config = _objectSpread$1({}, _config);
+var config = _objectSpread({}, _config);
 
 WINDOW.FontAwesomeConfig = config;
 
@@ -7237,8 +7310,8 @@ if (IS_DOM) {
   if (!loaded) DOCUMENT.addEventListener('DOMContentLoaded', listener);
 }
 
-var isNode = typeof global$1 !== 'undefined' && typeof global$1.process !== 'undefined' && typeof global$1.process.emit === 'function';
-var asyncSetTimer = typeof setImmediate === 'undefined' ? setTimeout : setImmediate;
+typeof global$1 !== 'undefined' && typeof global$1.process !== 'undefined' && typeof global$1.process.emit === 'function';
+typeof setImmediate === 'undefined' ? setTimeout : setImmediate;
 var meaninglessTransform = {
   size: 16,
   x: 0,
@@ -7363,7 +7436,7 @@ function makeIconMasking (_ref) {
   });
   var maskRect = {
     tag: 'rect',
-    attributes: _objectSpread$1({}, ALL_SPACE, {
+    attributes: _objectSpread({}, ALL_SPACE, {
       fill: 'white'
     })
   };
@@ -7372,22 +7445,22 @@ function makeIconMasking (_ref) {
   } : {};
   var maskInnerGroup = {
     tag: 'g',
-    attributes: _objectSpread$1({}, trans.inner),
-    children: [fillBlack(_objectSpread$1({
+    attributes: _objectSpread({}, trans.inner),
+    children: [fillBlack(_objectSpread({
       tag: mainPath.tag,
-      attributes: _objectSpread$1({}, mainPath.attributes, trans.path)
+      attributes: _objectSpread({}, mainPath.attributes, trans.path)
     }, maskInnerGroupChildrenMixin))]
   };
   var maskOuterGroup = {
     tag: 'g',
-    attributes: _objectSpread$1({}, trans.outer),
+    attributes: _objectSpread({}, trans.outer),
     children: [maskInnerGroup]
   };
   var maskId = "mask-".concat(explicitMaskId || nextUniqueId());
   var clipId = "clip-".concat(explicitMaskId || nextUniqueId());
   var maskTag = {
     tag: 'mask',
-    attributes: _objectSpread$1({}, ALL_SPACE, {
+    attributes: _objectSpread({}, ALL_SPACE, {
       id: maskId,
       maskUnits: 'userSpaceOnUse',
       maskContentUnits: 'userSpaceOnUse'
@@ -7406,7 +7479,7 @@ function makeIconMasking (_ref) {
   };
   children.push(defs, {
     tag: 'rect',
-    attributes: _objectSpread$1({
+    attributes: _objectSpread({
       fill: 'currentColor',
       'clip-path': "url(#".concat(clipId, ")"),
       mask: "url(#".concat(maskId, ")")
@@ -7438,14 +7511,14 @@ function makeIconStandard (_ref) {
     });
     children.push({
       tag: 'g',
-      attributes: _objectSpread$1({}, trans.outer),
+      attributes: _objectSpread({}, trans.outer),
       children: [{
         tag: 'g',
-        attributes: _objectSpread$1({}, trans.inner),
+        attributes: _objectSpread({}, trans.inner),
         children: [{
           tag: main.icon.tag,
           children: main.icon.children,
-          attributes: _objectSpread$1({}, main.icon.attributes, trans.path)
+          attributes: _objectSpread({}, main.icon.attributes, trans.path)
         }]
       }]
     });
@@ -7474,7 +7547,7 @@ function asIcon (_ref) {
       x: width / height / 2,
       y: 0.5
     };
-    attributes['style'] = joinStyles(_objectSpread$1({}, styles, {
+    attributes['style'] = joinStyles(_objectSpread({}, styles, {
       'transform-origin': "".concat(offset.x + transform.x / 16, "em ").concat(offset.y + transform.y / 16, "em")
     }));
   }
@@ -7500,7 +7573,7 @@ function asSymbol (_ref) {
     },
     children: [{
       tag: 'symbol',
-      attributes: _objectSpread$1({}, attributes, {
+      attributes: _objectSpread({}, attributes, {
         id: id
       }),
       children: children
@@ -7533,7 +7606,7 @@ function makeInlineSvgAbstract(params) {
   }).concat(extra.classes).join(' ');
   var content = {
     children: [],
-    attributes: _objectSpread$1({}, extra.attributes, {
+    attributes: _objectSpread({}, extra.attributes, {
       'data-prefix': prefix,
       'data-icon': iconName,
       'class': attrClass,
@@ -7555,7 +7628,7 @@ function makeInlineSvgAbstract(params) {
     children: [title]
   });
 
-  var args = _objectSpread$1({}, content, {
+  var args = _objectSpread({}, content, {
     prefix: prefix,
     iconName: iconName,
     main: main,
@@ -7582,7 +7655,7 @@ function makeInlineSvgAbstract(params) {
 
 var noop$1 = function noop() {};
 
-var p = config.measurePerformance && PERFORMANCE && PERFORMANCE.mark && PERFORMANCE.measure ? PERFORMANCE : {
+config.measurePerformance && PERFORMANCE && PERFORMANCE.mark && PERFORMANCE.measure ? PERFORMANCE : {
   mark: noop$1,
   measure: noop$1
 };
@@ -7655,7 +7728,7 @@ function defineIcons(prefix, icons) {
   if (typeof namespace.hooks.addPack === 'function' && !skipHooks) {
     namespace.hooks.addPack(prefix, normalized);
   } else {
-    namespace.styles[prefix] = _objectSpread$1({}, namespace.styles[prefix] || {}, normalized);
+    namespace.styles[prefix] = _objectSpread({}, namespace.styles[prefix] || {}, normalized);
   }
   /**
    * Font Awesome 4 used the prefix of `fa` for all icons. With the introduction
@@ -7670,27 +7743,24 @@ function defineIcons(prefix, icons) {
   }
 }
 
-var styles = namespace.styles,
+var styles$1 = namespace.styles,
     shims = namespace.shims;
-var _byUnicode = {};
-var _byLigature = {};
-var _byOldName = {};
 var build = function build() {
   var lookup = function lookup(reducer) {
-    return reduce(styles, function (o, style, prefix) {
+    return reduce(styles$1, function (o, style, prefix) {
       o[prefix] = reduce(style, reducer, {});
       return o;
     }, {});
   };
 
-  _byUnicode = lookup(function (acc, icon, iconName) {
+  lookup(function (acc, icon, iconName) {
     if (icon[3]) {
       acc[icon[3]] = iconName;
     }
 
     return acc;
   });
-  _byLigature = lookup(function (acc, icon, iconName) {
+  lookup(function (acc, icon, iconName) {
     var ligatures = icon[2];
     acc[iconName] = iconName;
     ligatures.forEach(function (ligature) {
@@ -7698,8 +7768,8 @@ var build = function build() {
     });
     return acc;
   });
-  var hasRegular = 'far' in styles;
-  _byOldName = reduce(shims, function (acc, shim) {
+  var hasRegular = 'far' in styles$1;
+  reduce(shims, function (acc, shim) {
     var oldName = shim[0];
     var prefix = shim[1];
     var iconName = shim[2];
@@ -7717,7 +7787,7 @@ var build = function build() {
 };
 build();
 
-var styles$1 = namespace.styles;
+namespace.styles;
 function iconFromMapping(mapping, prefix, iconName) {
   if (mapping && mapping[prefix] && mapping[prefix][iconName]) {
     return {
@@ -7827,65 +7897,65 @@ var ANIMATION_BASE = {
   repeatCount: 'indefinite',
   dur: '2s'
 };
-var RING = {
+({
   tag: 'path',
-  attributes: _objectSpread$1({}, FILL, {
+  attributes: _objectSpread({}, FILL, {
     d: 'M156.5,447.7l-12.6,29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7C127.6,430.5,141.5,440,156.5,447.7z M40.6,272H8.5 c1.4,21.2,5.4,41.7,11.7,61.1L50,321.2C45.1,305.5,41.8,289,40.6,272z M40.6,240c1.4-18.8,5.2-37,11.1-54.1l-29.5-12.6 C14.7,194.3,10,216.7,8.5,240H40.6z M64.3,156.5c7.8-14.9,17.2-28.8,28.1-41.5L69.7,92.3c-13.7,15.6-25.5,32.8-34.9,51.5 L64.3,156.5z M397,419.6c-13.9,12-29.4,22.3-46.1,30.4l11.9,29.8c20.7-9.9,39.8-22.6,56.9-37.6L397,419.6z M115,92.4 c13.9-12,29.4-22.3,46.1-30.4l-11.9-29.8c-20.7,9.9-39.8,22.6-56.8,37.6L115,92.4z M447.7,355.5c-7.8,14.9-17.2,28.8-28.1,41.5 l22.7,22.7c13.7-15.6,25.5-32.9,34.9-51.5L447.7,355.5z M471.4,272c-1.4,18.8-5.2,37-11.1,54.1l29.5,12.6 c7.5-21.1,12.2-43.5,13.6-66.8H471.4z M321.2,462c-15.7,5-32.2,8.2-49.2,9.4v32.1c21.2-1.4,41.7-5.4,61.1-11.7L321.2,462z M240,471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6,29.5c21.1,7.5,43.5,12.2,66.8,13.6V471.4z M462,190.8c5,15.7,8.2,32.2,9.4,49.2h32.1 c-1.4-21.2-5.4-41.7-11.7-61.1L462,190.8z M92.4,397c-12-13.9-22.3-29.4-30.4-46.1l-29.8,11.9c9.9,20.7,22.6,39.8,37.6,56.9 L92.4,397z M272,40.6c18.8,1.4,36.9,5.2,54.1,11.1l12.6-29.5C317.7,14.7,295.3,10,272,8.5V40.6z M190.8,50 c15.7-5,32.2-8.2,49.2-9.4V8.5c-21.2,1.4-41.7,5.4-61.1,11.7L190.8,50z M442.3,92.3L419.6,115c12,13.9,22.3,29.4,30.5,46.1 l29.8-11.9C470,128.5,457.3,109.4,442.3,92.3z M397,92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6,29.5 C370.4,72.1,384.4,81.5,397,92.4z'
   })
-};
+});
 
-var OPACITY_ANIMATE = _objectSpread$1({}, ANIMATION_BASE, {
+var OPACITY_ANIMATE = _objectSpread({}, ANIMATION_BASE, {
   attributeName: 'opacity'
 });
 
-var DOT = {
+({
   tag: 'circle',
-  attributes: _objectSpread$1({}, FILL, {
+  attributes: _objectSpread({}, FILL, {
     cx: '256',
     cy: '364',
     r: '28'
   }),
   children: [{
     tag: 'animate',
-    attributes: _objectSpread$1({}, ANIMATION_BASE, {
+    attributes: _objectSpread({}, ANIMATION_BASE, {
       attributeName: 'r',
       values: '28;14;28;28;14;28;'
     })
   }, {
     tag: 'animate',
-    attributes: _objectSpread$1({}, OPACITY_ANIMATE, {
+    attributes: _objectSpread({}, OPACITY_ANIMATE, {
       values: '1;0;1;1;0;1;'
     })
   }]
-};
-var QUESTION = {
+});
+({
   tag: 'path',
-  attributes: _objectSpread$1({}, FILL, {
+  attributes: _objectSpread({}, FILL, {
     opacity: '1',
     d: 'M263.7,312h-16c-6.6,0-12-5.4-12-12c0-71,77.4-63.9,77.4-107.8c0-20-17.8-40.2-57.4-40.2c-29.1,0-44.3,9.6-59.2,28.7 c-3.9,5-11.1,6-16.2,2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2c21.2-27.2,46.4-44.7,91.2-44.7c52.3,0,97.4,29.8,97.4,80.2 c0,67.6-77.4,63.5-77.4,107.8C275.7,306.6,270.3,312,263.7,312z'
   }),
   children: [{
     tag: 'animate',
-    attributes: _objectSpread$1({}, OPACITY_ANIMATE, {
+    attributes: _objectSpread({}, OPACITY_ANIMATE, {
       values: '1;0;0;0;0;1;'
     })
   }]
-};
-var EXCLAMATION = {
+});
+({
   tag: 'path',
-  attributes: _objectSpread$1({}, FILL, {
+  attributes: _objectSpread({}, FILL, {
     opacity: '0',
     d: 'M232.5,134.5l7,168c0.3,6.4,5.6,11.5,12,11.5h9c6.4,0,11.7-5.1,12-11.5l7-168c0.3-6.8-5.2-12.5-12-12.5h-23 C237.7,122,232.2,127.7,232.5,134.5z'
   }),
   children: [{
     tag: 'animate',
-    attributes: _objectSpread$1({}, OPACITY_ANIMATE, {
+    attributes: _objectSpread({}, OPACITY_ANIMATE, {
       values: '0;0;1;1;0;0;'
     })
   }]
-};
+});
 
-var styles$2 = namespace.styles;
+namespace.styles;
 function asFoundIcon(icon) {
   var width = icon[0];
   var height = icon[1];
@@ -7936,11 +8006,11 @@ function asFoundIcon(icon) {
   };
 }
 
-var styles$3 = namespace.styles;
+namespace.styles;
 
 var baseStyles = "svg:not(:root).svg-inline--fa {\n  overflow: visible;\n}\n\n.svg-inline--fa {\n  display: inline-block;\n  font-size: inherit;\n  height: 1em;\n  overflow: visible;\n  vertical-align: -0.125em;\n}\n.svg-inline--fa.fa-lg {\n  vertical-align: -0.225em;\n}\n.svg-inline--fa.fa-w-1 {\n  width: 0.0625em;\n}\n.svg-inline--fa.fa-w-2 {\n  width: 0.125em;\n}\n.svg-inline--fa.fa-w-3 {\n  width: 0.1875em;\n}\n.svg-inline--fa.fa-w-4 {\n  width: 0.25em;\n}\n.svg-inline--fa.fa-w-5 {\n  width: 0.3125em;\n}\n.svg-inline--fa.fa-w-6 {\n  width: 0.375em;\n}\n.svg-inline--fa.fa-w-7 {\n  width: 0.4375em;\n}\n.svg-inline--fa.fa-w-8 {\n  width: 0.5em;\n}\n.svg-inline--fa.fa-w-9 {\n  width: 0.5625em;\n}\n.svg-inline--fa.fa-w-10 {\n  width: 0.625em;\n}\n.svg-inline--fa.fa-w-11 {\n  width: 0.6875em;\n}\n.svg-inline--fa.fa-w-12 {\n  width: 0.75em;\n}\n.svg-inline--fa.fa-w-13 {\n  width: 0.8125em;\n}\n.svg-inline--fa.fa-w-14 {\n  width: 0.875em;\n}\n.svg-inline--fa.fa-w-15 {\n  width: 0.9375em;\n}\n.svg-inline--fa.fa-w-16 {\n  width: 1em;\n}\n.svg-inline--fa.fa-w-17 {\n  width: 1.0625em;\n}\n.svg-inline--fa.fa-w-18 {\n  width: 1.125em;\n}\n.svg-inline--fa.fa-w-19 {\n  width: 1.1875em;\n}\n.svg-inline--fa.fa-w-20 {\n  width: 1.25em;\n}\n.svg-inline--fa.fa-pull-left {\n  margin-right: 0.3em;\n  width: auto;\n}\n.svg-inline--fa.fa-pull-right {\n  margin-left: 0.3em;\n  width: auto;\n}\n.svg-inline--fa.fa-border {\n  height: 1.5em;\n}\n.svg-inline--fa.fa-li {\n  width: 2em;\n}\n.svg-inline--fa.fa-fw {\n  width: 1.25em;\n}\n\n.fa-layers svg.svg-inline--fa {\n  bottom: 0;\n  left: 0;\n  margin: auto;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n\n.fa-layers {\n  display: inline-block;\n  height: 1em;\n  position: relative;\n  text-align: center;\n  vertical-align: -0.125em;\n  width: 1em;\n}\n.fa-layers svg.svg-inline--fa {\n  -webkit-transform-origin: center center;\n          transform-origin: center center;\n}\n\n.fa-layers-counter, .fa-layers-text {\n  display: inline-block;\n  position: absolute;\n  text-align: center;\n}\n\n.fa-layers-text {\n  left: 50%;\n  top: 50%;\n  -webkit-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  -webkit-transform-origin: center center;\n          transform-origin: center center;\n}\n\n.fa-layers-counter {\n  background-color: #ff253a;\n  border-radius: 1em;\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  color: #fff;\n  height: 1.5em;\n  line-height: 1;\n  max-width: 5em;\n  min-width: 1.5em;\n  overflow: hidden;\n  padding: 0.25em;\n  right: 0;\n  text-overflow: ellipsis;\n  top: 0;\n  -webkit-transform: scale(0.25);\n          transform: scale(0.25);\n  -webkit-transform-origin: top right;\n          transform-origin: top right;\n}\n\n.fa-layers-bottom-right {\n  bottom: 0;\n  right: 0;\n  top: auto;\n  -webkit-transform: scale(0.25);\n          transform: scale(0.25);\n  -webkit-transform-origin: bottom right;\n          transform-origin: bottom right;\n}\n\n.fa-layers-bottom-left {\n  bottom: 0;\n  left: 0;\n  right: auto;\n  top: auto;\n  -webkit-transform: scale(0.25);\n          transform: scale(0.25);\n  -webkit-transform-origin: bottom left;\n          transform-origin: bottom left;\n}\n\n.fa-layers-top-right {\n  right: 0;\n  top: 0;\n  -webkit-transform: scale(0.25);\n          transform: scale(0.25);\n  -webkit-transform-origin: top right;\n          transform-origin: top right;\n}\n\n.fa-layers-top-left {\n  left: 0;\n  right: auto;\n  top: 0;\n  -webkit-transform: scale(0.25);\n          transform: scale(0.25);\n  -webkit-transform-origin: top left;\n          transform-origin: top left;\n}\n\n.fa-lg {\n  font-size: 1.3333333333em;\n  line-height: 0.75em;\n  vertical-align: -0.0667em;\n}\n\n.fa-xs {\n  font-size: 0.75em;\n}\n\n.fa-sm {\n  font-size: 0.875em;\n}\n\n.fa-1x {\n  font-size: 1em;\n}\n\n.fa-2x {\n  font-size: 2em;\n}\n\n.fa-3x {\n  font-size: 3em;\n}\n\n.fa-4x {\n  font-size: 4em;\n}\n\n.fa-5x {\n  font-size: 5em;\n}\n\n.fa-6x {\n  font-size: 6em;\n}\n\n.fa-7x {\n  font-size: 7em;\n}\n\n.fa-8x {\n  font-size: 8em;\n}\n\n.fa-9x {\n  font-size: 9em;\n}\n\n.fa-10x {\n  font-size: 10em;\n}\n\n.fa-fw {\n  text-align: center;\n  width: 1.25em;\n}\n\n.fa-ul {\n  list-style-type: none;\n  margin-left: 2.5em;\n  padding-left: 0;\n}\n.fa-ul > li {\n  position: relative;\n}\n\n.fa-li {\n  left: -2em;\n  position: absolute;\n  text-align: center;\n  width: 2em;\n  line-height: inherit;\n}\n\n.fa-border {\n  border: solid 0.08em #eee;\n  border-radius: 0.1em;\n  padding: 0.2em 0.25em 0.15em;\n}\n\n.fa-pull-left {\n  float: left;\n}\n\n.fa-pull-right {\n  float: right;\n}\n\n.fa.fa-pull-left,\n.fas.fa-pull-left,\n.far.fa-pull-left,\n.fal.fa-pull-left,\n.fab.fa-pull-left {\n  margin-right: 0.3em;\n}\n.fa.fa-pull-right,\n.fas.fa-pull-right,\n.far.fa-pull-right,\n.fal.fa-pull-right,\n.fab.fa-pull-right {\n  margin-left: 0.3em;\n}\n\n.fa-spin {\n  -webkit-animation: fa-spin 2s infinite linear;\n          animation: fa-spin 2s infinite linear;\n}\n\n.fa-pulse {\n  -webkit-animation: fa-spin 1s infinite steps(8);\n          animation: fa-spin 1s infinite steps(8);\n}\n\n@-webkit-keyframes fa-spin {\n  0% {\n    -webkit-transform: rotate(0deg);\n            transform: rotate(0deg);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n            transform: rotate(360deg);\n  }\n}\n\n@keyframes fa-spin {\n  0% {\n    -webkit-transform: rotate(0deg);\n            transform: rotate(0deg);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n            transform: rotate(360deg);\n  }\n}\n.fa-rotate-90 {\n  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=1)\";\n  -webkit-transform: rotate(90deg);\n          transform: rotate(90deg);\n}\n\n.fa-rotate-180 {\n  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2)\";\n  -webkit-transform: rotate(180deg);\n          transform: rotate(180deg);\n}\n\n.fa-rotate-270 {\n  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=3)\";\n  -webkit-transform: rotate(270deg);\n          transform: rotate(270deg);\n}\n\n.fa-flip-horizontal {\n  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)\";\n  -webkit-transform: scale(-1, 1);\n          transform: scale(-1, 1);\n}\n\n.fa-flip-vertical {\n  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";\n  -webkit-transform: scale(1, -1);\n          transform: scale(1, -1);\n}\n\n.fa-flip-both, .fa-flip-horizontal.fa-flip-vertical {\n  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";\n  -webkit-transform: scale(-1, -1);\n          transform: scale(-1, -1);\n}\n\n:root .fa-rotate-90,\n:root .fa-rotate-180,\n:root .fa-rotate-270,\n:root .fa-flip-horizontal,\n:root .fa-flip-vertical,\n:root .fa-flip-both {\n  -webkit-filter: none;\n          filter: none;\n}\n\n.fa-stack {\n  display: inline-block;\n  height: 2em;\n  position: relative;\n  width: 2.5em;\n}\n\n.fa-stack-1x,\n.fa-stack-2x {\n  bottom: 0;\n  left: 0;\n  margin: auto;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n\n.svg-inline--fa.fa-stack-1x {\n  height: 1em;\n  width: 1.25em;\n}\n.svg-inline--fa.fa-stack-2x {\n  height: 2em;\n  width: 2.5em;\n}\n\n.fa-inverse {\n  color: #fff;\n}\n\n.sr-only {\n  border: 0;\n  clip: rect(0, 0, 0, 0);\n  height: 1px;\n  margin: -1px;\n  overflow: hidden;\n  padding: 0;\n  position: absolute;\n  width: 1px;\n}\n\n.sr-only-focusable:active, .sr-only-focusable:focus {\n  clip: auto;\n  height: auto;\n  margin: 0;\n  overflow: visible;\n  position: static;\n  width: auto;\n}\n\n.svg-inline--fa .fa-primary {\n  fill: var(--fa-primary-color, currentColor);\n  opacity: 1;\n  opacity: var(--fa-primary-opacity, 1);\n}\n\n.svg-inline--fa .fa-secondary {\n  fill: var(--fa-secondary-color, currentColor);\n  opacity: 0.4;\n  opacity: var(--fa-secondary-opacity, 0.4);\n}\n\n.svg-inline--fa.fa-swap-opacity .fa-primary {\n  opacity: 0.4;\n  opacity: var(--fa-secondary-opacity, 0.4);\n}\n\n.svg-inline--fa.fa-swap-opacity .fa-secondary {\n  opacity: 1;\n  opacity: var(--fa-primary-opacity, 1);\n}\n\n.svg-inline--fa mask .fa-primary,\n.svg-inline--fa mask .fa-secondary {\n  fill: black;\n}\n\n.fad.fa-inverse {\n  color: #fff;\n}";
 
-function css$1 () {
+function css () {
   var dfp = DEFAULT_FAMILY_PREFIX;
   var drc = DEFAULT_REPLACEMENT_CLASS;
   var fp = config.familyPrefix;
@@ -7977,7 +8047,7 @@ function () {
 
       var additions = definitions.reduce(this._pullDefinitions, {});
       Object.keys(additions).forEach(function (key) {
-        _this.definitions[key] = _objectSpread$1({}, _this.definitions[key] || {}, additions[key]);
+        _this.definitions[key] = _objectSpread({}, _this.definitions[key] || {}, additions[key]);
         defineIcons(key, additions[key]);
         build();
       });
@@ -8010,7 +8080,7 @@ function () {
 
 function ensureCss() {
   if (config.autoAddCss && !_cssInserted) {
-    insertCss(css$1());
+    insertCss(css());
 
     _cssInserted = true;
   }
@@ -8056,7 +8126,7 @@ function resolveIcons(next) {
       mask = (mask || {}).icon ? mask : findIconDefinition(mask || {});
     }
 
-    return next(iconDefinition, _objectSpread$1({}, params, {
+    return next(iconDefinition, _objectSpread({}, params, {
       mask: mask
     }));
   };
@@ -8093,7 +8163,7 @@ var icon = resolveIcons(function (iconDefinition) {
   var prefix = iconDefinition.prefix,
       iconName = iconDefinition.iconName,
       icon = iconDefinition.icon;
-  return apiObject(_objectSpread$1({
+  return apiObject(_objectSpread({
     type: 'icon'
   }, iconDefinition), function () {
     ensureCss();
@@ -8119,7 +8189,7 @@ var icon = resolveIcons(function (iconDefinition) {
       },
       prefix: prefix,
       iconName: iconName,
-      transform: _objectSpread$1({}, meaninglessTransform, transform),
+      transform: _objectSpread({}, meaninglessTransform, transform),
       symbol: symbol,
       title: title,
       maskId: maskId,
@@ -8278,7 +8348,7 @@ var humps = createCommonjsModule(function (module) {
     }
   };
 
-  if ( module.exports) {
+  if (module.exports) {
     module.exports = humps;
   } else {
     global.humps = humps;
@@ -8287,13 +8357,13 @@ var humps = createCommonjsModule(function (module) {
 })(commonjsGlobal);
 });
 
-var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
 
-var defineProperty$1 = function (obj, key, value) {
+var defineProperty = function (obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
       value: value,
@@ -8308,7 +8378,7 @@ var defineProperty$1 = function (obj, key, value) {
   return obj;
 };
 
-var _extends$1 = Object.assign || function (target) {
+var _extends = Object.assign || function (target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];
 
@@ -8409,24 +8479,24 @@ function convert(h, element) {
   if (typeof element === 'string') {
     return element;
   } else {
-    return h(element.tag, _extends$1({
+    return h(element.tag, _extends({
       class: combineClassObjects(mixins.class, dClass),
-      style: _extends$1({}, mixins.style, dStyle),
-      attrs: _extends$1({}, mixins.attrs, dAttrs)
+      style: _extends({}, mixins.style, dStyle),
+      attrs: _extends({}, mixins.attrs, dAttrs)
     }, remainingData, {
       props: props
     }), children);
   }
 }
 
-var PRODUCTION$1 = false;
+var PRODUCTION = false;
 
 try {
-  PRODUCTION$1 = "production" === 'production';
+  PRODUCTION = "production" === 'production';
 } catch (e) {}
 
 function log () {
-  if (!PRODUCTION$1 && console && typeof console.error === 'function') {
+  if (!PRODUCTION && console && typeof console.error === 'function') {
     var _console;
 
     (_console = console).error.apply(_console, arguments);
@@ -8434,7 +8504,7 @@ function log () {
 }
 
 function objectWithKey(key, value) {
-  return Array.isArray(value) && value.length > 0 || !Array.isArray(value) && value ? defineProperty$1({}, key, value) : {};
+  return Array.isArray(value) && value.length > 0 || !Array.isArray(value) && value ? defineProperty({}, key, value) : {};
 }
 
 function classList(props) {
@@ -8449,7 +8519,7 @@ function classList(props) {
     'fa-inverse': props.inverse,
     'fa-flip-horizontal': props.flip === 'horizontal' || props.flip === 'both',
     'fa-flip-vertical': props.flip === 'vertical' || props.flip === 'both'
-  }, defineProperty$1(_classes, 'fa-' + props.size, props.size !== null), defineProperty$1(_classes, 'fa-rotate-' + props.rotation, props.rotation !== null), defineProperty$1(_classes, 'fa-pull-' + props.pull, props.pull !== null), defineProperty$1(_classes, 'fa-swap-opacity', props.swapOpacity), _classes);
+  }, defineProperty(_classes, 'fa-' + props.size, props.size !== null), defineProperty(_classes, 'fa-rotate-' + props.rotation, props.rotation !== null), defineProperty(_classes, 'fa-pull-' + props.pull, props.pull !== null), defineProperty(_classes, 'fa-swap-opacity', props.swapOpacity), _classes);
 
   return Object.keys(classes).map(function (key) {
     return classes[key] ? key : null;
@@ -8463,7 +8533,7 @@ function normalizeIconArgs(icon$$1) {
     return null;
   }
 
-  if ((typeof icon$$1 === 'undefined' ? 'undefined' : _typeof$1(icon$$1)) === 'object' && icon$$1.prefix && icon$$1.iconName) {
+  if ((typeof icon$$1 === 'undefined' ? 'undefined' : _typeof(icon$$1)) === 'object' && icon$$1.prefix && icon$$1.iconName) {
     return icon$$1;
   }
 
@@ -8572,7 +8642,7 @@ var FontAwesomeIcon = {
     var transform = objectWithKey('transform', typeof props.transform === 'string' ? parse.transform(props.transform) : props.transform);
     var mask = objectWithKey('mask', normalizeIconArgs(maskArgs));
 
-    var renderedIcon = icon(icon$$1, _extends$1({}, classes, transform, mask, { symbol: symbol, title: title }));
+    var renderedIcon = icon(icon$$1, _extends({}, classes, transform, mask, { symbol: symbol, title: title }));
 
     if (!renderedIcon) {
       return log('Could not find one or more icon(s)', icon$$1, mask);
@@ -8689,10 +8759,10 @@ function createInjector(context) {
     return (id, style) => addStyle(id, style);
 }
 let HEAD;
-const styles$4 = {};
+const styles = {};
 function addStyle(id, css) {
     const group = isOldIE ? css.media || 'default' : id;
-    const style = styles$4[group] || (styles$4[group] = { ids: new Set(), styles: [] });
+    const style = styles[group] || (styles[group] = { ids: new Set(), styles: [] });
     if (!style.ids.has(id)) {
         style.ids.add(id);
         let code = css.source;
@@ -8740,18 +8810,18 @@ function addStyle(id, css) {
 const __vue_script__ = script;
 
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgd"},[_vm._l((_vm.rows),function(row){return _c('div',{key:row._id,ref:("row_" + (row._id)),refInFor:true,staticClass:"vgd__row use-hover",class:_vm.rowClass,style:(_vm.getAnimationStyle()),attrs:{"data-id":row._id}},[_vm._l((row.blocks),function(block){return _c('div',{key:block._id,staticClass:"vgd__block",class:_vm.blockClass,style:(_vm.getBlockStyles(row, block)),attrs:{"data-id":block._id}},[(_vm.mode === 'edit')?_c('div',{staticClass:"vgd__block__toolbar no-drag",style:(_vm.getAnimationStyle())},[_vm._t("block-toolbar",[_c('span',{staticClass:"vgd__block__toolbar__button",class:{ disabled: block.span >= _vm.blocksPerRow },attrs:{"title":"Expand"},on:{"click":function($event){return _vm.expandBlock($event, row, block)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'plus']}})],1),_vm._v(" "),_c('span',{staticClass:"vgd__block__toolbar__button",class:{ disabled: block.span <= 1 },attrs:{"title":"Collapse"},on:{"click":function($event){return _vm.collapseBlock($event, row, block)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'minus']}})],1),_vm._v(" "),_c('span',{staticClass:"vgd__block__toolbar__button",attrs:{"title":"Delete"},on:{"click":function($event){return _vm.deleteBlock($event, row, block)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'times']}})],1)],{"row":row,"block":block,"expandBlock":_vm.expandBlock,"collapseBlock":_vm.collapseBlock})],2):_vm._e(),_vm._v(" "),(_vm.mode === 'view')?_c('div',{staticClass:"vgd__block__content",domProps:{"innerHTML":_vm._s(block.content)}}):_vm._e()])}),_vm._v(" "),(_vm.mode === 'edit')?_c('div',{staticClass:"vgd__row__toolbar no-drag",style:(_vm.getAnimationStyle())},[_vm._t("row-toolbar",[_c('span',{staticClass:"vgd__row__toolbar__button",attrs:{"title":"Delete row"},on:{"click":function($event){return _vm.deleteRow($event, row)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'times']}})],1),_vm._v(" "),_c('span',{staticClass:"vgd__row__toolbar__button",attrs:{"title":"Add block"},on:{"click":function($event){return _vm.addBlock($event, row)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'plus']}})],1)],{"row":row,"addBlock":_vm.addBlock,"deleteRow":_vm.deleteRow})],2):_vm._e()],2)}),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.mode === 'edit'),expression:"mode === 'edit'"}]},[_vm._t("footer",[_c('button',{staticClass:"vgd__footer__button",attrs:{"disabled":_vm.maxRows > 0 && _vm.rows.length >= _vm.maxRows},on:{"click":function($event){return _vm.addRow($event)}}},[_vm._v("Add Row\n\t\t\t")])],{"addRow":_vm.addRow,"maxRows":_vm.maxRows})],2)],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgd"},[_c('div',{staticClass:"vgd__rows"},_vm._l((_vm.rows),function(row){return _c('div',{key:row._id,ref:("row_" + (row._id)),refInFor:true,staticClass:"vgd__row use-hover",class:_vm.rowClass,style:(_vm.getAnimationStyle()),attrs:{"data-id":row._id}},[(_vm.mode === 'edit')?_c('div',{staticClass:"vgd__row__toolbar no-drag",style:(_vm.getAnimationStyle())},[_vm._t("row-toolbar",[_c('span',{staticClass:"vgd__row__toolbar__button",attrs:{"title":"Delete row"},on:{"click":function($event){return _vm.deleteRow($event, row)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'times']}})],1),_vm._v(" "),_c('span',{staticClass:"vgd__row__toolbar__button",attrs:{"title":"Add block"},on:{"click":function($event){return _vm.addBlock($event, row)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'plus']}})],1)],{"addBlock":_vm.addBlock,"deleteRow":_vm.deleteRow,"row":row})],2):_vm._e(),_vm._v(" "),_vm._l((row.blocks),function(block){return _c('div',{key:block._id,staticClass:"vgd__block",class:_vm.blockClass,style:(_vm.getBlockStyles(row, block)),attrs:{"data-id":block._id}},[(_vm.mode === 'edit')?_c('div',{staticClass:"vgd__block__toolbar no-drag",style:(_vm.getAnimationStyle())},[_vm._t("block-toolbar",[_c('span',{staticClass:"vgd__block__toolbar__button",class:{ disabled: block.span >= _vm.blocksPerRow },attrs:{"title":"Expand"},on:{"click":function($event){return _vm.expandBlock($event, row, block)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'plus']}})],1),_vm._v(" "),_c('span',{staticClass:"vgd__block__toolbar__button",class:{ disabled: block.span <= 1 },attrs:{"title":"Collapse"},on:{"click":function($event){return _vm.collapseBlock($event, row, block)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'minus']}})],1),_vm._v(" "),_c('span',{staticClass:"vgd__block__toolbar__button",attrs:{"title":"Delete"},on:{"click":function($event){return _vm.deleteBlock($event, row, block)}}},[_c('font-awesome-icon',{attrs:{"icon":['fas', 'times']}})],1)],{"block":block,"collapseBlock":_vm.collapseBlock,"expandBlock":_vm.expandBlock,"row":row})],2):_vm._e(),_vm._v(" "),(_vm.mode === 'view')?_c('div',{staticClass:"vgd__block__content",domProps:{"innerHTML":_vm._s(block.content)}}):_vm._e()])})],2)}),0),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.mode === 'edit'),expression:"mode === 'edit'"}],staticClass:"no-drag"},[_vm._t("footer",[_c('button',{staticClass:"vgd__footer__button",attrs:{"disabled":_vm.maxRows > 0 && _vm.rows.length >= _vm.maxRows},on:{"click":function($event){return _vm.addRow($event)}}},[_vm._v("Add Row\n                ")])],{"addRow":_vm.addRow,"maxRows":_vm.maxRows})],2)])};
 var __vue_staticRenderFns__ = [];
 
   /* style */
   const __vue_inject_styles__ = function (inject) {
     if (!inject) return
-    inject("data-v-1c0e4e40_0", { source: ":root{--color-highlight:55,114,255;--color-highlight-faded:215,227,255;--color-active:150,5,5;--color-black:0,0,0;--color-white:255,255,255;--color-lightgrey:240,240,240;--color-darkgrey:76,76,76}", map: undefined, media: undefined })
-,inject("data-v-1c0e4e40_1", { source: ".vgd[data-v-1c0e4e40]{font-family:sans-serif}.vgd__row[data-v-1c0e4e40]{position:relative;min-height:65px}.vgd__row__toolbar[data-v-1c0e4e40]{display:flex;visibility:hidden;align-items:center;justify-content:center;flex-direction:column;position:absolute;top:0;bottom:0;right:-30px;width:30px;background-color:rgb(var(--color-highlight-faded));padding:0}.vgd__row__toolbar__button[data-v-1c0e4e40]{cursor:pointer;width:100%;text-align:center;color:rgb(var(--color-darkgrey));margin:4px 0 4px -4px}.vgd__row__toolbar__button[data-v-1c0e4e40]:hover{color:rgb(var(--color-highlight))}.vgd__row__toolbar__button.disabled[data-v-1c0e4e40]{cursor:default;color:rgb(var(--color-lightgrey));opacity:.4}.vgd__block[data-v-1c0e4e40]{position:relative;vertical-align:top;box-sizing:border-box;display:inline-block;background-color:rgb(var(--color-lightgrey));padding:0;width:calc(var(--block-width) - var(--block-total-margin))}.vgd__block__toolbar[data-v-1c0e4e40]{display:block;visibility:hidden;position:absolute;left:50%;top:50%;margin-top:-15px;margin-left:-38px;padding:0;height:30px;width:76px;line-height:30px;z-index:10;text-align:center;background-color:rgba(var(--color-black),.3)}.vgd__block__toolbar__drag-handle[data-v-1c0e4e40]{float:left;margin-left:6px}.vgd__block__toolbar__button[data-v-1c0e4e40]{cursor:pointer;color:#d3d3d3;margin-right:4px}.vgd__block__toolbar__button[data-v-1c0e4e40]:hover{color:rgb(var(--color-white))}.vgd__block__toolbar__button.disabled[data-v-1c0e4e40]{cursor:not-allowed;opacity:.4}.vgd__block__content[data-v-1c0e4e40]{color:rgb(var(--color-darkgrey));text-align:center}.vgd__block--drag[data-v-1c0e4e40]{opacity:.7}.vgd__block--chosen[data-v-1c0e4e40]{opacity:.7}.vgd__block--ghost[data-v-1c0e4e40]{opacity:.2;background-color:rgb(var(--color-active))}.vgd__footer__button[data-v-1c0e4e40]{border:0 none;padding:.3rem .6rem;background-color:rgb(var(--color-darkgrey));color:rgb(var(--color-white));margin:10px 6px;cursor:pointer}.vgd__footer__button[data-v-1c0e4e40]:hover{background-color:rgb(var(--color-highlight))}.vgd__footer__button[disabled][data-v-1c0e4e40]{cursor:not-allowed;opacity:.4;background-color:rgb(var(--color-darkgrey))}.vgd .use-hover.vgd__row[data-v-1c0e4e40]:hover{background-color:rgb(var(--color-highlight-faded))}.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-1c0e4e40]{visibility:visible}.vgd .use-hover .vgd__block[data-v-1c0e4e40]:hover{background-color:rgb(var(--color-highlight))}.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-1c0e4e40]{visibility:visible}", map: undefined, media: undefined });
+    inject("data-v-57b59088_0", { source: ":root{--color-highlight:55,114,255;--color-highlight-faded:215,227,255;--color-active:150,5,5;--color-black:0,0,0;--color-white:255,255,255;--color-lightgrey:240,240,240;--color-darkgrey:76,76,76}", map: undefined, media: undefined })
+,inject("data-v-57b59088_1", { source: ".vgd[data-v-57b59088]{font-family:sans-serif}.vgd__row[data-v-57b59088]{position:relative;min-height:65px}.vgd__row__toolbar[data-v-57b59088]{display:flex;visibility:hidden;align-items:center;justify-content:center;flex-direction:column;position:absolute;top:0;bottom:0;right:-30px;width:30px;background-color:rgb(var(--color-highlight-faded));padding:0}.vgd__row__toolbar__button[data-v-57b59088]{cursor:pointer;width:100%;text-align:center;color:rgb(var(--color-darkgrey));margin:4px 0 4px -4px}.vgd__row__toolbar__button[data-v-57b59088]:hover{color:rgb(var(--color-highlight))}.vgd__row__toolbar__button.disabled[data-v-57b59088]{cursor:default;color:rgb(var(--color-lightgrey));opacity:.4}.vgd__block[data-v-57b59088]{position:relative;vertical-align:top;box-sizing:border-box;display:inline-block;background-color:rgb(var(--color-lightgrey));padding:0;width:calc(var(--block-width) - var(--block-total-margin))}.vgd__block__toolbar[data-v-57b59088]{cursor:initial;display:block;visibility:hidden;position:absolute;left:50%;top:50%;margin-top:-15px;margin-left:-38px;padding:0;height:30px;width:76px;line-height:30px;z-index:10;text-align:center;background-color:rgba(var(--color-black),.3)}.vgd__block__toolbar__drag-handle[data-v-57b59088]{float:left;margin-left:6px}.vgd__block__toolbar__button[data-v-57b59088]{cursor:pointer;color:#d3d3d3;margin-right:4px}.vgd__block__toolbar__button[data-v-57b59088]:hover{color:rgb(var(--color-white))}.vgd__block__toolbar__button.disabled[data-v-57b59088]{cursor:not-allowed;opacity:.4}.vgd__block__content[data-v-57b59088]{color:rgb(var(--color-darkgrey));text-align:center}.vgd__block--drag[data-v-57b59088]{opacity:.7}.vgd__block--chosen[data-v-57b59088]{opacity:.7}.vgd__block--ghost[data-v-57b59088]{opacity:.2;background-color:rgb(var(--color-active))}.vgd__footer__button[data-v-57b59088]{border:0 none;padding:.3rem .6rem;background-color:rgb(var(--color-darkgrey));color:rgb(var(--color-white));margin:10px 6px;cursor:pointer}.vgd__footer__button[data-v-57b59088]:hover{background-color:rgb(var(--color-highlight))}.vgd__footer__button[disabled][data-v-57b59088]{cursor:not-allowed;opacity:.4;background-color:rgb(var(--color-darkgrey))}.vgd .use-hover.vgd__row[data-v-57b59088]:hover{background-color:rgb(var(--color-highlight-faded))}.vgd .use-hover.vgd__row:hover .vgd__row__toolbar[data-v-57b59088]{visibility:visible}.vgd .use-hover .vgd__block[data-v-57b59088]:hover{background-color:rgb(var(--color-highlight))}.vgd .use-hover .vgd__block:hover .vgd__block__toolbar[data-v-57b59088]{visibility:visible}.vgd.editmode .use-hover.vgd__row[data-v-57b59088]:hover{cursor:move}.vgd.editmode .use-hover.vgd__row[data-v-57b59088]:hover:after{cursor:move;content:\"............\";position:absolute;left:-20px;top:0;padding-left:9px;padding-bottom:5px;width:20px;height:100%;vertical-align:middle;display:flex;align-items:center;justify-content:center;flex-direction:column;background-color:rgb(var(--color-highlight-faded));line-break:anywhere;line-height:5px}", map: undefined, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__ = "data-v-1c0e4e40";
+  const __vue_scope_id__ = "data-v-57b59088";
   /* module identifier */
   const __vue_module_identifier__ = undefined;
   /* functional template */
