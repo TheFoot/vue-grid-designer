@@ -5,3 +5,6 @@ coverage/*
 
 # rollup-plugin-vue is recommending v6.0.0-beta - which is broken
 node-npmoutdated-rollup-plugin-vue-1
+
+# https://github.com/vuejs/rollup-plugin-vue/pull/433
+node-npmaudit-pug-1643
