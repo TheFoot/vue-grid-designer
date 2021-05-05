@@ -60,6 +60,7 @@ export default {
     ],
 
     plugins: [
+        nodePolyfills (),
         alias (
             {
                 entries: [
@@ -73,7 +74,6 @@ export default {
             { browser: true }
         ),
         commonjs (),
-        nodePolyfills (),
         vue (
             {
                 css: true
