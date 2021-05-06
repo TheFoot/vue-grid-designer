@@ -218,7 +218,7 @@
 						</div>
 						<div class="col-6">
 							<pre v-highlightjs="getCode('customStyleMarkup')"><code class="html"></code></pre>
-							<pre v-highlightjs="getCode('customStyleScss')"><code class="scss"></code></pre>
+							<pre v-highlightjs="getCode('customStyleScss')"><code class="scss h200"></code></pre>
 						</div>
 					</div>
 
@@ -641,6 +641,12 @@ export default {
                 case 'customStyleScss':
                     return `#demo {
 
+    .vgd__block__toolbar {
+        left: 0px!important;
+        top: 0px!important;
+        margin: 0px!important;
+    }
+
     .vgd__row.demo__row {
         padding: 1rem;
         background-color: black;
@@ -769,6 +775,10 @@ pre {
 	font-size: 0.8rem;
 	max-height: 400px;
 	position: relative;
+
+    .h200 {
+        max-height: 200px;
+    }
 }
 
 pre code.hljs.html::before,
@@ -816,6 +826,12 @@ pre code.hljs.css::before {
 }
 
 #demo {
+
+    .vgd__block__toolbar {
+        left: 0px!important;
+        top: 0px!important;
+        margin: 0px!important;
+    }
 
 	.vgd__row.demo__row {
 		padding: 1rem;

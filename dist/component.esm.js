@@ -1,5 +1,3 @@
-import 'process';
-
 /**
  The props mixin
  */
@@ -6637,7 +6635,7 @@ var ComponentMixin = {
     watch: {
 
         blocksPerRow ( n, o ) {
-            if ( n !== o ) {
+            if ( n && n !== o ) {
 
                 // When blocks per row changes, re-calculate the width of each block "space"
                 this.blockWidthPercentage = 100 / this.blocksPerRow;

@@ -22,6 +22,7 @@ const projectRootDir = path.resolve ( __dirname, '../' );
 
 // Common plugins
 const plugins = [
+    nodePolyfills (),
     alias (
         {
             entries: [
@@ -35,7 +36,6 @@ const plugins = [
         { browser: true }
     ),
     commonjs (),
-    nodePolyfills (),
     vue (
         {
             needMap: false,
