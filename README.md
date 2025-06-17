@@ -1,3 +1,9 @@
+> ⚠️ **This repository is archived and no longer maintained.**
+>
+> This project is discontinued and is provided as-is, with no support or updates.
+
+![status: archived](https://img.shields.io/badge/status-archived-inactive.svg)
+
 <p align="center">
 <a href="https://vuejs.org" target="_blank" rel="noopener noreferrer">
 <img width="100" src="https://vuejs.org/images/logo.png" alt="Vue logo">
